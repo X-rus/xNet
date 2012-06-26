@@ -1,7 +1,7 @@
-PL: C#
-Version: 2.1.1
-Version .NET: 4.0 Client Profile
-Documentation: XML and HTML in Russian
+* PL: C#
+* Version: 2.2
+* Version .NET: 4.0 Client Profile
+* Documentation: XML and HTML in Russian
 
 xNet - a class library for .NET Framework, which includes:
 * Classes for work with proxy servers: _HTTP, Socks4(a), Socks5_.
