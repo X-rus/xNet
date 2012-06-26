@@ -1,19 +1,18 @@
-*PL*: C#
-*Version*: 2.1.1
-*Version .NET*: 4.0 Client Profile
-*Documentation*: XML and HTML in Russian
-*IDE*: Microsoft Visual C # 2010 Express
+PL: C#
+Version: 2.1.1
+Version .NET: 4.0 Client Profile
+Documentation: XML and HTML in Russian
 
-*xNet* - a class library for *.NET Framework*, which includes:
+xNet - a class library for .NET Framework, which includes:
 * Classes for work with proxy servers: _HTTP, Socks4(a), Socks5_.
 * Classes for work with *HTTP 1.0/1.1* protocol: _keep-alive, gzip, deflate, chunked, SSL, proxies and more_.
 * Classes for work with multithreading: _a multithreaded bypassing the collection, asynchronous events and more_.
 * Classes helpers that extend standard classes *.NET Framework*: _FileHelper, DirectoryHelper, StringHelper, XmlHelper, BitHelper and others_.
 
-Here you can find examples and lessons (in Russian): [url:http://blog.epicsoft.ru/]
+Here you can find examples (in Russian): http://blog.epicsoft.ru/
 
 Example 1:
-{{
+<pre>
 using (var request = new HttpRequest())
 {
 	request.UserAgent = HttpHelper.RandomUserAgent();
@@ -29,10 +28,10 @@ using (var request = new HttpRequest())
 
 	string secretsGovernment = content.Substring("secrets_government=\"", "\"");
 }
-}}
+</pre>
 
 Example 2:
-{{
+<pre>
 using (var request = new HttpRequest())
 {
     var multipartData = new MultipartDataCollection();
@@ -44,10 +43,10 @@ using (var request = new HttpRequest())
     string content = request.Post(
         "www.microsoft.com", multipartData).ToText();
 }
-}}
+</pre>
 
 Example 3:
-{{
+<pre>
 static void Main(string[] args)
 {
     var mt = new MultiThreading<int>(10);
@@ -62,7 +61,6 @@ static void MyAction(MultiThreading<int> mt)
 {
     Console.WriteLine("Hello Thread!");
 }
-}}
+</pre>
 
-The class diagram:
-[image:http://epicsoft.ru/Content/xnet_diagram.png]
+The class diagram: http://epicsoft.ru/Content/xnet_diagram.png
