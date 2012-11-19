@@ -24,11 +24,11 @@ namespace xNet.Net
         #region Методы (открытые)
 
         /// <summary>
-        /// Добавляет новый элемент Multipart/form данных.
+        /// Добавляет элемент Multipart/form данных.
         /// </summary>
         /// <param name="name">Имя элемента.</param>
         /// <param name="value">Значение элемента.</param>
-        public void AddData(string name, string value)
+        public void AddField(string name, string value)
         {
             var element = new MultipartDataElement()
             {
@@ -40,11 +40,11 @@ namespace xNet.Net
         }
 
         /// <summary>
-        /// Добавляет новый элемент Multipart/form данных.
+        /// Добавляет элемент Multipart/form данных.
         /// </summary>
         /// <param name="name">Имя элемента.</param>
         /// <param name="value">Значение элемента.</param>
-        public void AddData(string name, byte[] value)
+        public void AddField(string name, byte[] value)
         {
             var element = new MultipartDataElement()
             {
@@ -56,14 +56,13 @@ namespace xNet.Net
         }
 
         /// <summary>
-        /// Добавляет новый элемент Multipart/form данных, представляющий файл.
+        /// Добавляет элемент Multipart/form данных, представляющий файл.
         /// </summary>
         /// <param name="name">Имя элемента.</param>
         /// <param name="fileName">Имя передаваемого файла.</param>
         /// <param name="contentType">Тип передаваемых данных.</param>
         /// <param name="value">Значение элемента.</param>
-        public void AddDataFile(string name, string fileName,
-            string contentType, byte[] value)
+        public void AddFile(string name, string fileName, string contentType, byte[] value)
         {
             var element = new MultipartDataElement()
             {
@@ -77,7 +76,7 @@ namespace xNet.Net
         }
 
         /// <summary>
-        /// Добавляет новый элемент Multipart/form данных, представляющий файл.
+        /// Добавляет элемент Multipart/form данных, представляющий файл.
         /// </summary>
         /// <param name="name">Имя элемента.</param>
         /// <param name="path">Путь к файлу.</param>
@@ -96,7 +95,7 @@ namespace xNet.Net
         /// <remarks>Если использовать предварительную загрузку файла, то файл будет сразу загружен в память. Если файл имеет большой размер, либо нет необходимости, чтобы файл находился в памяти, то не используйте предварительную загрузку. В этом случае, файл будет загружаться блоками во время записи в поток.
         /// 
         /// Если не задать тип передаваемых данных, то он будет определяться по расширению файла. Если тип не удастся определить, то будет использовано значение ‘application/unknown‘.</remarks>
-        public void AddDataFile(string name, string path, bool doPreLoading = true, string contentType = null)
+        public void AddFile(string name, string path, bool doPreLoading = false, string contentType = null)
         {
             #region Проверка параметров
 
@@ -202,20 +201,20 @@ namespace xNet.Net
             return length;
         }
 
-        internal void SendBytes(Action<byte[], int> sendBytesCallback, Encoding encoding)
+        internal void Send(Action<byte[], int> writeBytesCallback, Encoding encoding)
         {
             byte[] newLineBytes = Encoding.ASCII.GetBytes("\r\n");
             byte[] boundaryBytes = Encoding.ASCII.GetBytes("--" + _boundary + "\r\n");
 
             foreach (MultipartDataElement element in this)
             {
-                sendBytesCallback(boundaryBytes, boundaryBytes.Length);
-                element.SendBytes(sendBytesCallback, encoding);
-                sendBytesCallback(newLineBytes, newLineBytes.Length);
+                writeBytesCallback(boundaryBytes, boundaryBytes.Length);
+                element.Send(writeBytesCallback, encoding);
+                writeBytesCallback(newLineBytes, newLineBytes.Length);
             }
 
             boundaryBytes = Encoding.ASCII.GetBytes("--" + _boundary + "--");
-            sendBytesCallback(boundaryBytes, boundaryBytes.Length);
+            writeBytesCallback(boundaryBytes, boundaryBytes.Length);
         }
 
         #endregion

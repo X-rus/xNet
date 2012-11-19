@@ -375,7 +375,7 @@ namespace xNet.IO
 
             foreach (string directory in directories)
             {
-                string dirName = Path.GetDirectoryName(directory);
+                string dirName = Path.GetFileName(directory);
                 string destination = Path.Combine(destinationDir, dirName);
 
                 Copy(directory, destination);

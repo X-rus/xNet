@@ -18,7 +18,7 @@ namespace xNet.Net
         /// Возвращает общее количество получаемых байтов.
         /// </summary>
         /// <value>Если общее количество получаемых байтов неизвестно, то значение -1.</value>
-        public int TotalBytesToReceive { get; private set; }
+        public long TotalBytesToReceive { get; private set; }
 
         /// <summary>
         /// Возвращает процент полученных байтов.
@@ -39,7 +39,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="bytesReceived">Количество полученных байтов.</param>
         /// <param name="totalBytesToReceive">Общее количество получаемых байтов.</param>
-        public DownloadProgressChangedEventArgs(int bytesReceived, int totalBytesToReceive)
+        public DownloadProgressChangedEventArgs(int bytesReceived, long totalBytesToReceive)
         {
             BytesReceived = bytesReceived;
             TotalBytesToReceive = totalBytesToReceive;

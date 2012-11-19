@@ -124,13 +124,13 @@ namespace xNet.Net
             switch (Rand.Next(2))
             {
                 case 0:
-                    version = "8.0";
-                    mozillaVersion = "4.0";
+                    version = "9.0";
+                    mozillaVersion = "5.0";
                     break;
 
                 case 1:
-                    version = "9.0";
-                    mozillaVersion = "5.0";
+                    version = "10.0";
+                    mozillaVersion = "6.0";
                     break;
             }
 
@@ -227,22 +227,26 @@ namespace xNet.Net
                 switch (Rand.Next(3))
                 {
                     case 0:
-                        version = "13.0.782";
+                        version = "20.0.782";
                         break;
 
                     case 1:
-                        version = "14.0.835";
+                        version = "21.0.124";
                         break;
 
                     case 2:
-                        version = "15.0.874";
+                        version = "22.0.345";
+                        break;
+
+                    case 3:
+                        version = "23.0.567";
                         break;
                 }
 
                 #endregion
 
                 return string.Format(
-                    "Mozilla/5.0 ({0}) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/{1}.{2} Safari/535.1",
+                    "Mozilla/5.0 ({0}) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/{1}.{2} Safari/535.1",
                     RandomWindowsVersion(), version, Rand.Next(1000));
         }
 

@@ -47,9 +47,13 @@
   <ItemGroup>
     <Compile Include="Collections\StringDictionary.cs" />
     <Compile Include="Net\DownloadProgressChangedEventArgs.cs" />
+    <Compile Include="Net\~Http\~Content\HttpContent.cs" />
     <Compile Include="Net\~Http\HttpDataAttribute.cs" />
     <Compile Include="Net\~Http\HttpDataMemberAttribute.cs" />
     <Compile Include="Net\UploadProgressChangedEventArgs.cs" />
+    <Compile Include="Net\~Http\~Content\MultipartHttpContent.cs" />
+    <Compile Include="Net\~Http\~Content\StreamHttpContent.cs" />
+    <Compile Include="Net\~Http\~Content\StringHttpContent.cs" />
     <Compile Include="xNet\EnumHelper.cs" />
     <Compile Include="xNet\LetterCase.cs" />
     <Compile Include="xNet\BitHelper.cs" />
@@ -104,6 +108,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

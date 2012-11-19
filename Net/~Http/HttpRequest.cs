@@ -70,14 +70,20 @@ namespace xNet.Net
 
         private int _bytesSent;
         private int _bytesReceived;
-        private int _messageBodyLength;
         private int _sendBufferSize;
 
         private EventHandler<UploadProgressChangedEventArgs> _uploadProgressChangedHandler;
         private EventHandler<DownloadProgressChangedEventArgs> _downloadProgressChangedHandler;
 
-        private MultipartDataCollection _multipartData;
+        private HttpContent _content;
         private readonly StringDictionary _headers = new StringDictionary(StringComparer.OrdinalIgnoreCase);
+
+        // Временные данные, которые задаются через специальные методы.
+        // Удаляются после первого запроса.
+        private StringDictionary _addedParams;
+        private StringDictionary _addedHeaders;
+        private StringDictionary _addedUrlParams;
+        private MultipartDataCollection _addedMultipartData;
 
         #endregion
 
@@ -339,6 +345,24 @@ namespace xNet.Net
         #endregion
 
 
+        #region Свойства (закрытые)
+
+        private MultipartDataCollection AddedMultipartData
+        {
+            get
+            {
+                if (_addedMultipartData == null)
+                {
+                    _addedMultipartData = new MultipartDataCollection();
+                }
+
+                return _addedMultipartData;
+            }
+        }
+
+        #endregion
+
+
         /// <summary>
         /// Возвращает или задаёт значение HTTP-заголовка.
         /// </summary>
@@ -473,325 +497,65 @@ namespace xNet.Net
         /// Отправляет GET-запрос HTTP-серверу.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="data">Параметры запроса, в виде объекта или структуры, отправляемые HTTP-серверу.</param>
+        /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
         /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
-        /// <typeparam name="TData">Тип данных значения, которое представляет параметры запроса. Для данного типа должен быть задан атрибут <see cref="xNet.Net.HttpDataAttribute"/>, а для его полей и свойств, которые представляют параметры запроса, должен быть задан атрибут <see cref="xNet.Net.HttpDataMemberAttribute"/>.</typeparam>
-        /// <exception cref="System.ArgumentException">Для типа <typeparamref name="TData"/> не задан обязательный атрибут <see cref="xNet.Net.HttpDataAttribute"/>.</exception>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="data"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Get<TData>(string address, TData data)
+        public HttpResponse Get(string address, StringDictionary urlParams = null)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (address.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("address");
-            }
-
-            #endregion
-
-            if (!address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                address = address.Insert(0, "http://");
-            }
-
-            return Get(new Uri(address, UriKind.RelativeOrAbsolute), data);
+            return Raw(HttpMethod.GET, address, urlParams);
         }
 
         /// <summary>
         /// Отправляет GET-запрос HTTP-серверу.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="data">Параметры запроса, в виде объекта или структуры, отправляемые HTTP-серверу.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
-        /// <typeparam name="TData">Тип данных значения, которое представляет параметры запроса. Для данного типа должен быть задан атрибут <see cref="xNet.Net.HttpDataAttribute"/>, а для его полей и свойств, которые представляют параметры запроса, должен быть задан атрибут <see cref="xNet.Net.HttpDataMemberAttribute"/>.</typeparam>
-        /// <exception cref="System.ArgumentException">Для типа <typeparamref name="TData"/> не задан обязательный атрибут <see cref="xNet.Net.HttpDataAttribute"/>.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="data"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Get<TData>(Uri address, TData data)
-        {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (!address.IsAbsoluteUri)
-            {
-                throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
-            }
-
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
-            #endregion
-
-            _multipartData = null;
-            _messageBodyLength = 0;
-            _redirectionsCount = 0;
-
-            var uriBuilder = new UriBuilder(address);
-            uriBuilder.Query = ToQueryString<TData>(data);
-
-            address = uriBuilder.Uri;
-
-            return SendRequest(HttpMethod.GET, address, null);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Get(string address, StringDictionary reqParams = null)
-        {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (address.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("address");
-            }
-
-            #endregion
-
-            if (!address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                address = address.Insert(0, "http://");
-            }
-
-            return Get(new Uri(address, UriKind.RelativeOrAbsolute), reqParams);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
+        /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
         /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Get(Uri address, StringDictionary reqParams = null)
+        public HttpResponse Get(Uri address, StringDictionary urlParams = null)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (!address.IsAbsoluteUri)
-            {
-                throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
-            }
-
-            #endregion
-
-            _multipartData = null;
-            _messageBodyLength = 0;
-            _redirectionsCount = 0;
-
-            if (reqParams != null)
-            {
-                var uriBuilder = new UriBuilder(address);
-                uriBuilder.Query = ToQueryString(reqParams, false);
-
-                address = uriBuilder.Uri;
-            }
-
-            return SendRequest(HttpMethod.GET, address, null);
-        }
-
-        #endregion
-
-        #region Head
-
-        /// <summary>
-        /// Отправляет HEAD-запрос HTTP-серверу.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="data">Параметры запроса, в виде объекта или структуры, отправляемые HTTP-серверу.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
-        /// <typeparam name="TData">Тип данных значения, которое представляет параметры запроса. Для данного типа должен быть задан атрибут <see cref="xNet.Net.HttpDataAttribute"/>, а для его полей и свойств, которые представляют параметры запроса, должен быть задан атрибут <see cref="xNet.Net.HttpDataMemberAttribute"/>.</typeparam>
-        /// <exception cref="System.ArgumentException">Для типа <typeparamref name="TData"/> не задан обязательный атрибут <see cref="xNet.Net.HttpDataAttribute"/>.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="data"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Head<TData>(string address, TData data)
-        {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (address.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("address");
-            }
-
-            #endregion
-
-            if (!address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                address = address.Insert(0, "http://");
-            }
-
-            return Head(new Uri(address, UriKind.RelativeOrAbsolute), data);
-        }
-
-        /// <summary>
-        /// Отправляет HEAD-запрос HTTP-серверу.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="data">Параметры запроса, в виде объекта или структуры, отправляемые HTTP-серверу.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
-        /// <typeparam name="TData">Тип данных значения, которое представляет параметры запроса. Для данного типа должен быть задан атрибут <see cref="xNet.Net.HttpDataAttribute"/>, а для его полей и свойств, которые представляют параметры запроса, должен быть задан атрибут <see cref="xNet.Net.HttpDataMemberAttribute"/>.</typeparam>
-        /// <exception cref="System.ArgumentException">Для типа <typeparamref name="TData"/> не задан обязательный атрибут <see cref="xNet.Net.HttpDataAttribute"/>.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="data"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Head<TData>(Uri address, TData data)
-        {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (!address.IsAbsoluteUri)
-            {
-                throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
-            }
-
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
-            #endregion
-
-            _multipartData = null;
-            _messageBodyLength = 0;
-            _redirectionsCount = 0;
-
-            var uriBuilder = new UriBuilder(address);
-            uriBuilder.Query = ToQueryString<TData>(data);
-
-            address = uriBuilder.Uri;
-
-            return SendRequest(HttpMethod.HEAD, address, null);
-        }
-
-        /// <summary>
-        /// Отправляет HEAD-запрос HTTP-серверу.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Head(string address, StringDictionary reqParams = null)
-        {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (address.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("address");
-            }
-
-            #endregion
-
-            if (!address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                address = address.Insert(0, "http://");
-            }
-
-            return Head(new Uri(address, UriKind.RelativeOrAbsolute), reqParams);
-        }
-
-        /// <summary>
-        /// Отправляет HEAD-запрос HTTP-серверу.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Head(Uri address, StringDictionary reqParams = null)
-        {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (!address.IsAbsoluteUri)
-            {
-                throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
-            }
-
-            #endregion
-
-            _multipartData = null;
-            _messageBodyLength = 0;
-            _redirectionsCount = 0;
-
-            if (reqParams != null)
-            {
-                var uriBuilder = new UriBuilder(address);
-                uriBuilder.Query = ToQueryString(reqParams, false);
-
-                address = uriBuilder.Uri;
-            }
-
-            return SendRequest(HttpMethod.HEAD, address, null);
+            return Raw(HttpMethod.GET, address, urlParams);
         }
 
         #endregion
 
         #region Post
+
+        /// <summary>
+        /// Отправляет POST-запрос HTTP-серверу.
+        /// </summary>
+        /// <param name="address">Адрес интернет-ресурса.</param>
+        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
+        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
+        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
+        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
+        public HttpResponse Post(string address)
+        {
+            return Raw(HttpMethod.POST, address);
+        }
+
+        /// <summary>
+        /// Отправляет POST-запрос HTTP-серверу.
+        /// </summary>
+        /// <param name="address">Адрес интернет-ресурса.</param>
+        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
+        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
+        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
+        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
+        public HttpResponse Post(Uri address)
+        {
+            return Raw(HttpMethod.POST, address);
+        }
 
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
@@ -809,26 +573,7 @@ namespace xNet.Net
         /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
         public HttpResponse Post<TData>(string address, TData data)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (address.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("address");
-            }
-
-            #endregion
-
-            if (!address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                address = address.Insert(0, "http://");
-            }
-
-            return Post(new Uri(address, UriKind.RelativeOrAbsolute), data);
+            return Raw(HttpMethod.POST, address, null, data);
         }
 
         /// <summary>
@@ -847,32 +592,7 @@ namespace xNet.Net
         /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
         public HttpResponse Post<TData>(Uri address, TData data)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (!address.IsAbsoluteUri)
-            {
-                throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
-            }
-
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
-            #endregion
-
-            _multipartData = null;
-            _redirectionsCount = 0;
-
-            byte[] buffer = Encoding.ASCII.GetBytes(ToQueryString<TData>(data));
-            _messageBodyLength = buffer.Length;
-
-            return SendRequest(HttpMethod.POST, address, buffer);
+            return Raw(HttpMethod.POST, address, null, data);
         }
 
         /// <summary>
@@ -889,26 +609,7 @@ namespace xNet.Net
         /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
         public HttpResponse Post(string address, StringDictionary reqParams)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (address.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("address");
-            }
-
-            #endregion
-
-            if (!address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                address = address.Insert(0, "http://");
-            }
-
-            return Post(new Uri(address, UriKind.RelativeOrAbsolute), reqParams);
+            return Raw(HttpMethod.POST, address, null, reqParams);
         }
 
         /// <summary>
@@ -925,32 +626,7 @@ namespace xNet.Net
         /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
         public HttpResponse Post(Uri address, StringDictionary reqParams)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (!address.IsAbsoluteUri)
-            {
-                throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
-            }
-
-            if (reqParams == null)
-            {
-                throw new ArgumentNullException("reqParams");
-            }
-
-            #endregion
-
-            _multipartData = null;
-            _redirectionsCount = 0;
-
-            byte[] buffer = Encoding.ASCII.GetBytes(ToQueryString(reqParams, EnableAutoUrlEncode));
-            _messageBodyLength = buffer.Length;
-
-            return SendRequest(HttpMethod.POST, address, buffer);
+            return Raw(HttpMethod.POST, address, null, reqParams);
         }
 
         /// <summary>
@@ -968,26 +644,7 @@ namespace xNet.Net
         /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
         public HttpResponse Post(string address, string messageBody)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (address.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("address");
-            }
-
-            #endregion
-
-            if (!address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                address = address.Insert(0, "http://");
-            }
-
-            return Post(new Uri(address, UriKind.RelativeOrAbsolute), messageBody);
+            return Raw(HttpMethod.POST, address, null, messageBody);
         }
 
         /// <summary>
@@ -1005,115 +662,45 @@ namespace xNet.Net
         /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
         public HttpResponse Post(Uri address, string messageBody)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (!address.IsAbsoluteUri)
-            {
-                throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
-            }
-
-            if (messageBody == null)
-            {
-                throw new ArgumentNullException("messageBody");
-            }
-
-            if (messageBody.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("messageBody");
-            }
-
-            #endregion
-
-            _multipartData = null;
-            _redirectionsCount = 0;
-
-            Encoding encoding = CharacterSet ?? Encoding.Default;
-
-            byte[] buffer = encoding.GetBytes(messageBody ?? string.Empty);
-            _messageBodyLength = buffer.Length;
-
-            return SendRequest(HttpMethod.POST, address, buffer);
+            return Raw(HttpMethod.POST, address, null, messageBody);
         }
 
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="messageBody">Тело сообщения, отправляемое HTTP-серверу.</param>
+        /// <param name="messageBodyStream">Тело сообщения в виде потока данных, отправляемое HTTP-серверу.</param>
         /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="messageBody"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="messageBodyStream"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
-        public HttpResponse Post(string address, byte[] messageBody)
+        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.
+        /// 
+        /// Поток заданный в <paramref name="messageBodyStream"/> освобождается после запроса, либо если произойдёт исключение.</remarks>
+        public HttpResponse Post(string address, Stream messageBodyStream)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (address.Length == 0)
-            {
-                throw ExceptionHelper.EmptyString("address");
-            }
-
-            #endregion
-
-            if (!address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                address = address.Insert(0, "http://");
-            }
-
-            return Post(new Uri(address, UriKind.RelativeOrAbsolute), messageBody);
+            return Raw(HttpMethod.POST, address, null, messageBodyStream);
         }
 
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="messageBody">Тело сообщения, отправляемое HTTP-серверу.</param>
+        /// <param name="messageBodyStream">Тело сообщения в виде потока данных, отправляемое HTTP-серверу.</param>
         /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="messageBody"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="messageBodyStream"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
-        public HttpResponse Post(Uri address, byte[] messageBody)
+        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.
+        /// 
+        /// Поток заданный в <paramref name="messageBodyStream"/> освобождается после запроса, либо если произойдёт исключение.</remarks>
+        public HttpResponse Post(Uri address, Stream messageBodyStream)
         {
-            #region Проверка параметров
-
-            if (address == null)
-            {
-                throw new ArgumentNullException("address");
-            }
-
-            if (!address.IsAbsoluteUri)
-            {
-                throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
-            }
-
-            if (messageBody == null)
-            {
-                throw new ArgumentNullException("messageBody");
-            }
-
-            #endregion
-
-            _multipartData = null;
-            _redirectionsCount = 0;
-            _messageBodyLength = messageBody.Length;
-
-            return SendRequest(HttpMethod.POST, address, messageBody);
+            return Raw(HttpMethod.POST, address, null, messageBodyStream);
         }
 
         #region MultipartFormData
@@ -1130,6 +717,46 @@ namespace xNet.Net
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
         public HttpResponse Post(string address, MultipartDataCollection multipartData)
+        {
+            return Raw(HttpMethod.POST, address, null, multipartData);
+        }
+
+        /// <summary>
+        /// Отправляет POST-запрос с Multipart/form данными.
+        /// </summary>
+        /// <param name="address">Адрес интернет-ресурса.</param>
+        /// <param name="multipartData">Multipart/form данные, отправляемые HTTP-серверу.</param>
+        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="multipartData"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
+        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
+        public HttpResponse Post(Uri address, MultipartDataCollection multipartData)
+        {
+            return Raw(HttpMethod.POST, address, null, multipartData);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Raw
+
+        /// <summary>
+        /// Отправляет GET-запрос HTTP-серверу.
+        /// </summary>
+        /// <param name="method">HTTP-метод запроса.</param>
+        /// <param name="address">Адрес интернет-ресурса.</param>
+        /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
+        /// <param name="messageBody">Тело сообщения, отправляемое HTTP-серверу, или значение <see langword="null"/>.</param>
+        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
+        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
+        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
+        public HttpResponse Raw(HttpMethod method,
+            string address, StringDictionary urlParams = null, object messageBody = null)
         {
             #region Проверка параметров
 
@@ -1150,21 +777,26 @@ namespace xNet.Net
                 address = address.Insert(0, "http://");
             }
 
-            return Post(new Uri(address, UriKind.RelativeOrAbsolute), multipartData);
+            var uri = new Uri(address, UriKind.RelativeOrAbsolute);
+
+            return Raw(method, uri, urlParams, messageBody);
         }
 
         /// <summary>
-        /// Отправляет POST-запрос с Multipart/form данными.
+        /// Отправляет GET-запрос HTTP-серверу.
         /// </summary>
+        /// <param name="method">HTTP-метод запроса.</param>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="multipartData">Multipart/form данные, отправляемые HTTP-серверу.</param>
+        /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
+        /// <param name="messageBody">Тело сообщения, отправляемое HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="multipartData"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public HttpResponse Post(Uri address, MultipartDataCollection multipartData)
+        public HttpResponse Raw(HttpMethod method,
+            Uri address, StringDictionary urlParams = null, object messageBody = null)
         {
             #region Проверка параметров
 
@@ -1178,23 +810,250 @@ namespace xNet.Net
                 throw new ArgumentException(Resources.ArgumentException_OnlyAbsoluteUri, "address");
             }
 
-            if (multipartData == null)
+            #endregion
+
+            if (urlParams == null)
             {
-                throw new ArgumentNullException("multipartData");
+                urlParams = _addedUrlParams;
+            }
+
+            if (urlParams != null)
+            {
+                var uriBuilder = new UriBuilder(address);
+                uriBuilder.Query = ToQueryString(urlParams, false);
+
+                address = uriBuilder.Uri;
+            }
+
+            if (messageBody == null)
+            {
+                if (_addedParams != null)
+                {
+                    messageBody = _addedParams;
+                }
+                else if (_addedMultipartData != null)
+                {
+                    messageBody = _addedMultipartData;
+                }
+            }
+
+            HttpContent content = null;
+
+            if (messageBody != null)
+            {
+                if (messageBody is StringDictionary)
+                {
+                    content = new StringHttpContent(
+                        ToQueryString(messageBody as StringDictionary, EnableAutoUrlEncode));
+                }
+                else if (messageBody is string)
+                {
+                    content = new StringHttpContent(messageBody as string);
+                }
+                else if (messageBody is MultipartDataCollection)
+                {
+                    content = new MultipartHttpContent(messageBody as MultipartDataCollection);
+                }
+                else if (messageBody is Stream)
+                {
+                    content = new StreamHttpContent(messageBody as Stream);
+                }
+                else if (messageBody is HttpContent)
+                {
+                    content = messageBody as HttpContent;
+                }
+                else
+                {
+                    content = new StringHttpContent(ToQueryString(messageBody));
+                }
+            }
+
+            try
+            {
+                return SendRequest(method, address, content);
+            }
+            finally
+            {
+                if (_content != null)
+                {
+                    _content.Dispose();
+                }
+            }
+        } 
+
+        #endregion
+
+        #region Добавление временных данных запроса
+
+        /// <summary>
+        /// Добавляет временный параметр запроса.
+        /// </summary>
+        /// <param name="name">Имя параметра.</param>
+        /// <param name="value">Значение параметра.</param>
+        /// <remarks>Данный параметр будет стёрт после первого запроса.</remarks>
+        public HttpRequest AddParam(string name, string value)
+        {
+            #region Проверка параметра
+
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            if (name.Length == 0)
+            {
+                throw ExceptionHelper.EmptyString("name");
             }
 
             #endregion
 
-            _redirectionsCount = 0;
-            _multipartData = multipartData;
+            if (_addedParams == null)
+            {
+                _addedParams = new StringDictionary();
+            }
 
-            _messageBodyLength = multipartData.
-                CalculateLength(CharacterSet ?? Encoding.Default);
+            _addedParams[name] = value;
 
-            return SendRequest(HttpMethod.POST, address, null);
+            return this;
         }
 
-        #endregion
+        /// <summary>
+        /// Добавляет временный параметр URL-адреса.
+        /// </summary>
+        /// <param name="name">Имя параметра.</param>
+        /// <param name="value">Значение параметра.</param>
+        /// <remarks>Данный параметр будет стёрт после первого запроса.</remarks>
+        public HttpRequest AddUrlParam(string name, string value)
+        {
+            #region Проверка параметра
+
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            if (name.Length == 0)
+            {
+                throw ExceptionHelper.EmptyString("name");
+            }
+
+            #endregion
+
+            if (_addedUrlParams == null)
+            {
+                _addedUrlParams = new StringDictionary();
+            }
+
+            _addedUrlParams[name] = value;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Добавляет временный заголовок запроса.
+        /// </summary>
+        /// <param name="name">Имя заголовка.</param>
+        /// <param name="value">Значение заголовка.</param>
+        /// <remarks>Данный заголовок будет стёрт после первого запроса.</remarks>
+        public HttpRequest AddHeader(string name, string value)
+        {
+            #region Проверка параметра
+
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            if (name.Length == 0)
+            {
+                throw ExceptionHelper.EmptyString("name");
+            }
+
+            if (CheckHeader(name))
+            {
+                throw new ArgumentException(string.Format(
+                    Resources.ArgumentException_HttpRequest_SetNotAvailableHeader, name), "name");
+            }
+
+            #endregion
+
+            if (_addedHeaders == null)
+            {
+                _addedHeaders = new StringDictionary();
+            }
+
+            _addedHeaders[name] = value;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Добавляет временный элемент Multipart/form данных.
+        /// </summary>
+        /// <param name="name">Имя элемента.</param>
+        /// <param name="value">Значение элемента.</param>
+        /// <remarks>Данный элемент будет стёрт после первого запроса.</remarks>
+        public HttpRequest AddField(string name, string value)
+        {
+            AddedMultipartData.AddField(name, value);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Добавляет временный элемент Multipart/form данных.
+        /// </summary>
+        /// <param name="name">Имя элемента.</param>
+        /// <param name="value">Значение элемента.</param>
+        /// <remarks>Данный элемент будет стёрт после первого запроса.</remarks>
+        public HttpRequest AddField(string name, byte[] value)
+        {
+            AddedMultipartData.AddField(name, value);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Добавляет временный элемент Multipart/form данных, представляющий файл.
+        /// </summary>
+        /// <param name="name">Имя элемента.</param>
+        /// <param name="fileName">Имя передаваемого файла.</param>
+        /// <param name="contentType">Тип передаваемых данных.</param>
+        /// <param name="value">Значение элемента.</param>
+        /// <remarks>Данный элемент будет стёрт после первого запроса.</remarks>
+        public HttpRequest AddFile(string name, string fileName, string contentType, byte[] value)
+        {
+            AddedMultipartData.AddFile(name, fileName, contentType, value);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Добавляет временный элемент Multipart/form данных, представляющий файл.
+        /// </summary>
+        /// <param name="name">Имя элемента.</param>
+        /// <param name="path">Путь к файлу.</param>
+        /// <param name="doPreLoading">Указывает, нужно ли делать предварительную загрузку файла.</param>
+        /// <param name="contentType">Тип передаваемых данных, или значение <see langword="null"/>.</param>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="path"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="path"/> является пустой строкой, содержит только пробелы или содержит недопустимые символы.</exception>
+        /// <exception cref="System.IO.PathTooLongException">Указанный путь, имя файла или и то и другое превышает наибольшую возможную длину, определенную системой. Например, для платформ на основе Windows длина пути не должна превышать 248 знаков, а имена файлов не должны содержать более 260 знаков.</exception>
+        /// <exception cref="System.IO.FileNotFoundException">Значение параметра <paramref name="path"/> указывает на несуществующий файл.</exception>
+        /// <exception cref="System.IO.DirectoryNotFoundException">Значение параметра <paramref name="path"/> указывает на недопустимый путь.</exception>
+        /// <exception cref="System.IO.IOException">Ошибка ввода-вывода при работе с файлом.</exception>
+        /// <exception cref="System.Security.SecurityException">Вызывающий оператор не имеет необходимого разрешения.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">Операция чтения файла не поддерживается на текущей платформе.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">Значение параметра <paramref name="path"/> определяет каталог.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">Вызывающий оператор не имеет необходимого разрешения.</exception>
+        /// <remarks>Данный элемент будет стёрт после первого запроса.
+        /// 
+        /// Если использовать предварительную загрузку файла, то файл будет сразу загружен в память. Если файл имеет большой размер, либо нет необходимости, чтобы файл находился в памяти, то не используйте предварительную загрузку. В этом случае, файл будет загружаться блоками во время записи в поток.
+        /// 
+        /// Если не задать тип передаваемых данных, то он будет определяться по расширению файла. Если тип не удастся определить, то будет использовано значение ‘application/unknown‘.</remarks>
+        public void AddFile(string name, string path, bool doPreLoading = false, string contentType = null)
+        {
+            AddedMultipartData.AddFile(name, path, doPreLoading, contentType);
+        }
 
         #endregion
 
@@ -1210,15 +1069,9 @@ namespace xNet.Net
         /// <summary>
         /// Освобождает все ресурсы, используемые текущим экземпляром класса <see cref="HttpRequest"/>.
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
-            if (_tcpClient != null)
-            {
-                _tcpClient.Close();
-                _tcpClient = null;
-                _clientStream = null;
-                _clientNetworkStream = null;
-            }
+            Dispose(true);
         }
 
         /// <summary>
@@ -1232,8 +1085,7 @@ namespace xNet.Net
         #endregion
 
 
-        internal void ReportBytesReceived(
-            int bytesReceived, int totalBytesToReceive)
+        internal void ReportBytesReceived(int bytesReceived, int totalBytesToReceive)
         {
             if (_downloadProgressChangedHandler != null)
             {
@@ -1246,6 +1098,20 @@ namespace xNet.Net
 
 
         #region Методы (защищённые)
+
+        /// Освобождает неуправляемые (а при необходимости и управляемые) ресурсы, используемые объектом <see cref="HttpRequest"/>.
+        /// </summary>
+        /// <param name="disposing">Значение <see langword="true"/> позволяет освободить управляемые и неуправляемые ресурсы; значение <see langword="false"/> позволяет освободить только неуправляемые ресурсы.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && _tcpClient != null)
+            {
+                _tcpClient.Close();
+                _tcpClient = null;
+                _clientStream = null;
+                _clientNetworkStream = null;
+            }
+        }
 
         /// <summary>
         /// Вызывает событие <see cref="UploadProgressChanged"/>.
@@ -1281,8 +1147,10 @@ namespace xNet.Net
         #region Методы (закрытые)
 
         private HttpResponse SendRequest(HttpMethod method, Uri address,
-            byte[] messageBody, bool reconnection = false)
+            HttpContent content, bool reconnection = false)
         {
+            _content = content;
+
             bool createdNewConnection = false;
 
             // Если это первый запрос данного экземпляра класса.
@@ -1323,6 +1191,11 @@ namespace xNet.Net
 
             #region Отправка запроса
 
+            if (_content != null)
+            {
+                _content.Init(this, WriteBytes);
+            }
+
             try
             {
                 // Отправляем начальную линию.
@@ -1330,22 +1203,14 @@ namespace xNet.Net
                 _clientStream.Write(buffer, 0, buffer.Length);
 
                 // Отправляем заголовки.
-                buffer = Encoding.ASCII.GetBytes(GenerateHeaders(method, _messageBodyLength));
+                buffer = Encoding.ASCII.GetBytes(GenerateHeaders(method));
                 _clientStream.Write(buffer, 0, buffer.Length);
 
                 // Отправляем тело сообщения, если оно не пустое.
-                if (_messageBodyLength != 0)
+                if (_content != null && _content.GetLength() > 0)
                 {
                     _bytesSent = 0;
-
-                    if (messageBody == null)
-                    {
-                        _multipartData.SendBytes(SendBytes, CharacterSet ?? Encoding.Default);
-                    }
-                    else
-                    {
-                        SendBytes(messageBody, _messageBodyLength);
-                    }
+                    _content.Send();
                 }
             }
             catch (SecurityException ex)
@@ -1354,11 +1219,12 @@ namespace xNet.Net
             }
             catch (IOException ex)
             {
-                // Если нужно, делаем переподключение.
+                // Если это не первый запрос и включены постоянные соединения и до этого не было переподключения,
+                // то пробуем заново отправить запрос.
                 if (!createdNewConnection && KeepAlive && !reconnection)
                 {
                     Dispose();
-                    return SendRequest(method, address, messageBody, true);
+                    return SendRequest(method, address, content, true);
                 }
                 else
                 {
@@ -1377,11 +1243,14 @@ namespace xNet.Net
             }
             catch (HttpException ex)
             {
-                // Если нужно, делаем переподключение.
-                if (!createdNewConnection && KeepAlive && !reconnection && ex.EmptyMessageBody)
+                // Если был получен пустой ответ и до этого не было переподключения или
+                // если это не первый запрос и включены постоянные соединения и до этого не было переподключения,
+                // то пробуем заново отправить запрос.
+                if ((ex.EmptyMessageBody && !reconnection) ||
+                    (!createdNewConnection && KeepAlive && !reconnection))
                 {
                     Dispose();
-                    return SendRequest(method, address, messageBody, true);
+                    return SendRequest(method, address, content, true);
                 }
                 else
                 {
@@ -1407,6 +1276,8 @@ namespace xNet.Net
             }
 
             #endregion
+
+            ClearRequestData();
 
             #region Переадресация
 
@@ -1441,10 +1312,11 @@ namespace xNet.Net
                     redirectAddress = new Uri(newAddress);
                 }
 
-                _multipartData = null;
-                _messageBodyLength = 0;
-
                 return SendRequest(HttpMethod.GET, redirectAddress, null);
+            }
+            else
+            {
+                _redirectionsCount = 0;
             }
 
             #endregion
@@ -1645,7 +1517,7 @@ namespace xNet.Net
                 method, query, ProtocolVersion);
         }
 
-        private string GenerateHeaders(HttpMethod method, int messageBodyLength)
+        private string GenerateHeaders(HttpMethod method)
         {
             var headersBuilder = new StringBuilder();
 
@@ -1716,27 +1588,28 @@ namespace xNet.Net
                 headersBuilder.AppendFormat("User-Agent: {0}\r\n", GlobalUserAgent);
             }
 
-            if (_multipartData != null)
-            {
-                headersBuilder.AppendFormat("Content-Type: {0}\r\n", _multipartData.GenerateContentType());
-            }
-            else if (!string.IsNullOrEmpty(ContentType))
+            if (!string.IsNullOrEmpty(ContentType))
             {
                 headersBuilder.AppendFormat("Content-Type: {0}\r\n", ContentType);
             }
-            else if (method == HttpMethod.POST)
+            else if (_content != null)
             {
-                headersBuilder.AppendFormat("Content-Type: application/x-www-form-urlencoded\r\n");
+                headersBuilder.AppendFormat("Content-Type: {0}\r\n", _content.GetType());
             }
 
-            if (messageBodyLength > 0)
+            if (_content != null && _content.GetLength() > 0)
             {
-                headersBuilder.AppendFormat("Content-Length: {0}\r\n", messageBodyLength);
+                headersBuilder.AppendFormat("Content-Length: {0}\r\n", _content.GetLength());
             }
 
             #endregion
 
             headersBuilder.Append(ToHeadersString(_headers));
+
+            if (_addedHeaders != null)
+            {
+                headersBuilder.Append(ToHeadersString(_addedHeaders));
+            }
 
             if (Cookies != null && Cookies.Count != 0)
             {
@@ -1763,7 +1636,7 @@ namespace xNet.Net
 
         #endregion
 
-        private void SendBytes(byte[] bytes, int length)
+        private void WriteBytes(byte[] bytes, int length)
         {
             if (_uploadProgressChangedHandler == null)
             {
@@ -1792,7 +1665,7 @@ namespace xNet.Net
                     }
 
                     OnUploadProgressChanged(
-                        new UploadProgressChangedEventArgs(_bytesSent, _messageBodyLength));
+                        new UploadProgressChangedEventArgs(_bytesSent, _content.GetLength()));
                 }
             }
         }
@@ -1869,7 +1742,7 @@ namespace xNet.Net
             return headersBuilder.ToString();
         }
 
-        private string ToQueryString<T>(T obj)
+        private string ToQueryString(object obj)
         {
             Type objType = obj.GetType();
 
@@ -1965,6 +1838,14 @@ namespace xNet.Net
             }
 
             return queryBuilder.ToString();
+        }
+
+        private void ClearRequestData()
+        {
+            _addedParams = null;
+            _addedHeaders = null;
+            _addedUrlParams = null;
+            _addedMultipartData = null;
         }
 
         private HttpException NewHttpException(string message,

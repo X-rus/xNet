@@ -15,8 +15,16 @@ namespace xNet.Net
         /// </summary>
         HEAD,
         /// <summary>
+        /// Метод DELETE.
+        /// </summary>
+        DELETE,
+        /// <summary>
         /// Метод POST.
         /// </summary>
-        POST
+        POST,
+        /// <summary>
+        /// Метод PUT.
+        /// </summary>
+        PUT
     }
 }

@@ -11,7 +11,7 @@ namespace xNet.Net
     {
         #region Константы (закрытые)
 
-        private readonly int DataTemplateSize = 43;
+        private const int DataTemplateSize = 43;
         private const int DataFileTemplateSize = 72;
         private const string DataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n";
         private const string DataFileTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
@@ -154,7 +154,7 @@ namespace xNet.Net
             return length;
         }
 
-        internal void SendBytes(Action<byte[], int> sendBytesCallback, Encoding encoding)
+        internal void Send(Action<byte[], int> writeBytesCallback, Encoding encoding)
         {
             string data;
 
@@ -168,16 +168,16 @@ namespace xNet.Net
             }
 
             byte[] buffer = Encoding.ASCII.GetBytes(data);
-            sendBytesCallback(buffer, buffer.Length);
+            writeBytesCallback(buffer, buffer.Length);
 
             if (TextValue != null)
             {
                 buffer = encoding.GetBytes(TextValue);
-                sendBytesCallback(buffer, buffer.Length);
+                writeBytesCallback(buffer, buffer.Length);
             }
             else if (BytesValue != null)
             {
-                sendBytesCallback(BytesValue, BytesValue.Length);
+                writeBytesCallback(BytesValue, BytesValue.Length);
             }
             else if (!string.IsNullOrEmpty(PathToFile))
             {
@@ -202,7 +202,7 @@ namespace xNet.Net
                             break;
                         }
 
-                        sendBytesCallback(buffer, bytesRead);
+                        writeBytesCallback(buffer, bytesRead);
                     }
                 }
 

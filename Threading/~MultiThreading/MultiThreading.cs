@@ -586,19 +586,27 @@ namespace xNet.Threading
         /// <summary>
         /// Освобождает все ресурсы, используемые текущим экземпляром класса <see cref="MultiThreading&lt;TProgress&gt;"/>.
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
-            if (!_disposed)
-            {
-                _disposed = true;
-                _lockForCanceling.Dispose();
-            }
+            Dispose(true);
         }
 
         #endregion
 
        
         #region Методы (защищённые)
+
+        /// Освобождает неуправляемые (а при необходимости и управляемые) ресурсы, используемые объектом <see cref="MultiThreading&lt;TProgress&gt;"/>.
+        /// </summary>
+        /// <param name="disposing">Значение <see langword="true"/> позволяет освободить управляемые и неуправляемые ресурсы; значение <see langword="false"/> позволяет освободить только неуправляемые ресурсы.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+            {
+                _disposed = true;
+                _lockForCanceling.Dispose();
+            }
+        }
 
         /// <summary>
         /// Вызывает событие <see cref="BeginningWork"/>.

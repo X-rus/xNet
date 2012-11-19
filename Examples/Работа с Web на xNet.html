@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0028)http://blog.epicsoft.ru/?p=8 -->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="ru-RU"><head profile="http://gmpg.org/xfn/11"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>   Работа с Web на xNet | Блог | Epic Soft</title>
+
+<meta name="description" content="Блог о программировании">
+<meta name="generator" content="WordPress 3.4.1"> <!-- leave this for stats please -->
+<link href="./Работа с Web на xNet_files/style.css" rel="stylesheet" type="text/css" media="screen">
+<link rel="alternate" type="application/rss+xml" title="Блог | Epic Soft RSS Feed" href="http://blog.epicsoft.ru/?feed=rss2">
+<link rel="shortcut icon" href="http://blog.epicsoft.ru/wp-content/themes/epicsoft/favicon.ico">
+<link rel="pingback" href="http://blog.epicsoft.ru/xmlrpc.php">
+<script type="text/javascript" src="./Работа с Web на xNet_files/jquery-1.7.1.min.js"></script>
+<link rel="alternate" type="application/rss+xml" title="Блог | Epic Soft » Лента комментариев к «Работа с Web на xNet»" href="http://blog.epicsoft.ru/?feed=rss2&p=8">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://blog.epicsoft.ru/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://blog.epicsoft.ru/wp-includes/wlwmanifest.xml"> 
+<link rel="next" title="Работа с многопоточностью на xNet" href="http://blog.epicsoft.ru/?p=26">
+<meta name="generator" content="WordPress 3.4.1">
+<link rel="canonical" href="./Работа с Web на xNet_files/Работа с Web на xNet.html">
+	<link type="text/css" rel="stylesheet" href="./Работа с Web на xNet_files/shCore.css">
+	<link type="text/css" rel="stylesheet" href="./Работа с Web на xNet_files/shThemeDefault.css">
+<script type="text/javascript" src="chrome-extension://nhgcieglcpdegkhamigiokdphfhhnlhh/js/injected.js" charset="utf-8"></script></head>
+
+<body>
+    <!--main-->
+    <div id="main">
+        <!--header-wrap-->
+        <div id="header-wrap">
+            <!--logo-->
+            <div id="logo">
+                <p>
+                    <a href="http://blog.epicsoft.ru/"><span class="first-letter">E</span>pic<span class="first-letter">S</span>oft</a></p>
+            </div>
+            <!--/logo-->
+        </div>
+        <!--/header-wrap-->
+<div id="content">
+
+<h2 id="post-8">Работа с Web на xNet</h2>
+<div class="link-comment-count"><a href="http://blog.epicsoft.ru/?p=8#comments">К комментариям</a></div>
+
+<div class="main">
+	<p>Данная статья посвящена сетевой части библиотеки <em>xNet</em>. В статье будет рассмотрено: отправка простых запросов, загрузка файлов, постоянные соединения, обработка ошибок и другое. Статья ориентирована на программистов, знающих <em>HTTP</em>-протокол. В конце статьи указаны ссылки на материалы по теме.</p>
+<p><strong>Основа работы с HTTP-протоколом</strong></p>
+<p>Для отправки запросов используется класс <em>HttpRequest</em>. В нём можно устанавливать различные настройки: заголовки, время ожидания, нужно ли следовать переадресации, следует ли держать постоянное соединение и другие. Когда вы отправляете запрос, то он сначала принимает заголовки ответа, с помощью объекта класса <em>HttpResponse</em>, а после возвращает ссылку на этот объект, чтобы вы могли загрузить тело сообщения. Загрузить тело сообщения можно с помощью одного из специальных методов.</p>
+<p>Пример запроса:</p>
+<div class="syntaxhighlighter " id="highlighter_983411" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">1.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">2.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">3.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="comments">// Отправляем запрос.</code></span></span></div><div class="line alt2"><code class="number">4.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">HttpResponse response = request.Get(</code><code class="string">"epicsoft.ru"</code><code class="plain">);</code></span></span></div><div class="line alt1"><code class="number">5.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="comments">// Принимаем тело сообщения в виде текста.</code></span></span></div><div class="line alt2"><code class="number">6.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">string</code> <code class="plain">content = response.ToText();</code></span></span></div><div class="line alt1"><code class="number">7.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p>Оператор <em>using</em> используется для того, чтобы закрыть соединение с сервером, то есть, вызвать метод <em>IDisposable.Dispose</em>.</p>
+<p>Получить ссылку на <em>HttpResponse</em> можно также с помощью свойства <em>HttpRequest.Response</em>.</p>
+<p><span id="more-8"></span></p>
+<p><strong>Отправка простых запросов и загрузка тела сообщения</strong></p>
+<p><em>HttpRequest</em> поддерживает 3 вида запросов: <em>Get</em>, <em>Head</em> и <em>Post</em>. </p>
+<p>Пример GET-запроса:</p>
+<div class="syntaxhighlighter " id="highlighter_473570" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">01.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">02.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">03.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">var reqParams = </code><code class="keyword">new</code> <code class="plain">StringDictionary();</code></span></span></div><div class="line alt2"><code class="number">04.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt1"><code class="number">05.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">reqParams[</code><code class="string">"param1"</code><code class="plain">] = </code><code class="string">"val1"</code><code class="plain">;</code></span></span></div><div class="line alt2"><code class="number">06.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">reqParams[</code><code class="string">"param2"</code><code class="plain">] = </code><code class="string">"val2"</code><code class="plain">;</code></span></span></div><div class="line alt1"><code class="number">07.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt2"><code class="number">08.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">string</code> <code class="plain">content = request.Get(</code><code class="string">"epicsoft.ru"</code><code class="plain">, reqParams).ToText();</code></span></span></div><div class="line alt1"><code class="number">09.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p>Объект класса <em>StringDictionary</em> используется для передачи параметров запроса. В данном случае, это равносильно следующей записи: <em>Get(«epicsoft.ru/?param1=val1&amp;param2=val2″)</em>.</p>
+<p>Пример POST-запроса:</p>
+<div class="syntaxhighlighter " id="highlighter_989609" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">01.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">02.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">03.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">var reqParams = </code><code class="keyword">new</code> <code class="plain">StringDictionary();</code></span></span></div><div class="line alt2"><code class="number">04.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt1"><code class="number">05.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">reqParams[</code><code class="string">"login"</code><code class="plain">] = </code><code class="string">"neo"</code><code class="plain">;</code></span></span></div><div class="line alt2"><code class="number">06.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">reqParams[</code><code class="string">"password"</code><code class="plain">] = </code><code class="string">"knockknock"</code><code class="plain">;</code></span></span></div><div class="line alt1"><code class="number">07.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt2"><code class="number">08.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">string</code> <code class="plain">content = request.Post(</code></span></span></div><div class="line alt1"><code class="number">09.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"www.whitehouse.gov"</code><code class="plain">, reqParams).ToText();</code></span></span></div><div class="line alt2"><code class="number">10.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p>Установить параметры POST-запроса можно четырьмя способами: с помощью объекта класса <em>StringDictionary</em>, с помощью обычной строки, с помощью массива байтов или с помощью объекта класса <em>MultipartDataCollection</em>.</p>
+<p>Все параметры запроса автоматически кодируются для надёжной передачи HTTP-серверу. Но это не относится к параметрам POST-методов, отправляющих: <em>string</em>, <em>byte[]</em> и <em>MultipartDataCollection</em>. С помощью свойства <em>HttpRequest.EnableAutoUrlEncode</em> можно отключить автоматическое кодирование параметров POST-запроса.</p>
+<p>Для загрузки тела сообщения, можно использовать один из трёх методов: ToText, ToBytes или ToFile. Если тело сообщения не нужно, то следует вызвать метод <em>None</em>.</p>
+<p><strong>Отправка Multipart/form данных</strong></p>
+<p>О <a href="http://ru.wikipedia.org/wiki/Multipart_form-data" title="Multipart/form-data" target="_blank">Multipart/form данных</a>. Для работы с ними используются два класса: класс <em>MultipartDataElement</em> представляет элемент Multipart данных, а класс <em>MultipartDataCollection</em> хранит эти элементы. В классе <em>MultipartDataCollection</em> есть уже заранее заготовленные методы, которые самостоятельно создают объекты класса <em>MultipartDataElement</em> и добавляют их в коллекцию.</p>
+<p>Пример:</p>
+<div class="syntaxhighlighter " id="highlighter_154509" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">01.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">02.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">03.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">var multipartData = </code><code class="keyword">new</code> <code class="plain">MultipartDataCollection();</code></span></span></div><div class="line alt2"><code class="number">04.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt1"><code class="number">05.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">multipartData.AddData(</code><code class="string">"param1"</code><code class="plain">, </code><code class="string">"val1"</code><code class="plain">);</code></span></span></div><div class="line alt2"><code class="number">06.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">multipartData.AddData(</code><code class="string">"param2"</code><code class="plain">, </code><code class="string">"val2"</code><code class="plain">);</code></span></span></div><div class="line alt1"><code class="number">07.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">multipartData.AddDataFile(</code><code class="string">"file1"</code><code class="plain">, @</code><code class="string">"C:\file1.txt"</code><code class="plain">, </code><code class="keyword">true</code><code class="plain">);</code></span></span></div><div class="line alt2"><code class="number">08.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt1"><code class="number">09.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">string</code> <code class="plain">content = request.Post(</code></span></span></div><div class="line alt2"><code class="number">10.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"epicsoft.ru"</code><code class="plain">, multipartData).ToText();</code></span></span></div><div class="line alt1"><code class="number">11.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p>В одном из методов <em>AddDataFile</em>, есть параметр <em>doPreLoading</em>, который указывает, нужно ли использовать предварительную загрузку файла. Если использовать предварительную загрузку файла, то файл будет сразу загружен в память. Если файл имеет большой размер, либо нет необходимости, чтобы файл находился в памяти, то не используйте предварительную загрузку. В этом случае, файл будет загружаться блоками во время записи в поток.</p>
+<p><strong>Постоянные соединения</strong></p>
+<p><em>HttpRequest</em> поддерживает постоянные соединения. Их можно отключить с помощью свойства <em>HttpRequest.KeepAlive</em>.</p>
+<p>Пример:</p>
+<div class="syntaxhighlighter " id="highlighter_530988" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">1.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">2.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">3.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">request.Get(</code><code class="string">"epicsoft.ru"</code><code class="plain">).None();</code></span></span></div><div class="line alt2"><code class="number">4.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">request.Get(</code><code class="string">"epicsoft.ru"</code><code class="plain">).None();</code></span></span></div><div class="line alt1"><code class="number">5.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">request.Get(</code><code class="string">"epicsoft.ru"</code><code class="plain">);</code></span></span></div><div class="line alt2"><code class="number">6.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p>Все три запроса будут выполнены с помощью одного и того же соединения, но это только в том случае, если сервер не закроет соединение раньше. Обратите внимание — в последнем запросе я не вызываю метод <em>None</em>. Дело в том, что он загружает тело сообщения, чтобы следующий запрос мог корректно выполниться при использовании постоянного соединения, а так как это последний запрос, то не имеет смысла загружать тело сообщения, ведь соединение все равно будет закрыто.</p>
+<p>Ещё немного о методе <em>None</em>. В случае если постоянное соединение не используется, то данный метод просто закрывает соединение. Если вы не вызовете данный метод, то он будет вызван автоматически при следующем запросе. Я рекомендую самим вызывать данный метод.</p>
+<p>Имейте в виду, при работе с постоянными соединениями могут происходить отключения от сервера. Это может произойти по причине того, что на сервере достигнут предел запросов для одного соединения, либо вышло время ожидания следующего запроса. <em>HttpRequest</em> умеет обрабатывать такие ситуации, пробуя подключиться заново. Если подключиться не удастся, то он выдаст исключение</p>
+<p><strong>Установка дополнительных заголовков и кукиксов</strong></p>
+<p>Установка дополнительных заголовков выполняется с помощью специального индексатора. Имейте в виду, некоторые заголовки можно задавать только с помощью специальных свойств. Их список можно найти в документации. Кукиксы задаются с помощью свойства <em>HttpRequest.Cookies</em>.</p>
+<p>Пример:</p>
+<div class="syntaxhighlighter " id="highlighter_706979" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">01.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">02.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">03.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">request.Cookies = </code><code class="keyword">new</code> <code class="plain">CookieDictionary();</code></span></span></div><div class="line alt2"><code class="number">04.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">request.Cookies[</code><code class="string">"hash"</code><code class="plain">] = </code><code class="string">"oracle"</code><code class="plain">;</code></span></span></div><div class="line alt1"><code class="number">05.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt2"><code class="number">06.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">request[</code><code class="string">"X-Secret-Param1"</code><code class="plain">] = </code><code class="string">"SecretValue1"</code><code class="plain">;</code></span></span></div><div class="line alt1"><code class="number">07.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">request[</code><code class="string">"X-Secret-Param2"</code><code class="plain">] = </code><code class="string">"SecretValue2"</code><code class="plain">;</code></span></span></div><div class="line alt2"><code class="number">08.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt1"><code class="number">09.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">request.Get(</code><code class="string">"epicsoft.ru"</code><code class="plain">);</code></span></span></div><div class="line alt2"><code class="number">10.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p>Список кукиксов может изменяться в зависимости от ответа сервера. Чтобы не допустить этого, нужно установить значение свойства <em>CookieDictionary.IsLocked</em> равным <em>true</em>.</p>
+<p>Если вам нужно стереть все установленные заголовки, то используйте метод <em>HttpRequest.ClearAllHeaders</em>.</p>
+<p><strong>Соединение через прокси-сервер</strong></p>
+<p><em>xNet</em> поддерживает работу со следующими типами прокси-серверов:</p>
+<ul>
+<li><em>HTTP</em> — класс <em>HttpProxyClient</em></li>
+<li><em>Socks4(a)</em> — класс <em>Socks4ProxyClient(a)</em></li>
+<li><em>Socks5</em> — класс <em>Socks5ProxyClient</em></li>
+</ul>
+<p>Все эти классы наследуют от класса <em>ProxyClient</em>.</p>
+<p>Пример:</p>
+<div class="syntaxhighlighter " id="highlighter_766253" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">1.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">var proxyClient = HttpProxyClient.Parse(</code><code class="string">"127.0.0.1:8080"</code><code class="plain">);</code></span></span></div><div class="line alt2"><code class="number">2.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">var tcpClient = proxyClient.CreateConnection(</code><code class="string">"epicsoft.ru"</code><code class="plain">, 80);</code></span></span></div><div class="line alt1"><code class="number">3.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="comments">// Далее работаем с соединением.</code></span></span></div></div></div>
+<p><em>HttpRequest</em> поддерживает работу через прокси-сервер. Для этого нужно задать свойство <em>HttpRequest.Proxy</em>.</p>
+<p><strong>Обработка ошибок</strong></p>
+<p>Если при работе с <em>HTTP</em>-протоколом произойдёт ошибка, то будет сгенерировано исключение <em>HttpException</em>, а если произойдёт ошибка при работе с прокси-сервером, то будет сгенерировано исключение <em>ProxyException</em>. Оба этих исключения наследуют от класса <em>NetException</em>.</p>
+<p>Пример:</p>
+<div class="syntaxhighlighter " id="highlighter_935455" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">01.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">try</code></span></span></div><div class="line alt2"><code class="number">02.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">03.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">04.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">05.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">request.Proxy = Socks5ProxyClient.Parse(</code><code class="string">"127.0.0.1:1080"</code><code class="plain">);</code></span></span></div><div class="line alt2"><code class="number">06.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">request.Get(</code><code class="string">"epicsoft.ru"</code><code class="plain">);</code></span></span></div><div class="line alt1"><code class="number">07.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">}</code></span></span></div><div class="line alt2"><code class="number">08.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div><div class="line alt1"><code class="number">09.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">catch</code> <code class="plain">(NetException ex)</code></span></span></div><div class="line alt2"><code class="number">10.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">11.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">Console.WriteLine(</code></span></span></div><div class="line alt2"><code class="number">12.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"Произошла сетевая ошибка: "</code> <code class="plain">+ ex.Message);</code></span></span></div><div class="line alt1"><code class="number">13.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p><strong>Дополнительные классы и интерфейсы</strong></p>
+<p>Класс <em>HttpClient</em> позволяет выполнять запросы с помощью вызова одного метода. При его использовании, автоматически задаётся случайный <em>UserAgent</em> и отключается постоянное соединение.</p>
+<p>Класс <em>HttpHelper</em> предназначен для помощи в работе с HTTP-протоколом. У него есть несколько методов и все они предназначены для генерирования случайного <em>UserAgent</em>.</p>
+<p>Класс <em>ProxyHelper</em> предназначен для помощи в работе с прокси. Там всего один метод, помогающий создавать прокси-клиент с нужными параметрами.</p>
+<p>Класс <em>WinInet</em> позволяет взаимодействовать с настройками сети операционной системы Windows. С помощью него можно узнать, подключён ли компьютер к интернету или получить значение прокси-сервера Internet Explorer’а.</p>
+<p>Класс <em>HtmlHelper</em> предназначен для помощи в работе с <em>HTML</em>. Пока там один метод, который заменяет в тексте <em>HTML</em>-сущности на представляющие их символы. Пример: &amp; quot;test&amp; quot; в "test"</p>
+<p>Весьма простой интерфейс <em>IHttpConnect</em>, который содержит всего одно свойство - <em>Request</em>. Он может пригодиться в случае, если, допустим, класс использует <em>HttpRequest</em> для работы с <em>HTTP</em>-протоколом. Так как <em>HttpRequest</em> может содержать постоянное соединение и различные настройки, то его нужно будет постоянно передавать через параметры метода, что не очень удобно. Лучше всего для этого реализовать данный интерфейс и задать <em>Request</em> один раз через специальное свойство.</p>
+<p><strong>UPD 2.1</strong><br>
+Добавлены два события: <em>UploadProgressChanged</em> и <em>DownloadProgressChanged</em>, которые позволяют отслеживать прогресс загрузки и выгрузки данных. Пример:</p>
+<div class="syntaxhighlighter " id="highlighter_853755" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">01.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">static</code> <code class="keyword">void</code> <code class="plain">Main()</code></span></span></div><div class="line alt2"><code class="number">02.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">03.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">04.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">05.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">request.UploadProgressChanged += request_UploadProgressChanged;</code></span></span></div><div class="line alt2"><code class="number">06.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">request.DownloadProgressChanged += request_DownloadProgressChanged;</code></span></span></div><div class="line alt1"><code class="number">07.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt2"><code class="number">08.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="comments">//...</code></span></span></div><div class="line alt1"><code class="number">09.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">}</code></span></span></div><div class="line alt2"><code class="number">10.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div><div class="line alt1"><code class="number">11.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt2"><code class="number">12.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">static</code> <code class="keyword">void</code> <code class="plain">request_UploadProgressChanged(</code><code class="keyword">object</code> <code class="plain">sender, UploadProgressChangedEventArgs e)</code></span></span></div><div class="line alt1"><code class="number">13.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt2"><code class="number">14.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">Console.WriteLine(</code></span></span></div><div class="line alt1"><code class="number">15.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"Количество выгруженных байтов '{0}'."</code> <code class="plain">+</code></span></span></div><div class="line alt2"><code class="number">16.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"Общее количество выгружаемых байтов '{1}'."</code> <code class="plain">+</code></span></span></div><div class="line alt1"><code class="number">17.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"Процент выгрузки: {2}%"</code><code class="plain">,</code></span></span></div><div class="line alt2"><code class="number">18.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">e.BytesSent, e.TotalBytesToSend, e.ProgressPercentage);</code></span></span></div><div class="line alt1"><code class="number">19.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div><div class="line alt2"><code class="number">20.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt1"><code class="number">21.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">static</code> <code class="keyword">void</code> <code class="plain">request_DownloadProgressChanged(</code><code class="keyword">object</code> <code class="plain">sender, DownloadProgressChangedEventArgs e)</code></span></span></div><div class="line alt2"><code class="number">22.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">23.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">Console.WriteLine(</code></span></span></div><div class="line alt2"><code class="number">24.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"Количество полученых байтов '{0}'."</code> <code class="plain">+ </code></span></span></div><div class="line alt1"><code class="number">25.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"Общее количество получаемых байтов '{1}'."</code> <code class="plain">+</code></span></span></div><div class="line alt2"><code class="number">26.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="string">"Процент загрузки: {2}%"</code><code class="plain">,</code></span></span></div><div class="line alt1"><code class="number">27.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">e.BytesReceived, e.TotalBytesToReceive, e.ProgressPercentage);</code></span></span></div><div class="line alt2"><code class="number">28.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p><strong>UPD 2.2</strong><br>
+Добавлены два атрибута: <em>HttpData</em> и <em>HttpDataMember</em>. Пример:</p>
+<div class="syntaxhighlighter " id="highlighter_844816" style=""><div class="bar"><div class="toolbar"><a href="http://blog.epicsoft.ru/?p=8#viewSource" title="view source" style="width: 16px; height: 16px;" class="item viewSource">view source</a><a href="http://blog.epicsoft.ru/?p=8#printSource" title="print" style="width: 16px; height: 16px;" class="item printSource">print</a><a href="http://blog.epicsoft.ru/?p=8#about" title="?" style="width: 16px; height: 16px;" class="item about">?</a></div></div><div class="lines"><div class="line alt1"><code class="number">01.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">[HttpData]</code></span></span></div><div class="line alt2"><code class="number">02.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">class</code> <code class="plain">Person</code></span></span></div><div class="line alt1"><code class="number">03.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt2"><code class="number">04.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">[HttpDataMember(</code><code class="string">"age"</code><code class="plain">)]</code></span></span></div><div class="line alt1"><code class="number">05.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">public</code> <code class="keyword">int</code> <code class="plain">Age { </code><code class="keyword">get</code><code class="plain">; </code><code class="keyword">set</code><code class="plain">; }</code></span></span></div><div class="line alt2"><code class="number">06.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">[HttpDataMember(</code><code class="string">"fname"</code><code class="plain">)]</code></span></span></div><div class="line alt1"><code class="number">07.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">public</code> <code class="keyword">string</code> <code class="plain">FirstName { </code><code class="keyword">get</code><code class="plain">; </code><code class="keyword">set</code><code class="plain">; }</code></span></span></div><div class="line alt2"><code class="number">08.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">[HttpDataMember(</code><code class="string">"lname"</code><code class="plain">)]</code></span></span></div><div class="line alt1"><code class="number">09.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">public</code> <code class="keyword">string</code> <code class="plain">LastName { </code><code class="keyword">get</code><code class="plain">; </code><code class="keyword">set</code><code class="plain">; }</code></span></span></div><div class="line alt2"><code class="number">10.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div><div class="line alt1"><code class="number">11.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt2"><code class="number">12.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="keyword">static</code> <code class="keyword">void</code> <code class="plain">Main()</code></span></span></div><div class="line alt1"><code class="number">13.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">{</code></span></span></div><div class="line alt2"><code class="number">14.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">var person = </code><code class="keyword">new</code> <code class="plain">Person()</code></span></span></div><div class="line alt1"><code class="number">15.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">{</code></span></span></div><div class="line alt2"><code class="number">16.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">Age = 42,</code></span></span></div><div class="line alt1"><code class="number">17.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">FirstName = </code><code class="string">"Truh"</code><code class="plain">,</code></span></span></div><div class="line alt2"><code class="number">18.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">LastName = </code><code class="string">"Tubb"</code></span></span></div><div class="line alt1"><code class="number">19.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">};</code></span></span></div><div class="line alt2"><code class="number">20.</code><span class="content"><span class="block" style="margin-left: 0px !important;">&nbsp;</span></span></div><div class="line alt1"><code class="number">21.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="keyword">using</code> <code class="plain">(var request = </code><code class="keyword">new</code> <code class="plain">HttpRequest())</code></span></span></div><div class="line alt2"><code class="number">22.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">{</code></span></span></div><div class="line alt1"><code class="number">23.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 72px !important;"><code class="plain">request.Post(</code><code class="string">"127.0.0.1/AddPerson/"</code><code class="plain">, person).None();</code></span></span></div><div class="line alt2"><code class="number">24.</code><span class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><span class="block" style="margin-left: 36px !important;"><code class="plain">}</code></span></span></div><div class="line alt1"><code class="number">25.</code><span class="content"><span class="block" style="margin-left: 0px !important;"><code class="plain">}</code></span></span></div></div></div>
+<p><strong>Ссылки на материалы по теме</strong></p>
+<ul>
+<li><a href="http://ru.wikipedia.org/wiki/HTTP" title="HTTP" target="_blank">HTTP</a></li>
+<li><a href="http://tools.ietf.org/html/rfc2616" title="RFC2616 - HTTP/1.1" target="_blank">RFC2616 - HTTP/1.1</a></li>
+<li><a href="http://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%B3%D0%BE%D0%BB%D0%BE%D0%B2%D0%BA%D0%B8_HTTP" title="Заголовки HTTP" target="_blank">Заголовки HTTP</a></li>
+<li><a href="http://ru.wikipedia.org/wiki/HTTP-Cookie" title="HTTP cookie" target="_blank">HTTP cookie</a></li>
+<li><a href="http://ru.wikipedia.org/wiki/Multipart_form-data" title="Multipart/form-data" target="_blank">Multipart/form-data</a></li>
+<li><a href="http://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%BE%D0%BA%D1%81%D0%B8-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80" title="Прокси-сервер" target="_blank">Прокси-сервер</a></li>
+</ul>
+<p>Читайте справку для получения детальной информации.</p>
+</div>
+
+<div class="record-info">
+<div class="autor-date">
+    <p>Автор: X-rus <span class="edit"></span></p>
+    <p>24 Янв 2012 в 11:15</p>
+</div>	
+<div class="tags">
+    <p>Рубрика: <a href="http://blog.epicsoft.ru/?cat=9" title="Просмотреть все записи в рубрике «C#»" rel="category">C#</a>,<a href="http://blog.epicsoft.ru/?cat=5" title="Просмотреть все записи в рубрике «xNet»" rel="category">xNet</a></p>
+    <p>Метки: <a href="http://blog.epicsoft.ru/?tag=net" rel="tag">.NET</a>, <a href="http://blog.epicsoft.ru/?tag=c" rel="tag">C#</a>, <a href="http://blog.epicsoft.ru/?tag=http" rel="tag">HTTP</a>, <a href="http://blog.epicsoft.ru/?tag=web" rel="tag">Web</a>, <a href="http://blog.epicsoft.ru/?tag=xnet" rel="tag">xNet</a>, <a href="http://blog.epicsoft.ru/?tag=%d1%81%d0%b5%d1%82%d1%8c" rel="tag">Сеть</a></p></div>
+</div>
+
+<script type="text/javascript">
+	function ins_quote(nick, comment_id)
+	{
+		var text = '';
+		var area = $('textarea')[0];
+		
+		if (area.value.length > 0)
+			text += '\n';
+			
+		text += '[url=#' + comment_id + ']@' + nick + '[/url]\n';
+		
+		if (document.getSelection &&
+			document.getSelection().toString().length > 0)
+		{	
+			text += '[quote]' + document.getSelection().toString() + '[/quote]';
+		}
+		
+		area.value += text;
+		area.focus();
+	}
+	
+	function ins_tag(tag_start, tag_end)
+	{
+		var area = $('textarea')[0];
+		
+		area.focus();
+		
+		if (document.getSelection)
+		{
+			var startIndex = area.selectionStart;
+			var selection = area.value.substring(area.selectionStart, area.selectionEnd);
+			
+			area.value=area.value.substring(0, area.selectionStart) + tag_start + selection + tag_end+
+				area.value.substring(area.selectionEnd, area.value.length);
+
+			area.selectionStart = startIndex + tag_start.length;
+			area.selectionEnd = area.selectionStart + selection.length;
+		}
+
+		area.focus();
+	}
+	
+	function ins_tag_link()
+	{
+		var area = $('textarea')[0];
+		
+		area.focus();
+		
+		if (document.getSelection)
+		{
+			var startIndex = area.selectionStart;
+			var selection = area.value.substring(area.selectionStart, area.selectionEnd);
+			
+			if (area.selectionStart != area.selectionEnd)
+			{
+				area.value=area.value.substring(0, area.selectionStart) + '[url='+ selection+ ']'+
+					selection + '[/url]' + area.value.substring(area.selectionEnd, area.value.length);
+					
+				area.selectionStart = startIndex + 6 + selection.length;
+			}
+			else
+			{
+				area.value=area.value.substring(0, area.selectionStart) + '[url]'+
+					selection + '[/url]' + area.value.substring(area.selectionEnd, area.value.length);
+					
+				area.selectionStart = startIndex + 5 + selection.length;
+			}
+				
+			area.selectionEnd = area.selectionStart + selection.length;;
+		}
+
+		area.focus();
+	}
+	
+	function ins_tag_list(tag_start, tag_end)
+	{
+		var area = $('textarea')[0];
+		
+		area.focus();
+		
+		if (document.getSelection)
+		{
+			var list = tag_start + '\n[li]значение 1[/li]\n[li]значение 2[/li]\n[li]значение 3[/li]\n' + tag_end;
+			area.selectionEnd = area.selectionStart;
+			
+			area.value=area.value.substring(0, area.selectionStart) + list +
+				area.value.substring(area.selectionEnd, area.value.length);
+		}
+
+		area.focus();
+	}
+</script>
+
+<!-- You can start editing here. -->
+
+
+ 
+<!-- If comments are open, but there are no comments. -->
+
+
+
+
+<h3 class="your-comment">Ваш комментарий</h3>
+
+
+<form action="http://blog.epicsoft.ru/wp-comments-post.php" method="post" name="commentform" id="commentform">
+<div class="postinput">
+<p><input type="text" name="author" id="author" value="" size="22" tabindex="1">
+<label for="author"><small>Имя *</small></label></p>
+
+<p><input type="text" name="email" id="email" value="" size="22" tabindex="2">
+<label for="email"><small>Почта (не публикуется) *</small></label></p>
+
+<p><input type="text" name="url" id="url" value="" size="22" tabindex="3">
+<label for="url"><small>Сайт</small></label></p>
+
+
+<div title="Жирный текст" class="bb bb-bold" onclick="ins_tag(&#39;[b]&#39;,&#39;[/b]&#39;)">B</div><div title="Наклонный текст" class="bb bb-italic" onclick="ins_tag(&#39;[i]&#39;,&#39;[/i]&#39;)">i</div><div title="Зачёркнутый текст" class="bb bb-striked" onclick="ins_tag(&#39;[s]&#39;,&#39;[/s]&#39;)">S</div><div title="Ссылка. Можно выделить ссылку и написать свой текст." class="bb bb-link" onclick="ins_tag_link()">link</div><div title="Внешнее изображение. Можно выделить URL на изображение." class="bb" onclick="ins_tag(&#39;[img]&#39;,&#39;[/img]&#39;)">img</div><div title="Код. По умолчанию ЯП - C#. Можно установить другой." class="bb" onclick="ins_tag(&#39;[code=\&#39;c#\&#39;]&#39;,&#39;[/code]&#39;)">code</div><div title="Маркированный список" class="bb" onclick="ins_tag_list(&#39;[ul]&#39;,&#39;[/ul]&#39;)">ul</div><div title="Нумерованный  список" class="bb" onclick="ins_tag_list(&#39;[ol]&#39;,&#39;[/ol]&#39;)">ol</div>
+<p><textarea style="width: 714px" name="b5173-comment" id="comment" cols="100%" rows="10" tabindex="4"></textarea><textarea name="comment" style="display:none" rows="1" cols="1"></textarea></p>
+
+<p><input name="submit" type="submit" id="submit" tabindex="5" value="Отправить" title="Пожалуйста, проверьте комментарий перед отправкой">
+<input type="hidden" name="comment_post_ID" value="8">
+</p>
+</div>
+</form>
+
+
+
+
+<div class="navigation group">
+	<div class="alignleft"></div>
+	<div class="alignright"></div>
+</div>
+
+</div> 
+
+<!--menu-wrap-->
+<div id="menu-wrap">
+	<!--menu-->
+	<div id="menu">
+		<h3>Архивы</h3>		<ul>
+			<li><a href="http://blog.epicsoft.ru/?m=201202" title="Февраль 2012">Февраль 2012</a></li>
+	<li><a href="http://blog.epicsoft.ru/?m=201201" title="Январь 2012">Январь 2012</a></li>
+		</ul>
+<h3>Рубрики</h3>		<ul>
+	<li class="cat-item cat-item-9"><a href="http://blog.epicsoft.ru/?cat=9" title="Просмотреть все записи в рубрике «C#»">C#</a>
+</li>
+	<li class="cat-item cat-item-5"><a href="http://blog.epicsoft.ru/?cat=5" title="Просмотреть все записи в рубрике «xNet»">xNet</a>
+</li>
+	<li class="cat-item cat-item-14"><a href="http://blog.epicsoft.ru/?cat=14" title="Просмотреть все записи в рубрике «Вконтакте»">Вконтакте</a>
+</li>
+	<li class="cat-item cat-item-16"><a href="http://blog.epicsoft.ru/?cat=16" title="Просмотреть все записи в рубрике «Программы»">Программы</a>
+</li>
+		</ul>
+<h3>Ссылки</h3>
+	<ul class="xoxo blogroll">
+<li><a href="http://epicsoft.ru/" title="Главная страничка сайта" target="_blank">EpicSoft.ru</a></li>
+<li><a href="http://epicsoft.ru/Blog/?feed=rss2" title="Подпишитесь на RSS-ленту этого сайта" target="_blank">RSS записей</a></li>
+<li><a href="http://epicsoft.ru/Blog/?feed=comments-rss2" title="Последние комментарии ко всем записям в RSS" target="_blank">RSS комментариев</a></li>
+<li><a href="http://epicsoft.ru/xNet" title="Библиотека классов для .NET Framework" target="_blank">xNet</a></li>
+
+	</ul>
+
+<h3>Метки</h3><div class="tagcloud"><a href="http://blog.epicsoft.ru/?tag=net" class="tag-link-4" title="6 записей" style="font-size: 22pt;">.NET</a>
+<a href="http://blog.epicsoft.ru/?tag=c" class="tag-link-3" title="6 записей" style="font-size: 22pt;">C#</a>
+<a href="http://blog.epicsoft.ru/?tag=http" class="tag-link-6" title="1 запись" style="font-size: 8pt;">HTTP</a>
+<a href="http://blog.epicsoft.ru/?tag=vasan" class="tag-link-15" title="2 записи" style="font-size: 12.581818181818pt;">Vasan</a>
+<a href="http://blog.epicsoft.ru/?tag=vkontakte-api" class="tag-link-13" title="2 записи" style="font-size: 12.581818181818pt;">Vkontakte api</a>
+<a href="http://blog.epicsoft.ru/?tag=web" class="tag-link-7" title="1 запись" style="font-size: 8pt;">Web</a>
+<a href="http://blog.epicsoft.ru/?tag=wpf" class="tag-link-17" title="1 запись" style="font-size: 8pt;">Wpf</a>
+<a href="http://blog.epicsoft.ru/?tag=xnet" class="tag-link-5" title="5 записей" style="font-size: 20.218181818182pt;">xNet</a>
+<a href="http://blog.epicsoft.ru/?tag=%d0%bc%d0%bd%d0%be%d0%b3%d0%be%d0%bf%d0%be%d1%82%d0%be%d1%87%d0%bd%d0%be%d1%81%d1%82%d1%8c" class="tag-link-10" title="1 запись" style="font-size: 8pt;">Многопоточность</a>
+<a href="http://blog.epicsoft.ru/?tag=%d0%b2%d0%ba%d0%be%d0%bd%d1%82%d0%b0%d0%ba%d1%82%d0%b5-api" class="tag-link-12" title="2 записи" style="font-size: 12.581818181818pt;">Вконтакте API</a>
+<a href="http://blog.epicsoft.ru/?tag=%d0%bd%d0%b0%d1%81%d1%82%d1%80%d0%be%d0%b9%d0%ba%d0%b8" class="tag-link-18" title="1 запись" style="font-size: 8pt;">Настройки</a>
+<a href="http://blog.epicsoft.ru/?tag=%d0%bf%d0%b0%d1%80%d1%81%d0%b8%d0%bd%d0%b3" class="tag-link-11" title="1 запись" style="font-size: 8pt;">Парсинг</a>
+<a href="http://blog.epicsoft.ru/?tag=%d1%81%d0%b5%d1%82%d1%8c" class="tag-link-8" title="1 запись" style="font-size: 8pt;">Сеть</a></div>
+	</div>
+	<!--/menu-->
+</div>
+<!--/menu-wrap-->
+
+        <!--copyright-->
+        <div id="copyright">
+            <p id="text">
+                Designed by X-rus, 2011-2012 © <a href="http://epicsoft.ru/">EpicSoft</a></p>
+        </div>
+        <!--/copyright-->
+
+<!-- SyntaxHighlighter Stuff -->
+<script type="text/javascript" src="./Работа с Web на xNet_files/shCore.js"></script>
+	<script type="text/javascript" src="./Работа с Web на xNet_files/shBrushCSharp.js"></script>
+	<!-- Reassign aliases -->
+	<script type="text/javascript">
+				SyntaxHighlighter.brushes.CSharp.aliases = ["c#", "c-sharp", "csharp"];
+	</script>
+<script type="text/javascript">
+	SyntaxHighlighter.all();
+</script>
+
+    </div>
+    <!--/main-->
+
+</body></html>

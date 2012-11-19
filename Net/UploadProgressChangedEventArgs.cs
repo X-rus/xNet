@@ -17,7 +17,7 @@ namespace xNet.Net
         /// <summary>
         /// Возвращает общее количество отправляемых байтов.
         /// </summary>
-        public int TotalBytesToSend { get; private set; }
+        public long TotalBytesToSend { get; private set; }
 
         /// <summary>
         /// Возвращает процент отправленных байтов.
@@ -38,7 +38,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="bytesSent">Количество отправленных байтов.</param>
         /// <param name="totalBytesToSend">Общее количество отправляемых байтов.</param>
-        public UploadProgressChangedEventArgs(int bytesSent, int totalBytesToSend)
+        public UploadProgressChangedEventArgs(int bytesSent, long totalBytesToSend)
         {
             BytesSent = bytesSent;
             TotalBytesToSend = totalBytesToSend;

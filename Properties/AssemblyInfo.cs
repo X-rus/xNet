@@ -7,12 +7,12 @@ using System.Resources;
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
 [assembly: AssemblyTitle("xNet")]
-[assembly: AssemblyDescription("epicsoft.ru")]
+[assembly: AssemblyDescription("http://habrahabr.ru/post/146475/")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Epic Soft")]
+[assembly: AssemblyCompany("X-rus")]
 [assembly: AssemblyProduct("xNet")]
 [assembly: AssemblyCopyright("Copyright © X-rus 2012")]
-[assembly: AssemblyTrademark("epicsoft.ru")]
+[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 // Параметр ComVisible со значением FALSE делает типы в сборке невидимыми 
@@ -33,6 +33,6 @@ using System.Resources;
 // Можно задать все значения или принять номер построения и номер редакции по умолчанию, 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.2.0.0")]
-[assembly: AssemblyFileVersion("2.2.0.0")]
+[assembly: AssemblyVersion("2.3.0.0")]
+[assembly: AssemblyFileVersion("2.3.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("ru")]

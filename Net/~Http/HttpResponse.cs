@@ -520,7 +520,7 @@ namespace xNet.Net
         /// <returns>Если тело сообщения отсутствует, или оно уже было загружено, то будет возвращена пустая строка.</returns>
         /// <exception cref="System.InvalidOperationException">Вызов метода из ошибочного ответа.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public string ToText()
+        override public string ToString()
         {
             #region Проверка состояния
 
@@ -744,6 +744,8 @@ namespace xNet.Net
 
             try
             {
+                WaitData();
+
                 ReceiveStartingLine();
 
                 _headers.Clear();
@@ -777,8 +779,9 @@ namespace xNet.Net
             }
 
             // Если пришёл ответ без тела сообщения.
-            if (Method == HttpMethod.HEAD || StatusCode == HttpStatusCode.Continue ||
-                StatusCode == HttpStatusCode.NoContent || StatusCode == HttpStatusCode.NotModified)
+            if (Method == HttpMethod.HEAD || Method == HttpMethod.DELETE ||
+                StatusCode == HttpStatusCode.Continue || StatusCode == HttpStatusCode.NoContent ||
+                StatusCode == HttpStatusCode.NotModified)
             {
                 MessageBodyLoaded = true;
             }
