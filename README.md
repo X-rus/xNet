@@ -16,22 +16,23 @@ using (var request = new HttpRequest())
 {
     request.UserAgent = HttpHelper.RandomUserAgent();
 
-    // Parameters URL-address.
-    request.AddUrlParam("data1", "value1");
-    request.AddUrlParam("data2", "value2");
+    request
+        // Parameters URL-address.
+        .AddUrlParam("data1", "value1")
+        .AddUrlParam("data2", "value2")
 
-    // Parameters 'x-www-form-urlencoded'.
-    request.AddParam("data1", "value1");
-    request.AddParam("data2", "value2");
-    request.AddParam("data2", "value2");
+        // Parameters 'x-www-form-urlencoded'.
+        .AddParam("data1", "value1")
+        .AddParam("data2", "value2")
+        .AddParam("data2", "value2")
 
-    // Multipart data.
-    request.AddField("data1", "value1");
-    request.AddFile("game_code", @"C:\orion.zip");
+        // Multipart data.
+        .AddField("data1", "value1")
+        .AddFile("game_code", @"C:\orion.zip")
 
-    // HTTP-header.
-    request.AddHeader("X-Apocalypse", "21.12.12");
-
+        // HTTP-header.
+        .AddHeader("X-Apocalypse", "21.12.12");
+		
     // These parameters are sent in this request.
     request.Raw(HttpMethod.POST, "http://habrahabr.ru/").None();
 

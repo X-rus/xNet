@@ -1050,9 +1050,11 @@ namespace xNet.Net
         /// Если использовать предварительную загрузку файла, то файл будет сразу загружен в память. Если файл имеет большой размер, либо нет необходимости, чтобы файл находился в памяти, то не используйте предварительную загрузку. В этом случае, файл будет загружаться блоками во время записи в поток.
         /// 
         /// Если не задать тип передаваемых данных, то он будет определяться по расширению файла. Если тип не удастся определить, то будет использовано значение ‘application/unknown‘.</remarks>
-        public void AddFile(string name, string path, bool doPreLoading = false, string contentType = null)
+        public HttpRequest AddFile(string name, string path, bool doPreLoading = false, string contentType = null)
         {
             AddedMultipartData.AddFile(name, path, doPreLoading, contentType);
+
+            return this;
         }
 
         #endregion
