@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 
 namespace xNet.Xml
 {
+    //Тестовый коммент
     /// <summary>
     /// Представляет статический класс, предназначенный для помощи в работе с XML-документами.
     /// </summary>
