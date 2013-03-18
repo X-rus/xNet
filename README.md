@@ -3,7 +3,7 @@
 * Version .NET: 4.0 Client Profile
 
 xNet - a class library for .NET Framework, which includes:
-* Classes for work with proxy servers: _HTTP, Socks4(a), Socks5_.
+* Classes for work with proxy servers: _HTTP, Socks4(a), Socks5, Chain_.
 * Classes for work with *HTTP 1.0/1.1* protocol: _keep-alive, gzip, deflate, chunked, SSL, proxies and more_.
 * Classes for work with multithreading: _a multithreaded bypassing the collection, asynchronous events and more_.
 
