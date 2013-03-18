@@ -63,12 +63,10 @@ namespace xNet.Net
         /// Преобразует строку в экземпляр класса <see cref="HttpProxyClient"/>.
         /// </summary>
         /// <param name="proxyAddress">Строка вида - хост:порт:имя_пользователя:пароль. Три последних параметра являются необязательными.</param>
-        /// <param name="proxyType">Тип прокси-сервера.</param>
         /// <returns>Экземпляр класса <see cref="HttpProxyClient"/>.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="proxyAddress"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="proxyAddress"/> является пустой строкой.</exception>
         /// <exception cref="System.FormatException">Формат порта является неправильным.</exception>
-        /// <exception cref="System.InvalidOperationException">Получен неподдерживаемый тип прокси-сервера.</exception>
         public static HttpProxyClient Parse(string proxyAddress)
         {
             return ProxyClient.Parse(ProxyType.Http, proxyAddress) as HttpProxyClient;
@@ -78,14 +76,13 @@ namespace xNet.Net
         /// Преобразует строку в экземпляр класса <see cref="HttpProxyClient"/>. Возвращает значение, указывающее, успешно ли выполнено преобразование.
         /// </summary>
         /// <param name="proxyAddress">Строка вида - хост:порт:имя_пользователя:пароль. Три последних параметра являются необязательными.</param>
-        /// <param name="proxyType">Тип прокси-сервера.</param>
         /// <param name="result">Если преобразование выполнено успешно, то содержит экземпляр класса <see cref="HttpProxyClient"/>, иначе <see langword="null"/>.</param>
         /// <returns>Значение <see langword="true"/>, если параметр <paramref name="proxyAddress"/> преобразован успешно, иначе <see langword="false"/>.</returns>
-        public static bool TryParse(string s, out HttpProxyClient result)
+        public static bool TryParse(string proxyAddress, out HttpProxyClient result)
         {
             ProxyClient proxy;
 
-            if (ProxyClient.TryParse(ProxyType.Http, s, out proxy))
+            if (ProxyClient.TryParse(ProxyType.Http, proxyAddress, out proxy))
             {
                 result = proxy as HttpProxyClient;
                 return true;
@@ -100,22 +97,30 @@ namespace xNet.Net
         #endregion
 
 
+        #region Методы (открытые)
+
         /// <summary>
-        /// Создаёт соединение с прокси-сервером.
+        /// Создаёт соединение с сервером через прокси-сервер.
         /// </summary>
-        /// <param name="destinationHost">Хост пункта назначения, с которым нужно связаться через прокси-сервер.</param>
-        /// <param name="destinationPort">Порт пункта назначения, с которым нужно связаться через прокси-сервер.</param>
-        /// <returns>Соединение с прокси-сервером.</returns>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="xNet.Net.ProxyClient.Host"/> равно <see langword="null"/> или имеет нулевую длину.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="xNet.Net.ProxyClient.Port"/> меньше 1 или больше 65535.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="xNet.Net.ProxyClient.Username"/> имеет длину более 255 символов.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="xNet.Net.ProxyClient.Password"/> имеет длину более 255 символов.</exception>
+        /// <param name="destinationHost">Хост сервера, с которым нужно связаться через прокси-сервер.</param>
+        /// <param name="destinationPort">Порт сервера, с которым нужно связаться через прокси-сервер.</param>
+        /// <param name="tcpClient">Соединение, через которое нужно работать, или значение <see langword="null"/>.</param>
+        /// <returns>Соединение с сервером через прокси-сервер.</returns>
+        /// <exception cref="System.InvalidOperationException">
+        /// Значение свойства <see cref="Host"/> равно <see langword="null"/> или имеет нулевую длину.
+        /// -или-
+        /// Значение свойства <see cref="Port"/> меньше 1 или больше 65535.
+        /// -или-
+        /// Значение свойства <see cref="Username"/> имеет длину более 255 символов.
+        /// -или-
+        /// Значение свойства <see cref="Password"/> имеет длину более 255 символов.
+        /// </exception>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="destinationHost"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="destinationHost"/> является пустой строкой.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="destinationPort"/> меньше 1 или больше 65535.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если порт пункта назначения неравен 80, то для подключения используется метод 'CONNECT'.</remarks>
-        public override TcpClient CreateConnection(string destinationHost, int destinationPort)
+        /// <remarks>Если порт сервера неравен 80, то для подключения используется метод 'CONNECT'.</remarks>
+        public override TcpClient CreateConnection(string destinationHost, int destinationPort, TcpClient tcpClient = null)
         {
             CheckState();
 
@@ -138,7 +143,12 @@ namespace xNet.Net
 
             #endregion
 
-            TcpClient tcpClient = CreateConnectionWithProxy();
+            TcpClient curTcpClient = tcpClient;
+
+            if (curTcpClient == null)
+            {
+                curTcpClient = CreateConnectionToProxy();
+            }
 
             if (destinationPort != 80)
             {
@@ -146,14 +156,14 @@ namespace xNet.Net
 
                 try
                 {
-                    NetworkStream nStream = tcpClient.GetStream();
+                    NetworkStream nStream = curTcpClient.GetStream();
 
                     SendConnectionCommand(nStream, destinationHost, destinationPort);
                     statusCode = ReceiveResponse(nStream);
                 }
                 catch (Exception ex)
                 {
-                    tcpClient.Close();
+                    curTcpClient.Close();
 
                     if (ex is IOException || ex is SocketException)
                     {
@@ -165,18 +175,33 @@ namespace xNet.Net
 
                 if (statusCode != HttpStatusCode.OK)
                 {
-                    tcpClient.Close();
+                    curTcpClient.Close();
 
                     throw new ProxyException(string.Format(
                         Resources.ProxyException_ReceivedWrongStatusCode, statusCode, ToString()), this);
                 }
             }
 
-            return tcpClient;
+            return curTcpClient;
         }
+
+        #endregion
 
 
         #region Методы (закрытые)
+
+        private string GenerateAuthorizationHeader()
+        {
+            if (!string.IsNullOrEmpty(_username) || !string.IsNullOrEmpty(_password))
+            {
+                string data = Convert.ToBase64String(Encoding.UTF8.GetBytes(
+                    string.Format("{0}:{1}", _username, _password)));
+
+                return string.Format("Proxy-Authorization: Basic {0}\r\n", data);
+            }
+
+            return string.Empty;
+        }
 
         private void SendConnectionCommand(NetworkStream nStream, string destinationHost, int destinationPort)
         {
@@ -253,21 +278,5 @@ namespace xNet.Net
         }
 
         #endregion
-
-
-        internal string GenerateAuthorizationHeader()
-        {
-            if (!string.IsNullOrEmpty(_username) || !string.IsNullOrEmpty(_password))
-            {
-                string str = Convert.ToBase64String(Encoding.UTF8.GetBytes(
-                    string.Format("{0}:{1}", _username, _password)));
-
-                return string.Format("Proxy-Authorization: Basic {0}\r\n", str);
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
     }
 }

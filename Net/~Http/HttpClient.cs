@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using xNet.Collections;
 
 namespace xNet.Net
@@ -59,22 +58,6 @@ namespace xNet.Net
             }
         }
 
-        /// <summary>
-        /// Возвращает или задаёт глобальное значение HTTP-заголовка 'User-Agent'.
-        /// </summary>
-        /// <value>Значение по умолчанию — <see langword="null"/>.</value>
-        public static string GlobalUserAgent
-        {
-            get
-            {
-                return HttpRequest.GlobalUserAgent;
-            }
-            set
-            {
-                HttpRequest.GlobalUserAgent = value;
-            }
-        }
-
         #endregion
 
 
@@ -86,44 +69,13 @@ namespace xNet.Net
         /// Отправляет GET-запрос HTTP-серверу.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static void Get(string address, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            Get(address, null, cookies, proxy);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static void Get(Uri address, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            Get(address, null, cookies, proxy);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static void Get(string address, StringDictionary urlParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static void Get(string address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -138,11 +90,7 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 request.Get(address, urlParams).None();
             }
@@ -156,10 +104,8 @@ namespace xNet.Net
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static void Get(Uri address, StringDictionary urlParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static void Get(Uri address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -174,11 +120,7 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 request.Get(address, urlParams).None();
             }
@@ -186,42 +128,10 @@ namespace xNet.Net
 
         #endregion
 
-        #region GetText
+        #region GetString
 
         /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде байтов.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static string GetText(string address, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            return GetText(address, null, cookies, proxy);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде байтов.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static string GetText(Uri address, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            return GetText(address, null, cookies, proxy);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде байтов.
+        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
@@ -231,8 +141,7 @@ namespace xNet.Net
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static string GetText(string address, StringDictionary urlParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static string GetString(string address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -247,18 +156,14 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 return request.Get(address, urlParams).ToString();
             }
         }
 
         /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде байтов.
+        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
@@ -266,10 +171,8 @@ namespace xNet.Net
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static string GetText(Uri address, StringDictionary urlParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static string GetString(Uri address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -284,11 +187,7 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 return request.Get(address, urlParams).ToString();
             }
@@ -302,38 +201,6 @@ namespace xNet.Net
         /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <returns>Если тело сообщения отсутствует, то будет возвращён пустой массив байтов.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static byte[] GetBytes(string address, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            return GetBytes(address, null, cookies, proxy);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <returns>Если тело сообщения отсутствует, то будет возвращён пустой массив байтов.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static byte[] GetBytes(Uri address, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            return GetBytes(address, null, cookies, proxy);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
@@ -341,10 +208,9 @@ namespace xNet.Net
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static byte[] GetBytes(string address, StringDictionary urlParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static byte[] GetBytes(string address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
-            using (HttpRequest request = new HttpRequest())
+            using (var request = new HttpRequest())
             {
                 if (cookies == null)
                 {
@@ -357,11 +223,7 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 return request.Get(address, urlParams).ToBytes();
             }
@@ -376,12 +238,10 @@ namespace xNet.Net
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <returns>Если тело сообщения отсутствует, то будет возвращён пустой массив байтов.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static byte[] GetBytes(Uri address, StringDictionary urlParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static byte[] GetBytes(Uri address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
-            using (HttpRequest request = new HttpRequest())
+            using (var request = new HttpRequest())
             {
                 if (cookies == null)
                 {
@@ -394,11 +254,7 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 return request.Get(address, urlParams).ToBytes();
             }
@@ -413,77 +269,30 @@ namespace xNet.Net
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="path">Путь к файлу, в котором будет сохранено тело сообщения.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="path"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="path"/> является пустой строкой, содержит только пробелы или содержит недопустимые символы.</exception>
-        /// <exception cref="System.IO.PathTooLongException">Указанный путь, имя файла или и то и другое превышает наибольшую возможную длину, определенную системой. Например, для платформ на основе Windows длина пути не должна превышать 248 знаков, а имена файлов не должны содержать более 260 знаков.</exception>
-        /// <exception cref="System.IO.FileNotFoundException">Значение параметра <paramref name="path"/> указывает на несуществующий файл.</exception>
-        /// <exception cref="System.IO.DirectoryNotFoundException">Значение параметра <paramref name="path"/> указывает на недопустимый путь.</exception>
-        /// <exception cref="System.IO.IOException">При открытии файла возникла ошибка ввода-вывода.</exception>
-        /// <exception cref="System.Security.SecurityException">Вызывающий оператор не имеет необходимого разрешения.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Операция чтения файла не поддерживается на текущей платформе.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Значение параметра <paramref name="path"/> определяет каталог.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Вызывающий оператор не имеет необходимого разрешения.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static void GetFile(string address, string path, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            GetFile(address, path, null, cookies, proxy);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и сохраняет его в новый файл по указанному пути. Если файл уже существует, то он будет перезаписан.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="path">Путь к файлу, в котором будет сохранено тело сообщения.</param>
-        /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="path"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="path"/> является пустой строкой, содержит только пробелы или содержит недопустимые символы.</exception>
-        /// <exception cref="System.IO.PathTooLongException">Указанный путь, имя файла или и то и другое превышает наибольшую возможную длину, определенную системой. Например, для платформ на основе Windows длина пути не должна превышать 248 знаков, а имена файлов не должны содержать более 260 знаков.</exception>
-        /// <exception cref="System.IO.FileNotFoundException">Значение параметра <paramref name="path"/> указывает на несуществующий файл.</exception>
-        /// <exception cref="System.IO.DirectoryNotFoundException">Значение параметра <paramref name="path"/> указывает на недопустимый путь.</exception>
-        /// <exception cref="System.IO.IOException">При открытии файла возникла ошибка ввода-вывода.</exception>
-        /// <exception cref="System.Security.SecurityException">Вызывающий оператор не имеет необходимого разрешения.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Операция чтения файла не поддерживается на текущей платформе.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Значение параметра <paramref name="path"/> определяет каталог.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Вызывающий оператор не имеет необходимого разрешения.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static void GetFile(Uri address, string path, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            GetFile(address, path, null, cookies, proxy);
-        }
-
-        /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и сохраняет его в новый файл по указанному пути. Если файл уже существует, то он будет перезаписан.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="path">Путь к файлу, в котором будет сохранено тело сообщения.</param>
         /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
+        /// -или-
+        /// Значение параметра <paramref name="path"/> равно <see langword="null"/>.
+        /// </exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="path"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="path"/> является пустой строкой, содержит только пробелы или содержит недопустимые символы.</exception>
         /// <exception cref="System.IO.PathTooLongException">Указанный путь, имя файла или и то и другое превышает наибольшую возможную длину, определенную системой. Например, для платформ на основе Windows длина пути не должна превышать 248 знаков, а имена файлов не должны содержать более 260 знаков.</exception>
         /// <exception cref="System.IO.FileNotFoundException">Значение параметра <paramref name="path"/> указывает на несуществующий файл.</exception>
         /// <exception cref="System.IO.DirectoryNotFoundException">Значение параметра <paramref name="path"/> указывает на недопустимый путь.</exception>
         /// <exception cref="System.IO.IOException">При открытии файла возникла ошибка ввода-вывода.</exception>
         /// <exception cref="System.Security.SecurityException">Вызывающий оператор не имеет необходимого разрешения.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Операция чтения файла не поддерживается на текущей платформе.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Значение параметра <paramref name="path"/> определяет каталог.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Вызывающий оператор не имеет необходимого разрешения.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">
+        /// Операция чтения файла не поддерживается на текущей платформе.
+        /// -или-
+        /// Значение параметра <paramref name="path"/> определяет каталог.
+        /// -или-
+        /// Вызывающий оператор не имеет необходимого разрешения.
+        /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static void GetFile(string address, string path, StringDictionary urlParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static void GetFile(string address, string path, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -498,11 +307,7 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 request.Get(address, urlParams).ToFile(path);
             }
@@ -516,21 +321,26 @@ namespace xNet.Net
         /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="path"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
+        /// -или-
+        /// Значение параметра <paramref name="path"/> равно <see langword="null"/>.
+        /// </exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="path"/> является пустой строкой, содержит только пробелы или содержит недопустимые символы.</exception>
         /// <exception cref="System.IO.PathTooLongException">Указанный путь, имя файла или и то и другое превышает наибольшую возможную длину, определенную системой. Например, для платформ на основе Windows длина пути не должна превышать 248 знаков, а имена файлов не должны содержать более 260 знаков.</exception>
         /// <exception cref="System.IO.FileNotFoundException">Значение параметра <paramref name="path"/> указывает на несуществующий файл.</exception>
         /// <exception cref="System.IO.DirectoryNotFoundException">Значение параметра <paramref name="path"/> указывает на недопустимый путь.</exception>
         /// <exception cref="System.IO.IOException">При открытии файла возникла ошибка ввода-вывода.</exception>
         /// <exception cref="System.Security.SecurityException">Вызывающий оператор не имеет необходимого разрешения.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Операция чтения файла не поддерживается на текущей платформе.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Значение параметра <paramref name="path"/> определяет каталог.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Вызывающий оператор не имеет необходимого разрешения.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">
+        /// Операция чтения файла не поддерживается на текущей платформе.
+        /// -или-
+        /// Значение параметра <paramref name="path"/> определяет каталог.
+        /// -или-
+        /// Вызывающий оператор не имеет необходимого разрешения.
+        /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static void GetFile(Uri address, string path, StringDictionary urlParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static void GetFile(Uri address, string path, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -545,11 +355,7 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 request.Get(address, urlParams).ToFile(path);
             }
@@ -560,19 +366,20 @@ namespace xNet.Net
         #region Post
 
         /// <summary>
-        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
+        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу.</param>
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
+        /// -или-
+        /// Значение параметра <paramref name="reqParams"/> равно <see langword="null"/>.
+        /// </exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="reqParams"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
         public static string Post(string address, StringDictionary reqParams, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
@@ -588,30 +395,26 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 return request.Post(address, reqParams).ToString();
             }
         }
 
         /// <summary>
-        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
+        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу.</param>
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="reqParams"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
+        /// -или-
+        /// Значение параметра <paramref name="reqParams"/> равно <see langword="null"/>.
+        /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
         public static string Post(Uri address, StringDictionary reqParams, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
@@ -627,32 +430,28 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
                 return request.Post(address, reqParams).ToString();
             }
         }
 
         /// <summary>
-        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
+        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="messageBody">Тело сообщения, отправляемое HTTP-серверу.</param>
+        /// <param name="content">Контент, отправляемый HTTP-серверу.</param>
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
+        /// -или-
+        /// Значение параметра <paramref name="content"/> равно <see langword="null"/>.
+        /// </exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="messageBody"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="messageBody"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
-        public static string Post(string address, string messageBody, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static string Post(string address, HttpContent content, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -667,32 +466,27 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
-
-                return request.Post(address, messageBody).ToString();
+                return request.Post(address, content).ToString();
             }
         }
 
         /// <summary>
-        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
+        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="messageBody">Тело сообщения, отправляемое HTTP-серверу.</param>
+        /// <param name="content">Контент, отправляемый HTTP-серверу.</param>
         /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="messageBody"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="messageBody"/> является пустой строкой.</exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
+        /// -или-
+        /// Значение параметра <paramref name="content"/> равно <see langword="null"/>.
+        /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.</remarks>
-        public static string Post(Uri address, string messageBody, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static string Post(Uri address, HttpContent content, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -707,177 +501,11 @@ namespace xNet.Net
 
                 request.Proxy = proxy;
                 request.KeepAlive = false;
+                request.UserAgent = HttpHelper.ChromeUserAgent();
 
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
-
-                return request.Post(address, messageBody).ToString();
+                return request.Post(address, content).ToString();
             }
         }
-
-        /// <summary>
-        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="messageBodyStream">Тело сообщения в виде потока данных, отправляемое HTTP-серверу.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="messageBodyStream"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.
-        /// 
-        /// Поток заданный в <paramref name="messageBodyStream"/> освобождается после запроса, либо если произойдёт исключение.</remarks>
-        public static string Post(string address, Stream messageBodyStream, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            using (var request = new HttpRequest())
-            {
-                if (cookies == null)
-                {
-                    request.Cookies = new CookieDictionary();
-                }
-                else
-                {
-                    request.Cookies = cookies;
-                }
-
-                request.Proxy = proxy;
-                request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
-
-                return request.Post(address, messageBodyStream).ToString();
-            }
-        }
-
-        /// <summary>
-        /// Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="messageBodyStream">Тело сообщения в виде потока данных, отправляемое HTTP-серверу.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="messageBodyStream"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        /// <remarks>Если значение заголовка 'Content-Type' не задано, то отправляется значение 'Content-Type: application/x-www-form-urlencoded'.
-        /// 
-        /// Поток заданный в <paramref name="messageBodyStream"/> освобождается после запроса, либо если произойдёт исключение.</remarks>
-        public static string Post(Uri address, Stream messageBodyStream, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            using (var request = new HttpRequest())
-            {
-                if (cookies == null)
-                {
-                    request.Cookies = new CookieDictionary();
-                }
-                else
-                {
-                    request.Cookies = cookies;
-                }
-
-                request.Proxy = proxy;
-                request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
-
-                return request.Post(address, messageBodyStream).ToString();
-            }
-        }
-
-        #region MultipartFormData
-
-        /// <summary>
-        /// Отправляет POST-запрос с Multipart/form данными. Загружает тело сообщения и возвращает его в виде текста.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="multipartData">Multipart/form данные, отправляемые HTTP-серверу.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="multipartData"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static string Post(string address, MultipartDataCollection multipartData, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            using (var request = new HttpRequest())
-            {
-                if (cookies == null)
-                {
-                    request.Cookies = new CookieDictionary();
-                }
-                else
-                {
-                    request.Cookies = cookies;
-                }
-
-                request.Proxy = proxy;
-                request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
-
-                return request.Post(address, multipartData).ToString();
-            }
-        }
-
-        /// <summary>
-        /// Отправляет POST-запрос с Multipart/form данными. Загружает тело сообщения и возвращает его в виде текста.
-        /// </summary>
-        /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <param name="multipartData">Multipart/form данные, отправляемые HTTP-серверу.</param>
-        /// <param name="cookies">Кукисы, отправляемые HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
-        /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> не является абсолютным URI.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="multipartData"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public static string Post(Uri address, MultipartDataCollection multipartData, CookieDictionary cookies = null, ProxyClient proxy = null)
-        {
-            using (var request = new HttpRequest())
-            {
-                if (cookies == null)
-                {
-                    request.Cookies = new CookieDictionary();
-                }
-                else
-                {
-                    request.Cookies = cookies;
-                }
-
-                request.Proxy = proxy;
-                request.KeepAlive = false;
-
-                if (string.IsNullOrEmpty(HttpRequest.GlobalUserAgent))
-                {
-                    request.UserAgent = HttpHelper.RandomUserAgent();
-                }
-
-                return request.Post(address, multipartData).ToString();
-            }
-        }
-
-        #endregion
 
         #endregion
 

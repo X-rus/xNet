@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
@@ -9,30 +9,29 @@ namespace xNet.Threading
     /// <summary>
     /// Представляет класс для выполнения операции в отдельных фоновых потоках.
     /// </summary>
-    /// <typeparam name="TProgress">Тип данных значения, которое передаётся в <see cref="MultiThreadingProgressEventArgs&lt;T&gt;"/>.</typeparam>
-    public class MultiThreading<TProgress> : IDisposable
+    public class MultiThreading : IDisposable
     {
         #region Структуры (закрытые)
 
         private struct ForParams
         {
-            public int Begin;
-            public int End;
-            public Action<MultiThreading<TProgress>, int> Action;
+            public int Begin, End;
+
+            public Action<int> Action;
         }
 
         private struct ForEachParams<T>
         {
             public IEnumerator<T> Source;
-            public Action<MultiThreading<TProgress>, T> Action;
+            public Action<T> Action;
         }
 
         private struct ForEachListParams<T>
         {
-            public int Begin;
-            public int End;
+            public int Begin, End;
+
             public IList<T> List;
-            public Action<MultiThreading<TProgress>, T> Action;
+            public Action<T> Action;
         }
 
         #endregion
@@ -42,14 +41,11 @@ namespace xNet.Threading
 
         private bool _disposed;
 
-        private int _repsCount;
+        private ulong _repeatCount;
         private Barrier _barrierForReps;
 
-        private Barrier _barrierForEndThreads;
-        private ConcurrentBag<Exception> _exceptions;
-
-        private int _threadsCount;
-        private int _currentThreadsCount;
+        private int _threadCount;
+        private int _currentThreadCount;
 
         private bool _endEnumerator;
         private bool _enableInfiniteRepeat;
@@ -58,15 +54,16 @@ namespace xNet.Threading
         private bool _canceling;
         private readonly ReaderWriterLockSlim _lockForCanceling = new ReaderWriterLockSlim();
 
+        private object _lockForEndThread = new object();
+
         private AsyncOperation _asyncOperation;
         private SendOrPostCallback _callbackEndWork;
 
         private EventHandler<EventArgs> _beginningWorkHandler;
-        private AsyncEvent<EventArgs> _cancelingWorkAsyncEvent;
+        private EventHandler<EventArgs> _workCompletedAsyncEvent;
         private EventHandler<MultiThreadingRepeatEventArgs> _repeatCompletedHandler;
-        private EventHandler<MultiThreadingCompletedEventArgs> _workCompletedAsyncEvent;
-        private AsyncEvent<MultiThreadingProgressEventArgs<TProgress>> _progressChangedAsyncEvent;
-        private AsyncEvent<MultiThreadingLoggingEventArgs> _logChangedkAsyncEvent;
+        private AsyncEvent<MultiThreadingProgressEventArgs> _progressChangedAsyncEvent;
+        private AsyncEvent<EventArgs> _cancelingWorkAsyncEvent;
 
         #endregion
 
@@ -89,18 +86,18 @@ namespace xNet.Threading
         }
 
         /// <summary>
-        /// Возникает при отмене выполнения асинхронной операции.
+        /// Возникает при завершение работы всех потоков.
         /// </summary>
-        /// <remarks>Данное событие может быть вызвано автоматически, если во время выполнения асинхронной операции произойдёт исключение. Вызов происходит асинхронно.</remarks>
-        public event EventHandler<EventArgs> CancelingWork
+        /// <remarks>Данное событие вызывается асинхронно.</remarks>
+        public event EventHandler<EventArgs> WorkCompleted
         {
             add
             {
-                _cancelingWorkAsyncEvent.EventHandler += value;
+                _workCompletedAsyncEvent += value;
             }
             remove
             {
-                _cancelingWorkAsyncEvent.EventHandler -= value;
+                _workCompletedAsyncEvent -= value;
             }
         }
 
@@ -120,25 +117,10 @@ namespace xNet.Threading
         }
 
         /// <summary>
-        /// Возникает при завершение работы всех потоков.
-        /// </summary>
-        /// <remarks>Данное событие вызывается асинхронно.</remarks>
-        public event EventHandler<MultiThreadingCompletedEventArgs> WorkCompleted
-        {
-            add
-            {
-                _workCompletedAsyncEvent += value;
-            }
-            remove
-            {
-                _workCompletedAsyncEvent -= value;
-            }
-        }
-
-        /// <summary>
         /// Возникает при вызове метода <see cref="ReportProgress"/>.
         /// </summary>
-        public event EventHandler<MultiThreadingProgressEventArgs<TProgress>> ProgressChanged
+        /// <remarks>Данное событие вызывается асинхронно.</remarks>
+        public event EventHandler<MultiThreadingProgressEventArgs> ProgressChanged
         {
             add
             {
@@ -151,17 +133,18 @@ namespace xNet.Threading
         }
 
         /// <summary>
-        /// Возникает при вызове метода <see cref="ReportLog"/>.
+        /// Возникает при отмене выполнения асинхронной операции.
         /// </summary>
-        public event EventHandler<MultiThreadingLoggingEventArgs> LogChanged
+        /// <remarks>Данное событие может быть вызвано автоматически, если во время выполнения асинхронной операции произойдёт исключение. Вызов происходит асинхронно.</remarks>
+        public event EventHandler<EventArgs> CancelingWork
         {
             add
             {
-                _logChangedkAsyncEvent.EventHandler += value;
+                _cancelingWorkAsyncEvent.EventHandler += value;
             }
             remove
             {
-                _logChangedkAsyncEvent.EventHandler -= value;
+                _cancelingWorkAsyncEvent.EventHandler -= value;
             }
         }
 
@@ -228,11 +211,11 @@ namespace xNet.Threading
         /// <value>Значение по умолчанию - 1.</value>
         /// <exception cref="System.InvalidOperationException">Установка значения во время выполнения асинхронной операции.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра меньше 1.</exception>
-        public int ThreadsCount
+        public int ThreadCount
         {
             get
             {
-                return _threadsCount;
+                return _threadCount;
             }
             set
             {
@@ -255,7 +238,7 @@ namespace xNet.Threading
 
                 #endregion
 
-                _threadsCount = value;
+                _threadCount = value;
             }
         }
 
@@ -275,28 +258,27 @@ namespace xNet.Threading
 
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="MultiThreading&lt;TProgress&gt;"/>.
+        /// Инициализирует новый экземпляр класса <see cref="MultiThreading"/>.
         /// </summary>
-        /// <param name="threadsCount">Число потоков используемое для выполнения асинхронной операции.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="threadsCount"/> меньше 1.</exception>
-        public MultiThreading(int threadsCount = 1)
+        /// <param name="threadCount">Число потоков используемое для выполнения асинхронной операции.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="threadCount"/> меньше 1.</exception>
+        public MultiThreading(int threadCount = 1)
         {
             #region Проверка параметров
 
-            if (threadsCount < 1)
+            if (threadCount < 1)
             {
-                throw ExceptionHelper.CanNotBeLess("threadsCount", 1);
+                throw ExceptionHelper.CanNotBeLess("threadCount", 1);
             }
 
             #endregion
 
-            _threadsCount = threadsCount;
+            _threadCount = threadCount;
 
             _callbackEndWork = new SendOrPostCallback(EndWorkCallback);
 
             _cancelingWorkAsyncEvent = new AsyncEvent<EventArgs>(OnCancelingWork);
-            _progressChangedAsyncEvent = new AsyncEvent<MultiThreadingProgressEventArgs<TProgress>>(OnProgressChanged);
-            _logChangedkAsyncEvent = new AsyncEvent<MultiThreadingLoggingEventArgs>(OnLogChanged);
+            _progressChangedAsyncEvent = new AsyncEvent<MultiThreadingProgressEventArgs>(OnProgressChanged);
         }
 
 
@@ -311,7 +293,7 @@ namespace xNet.Threading
         /// <exception cref="System.ObjectDisposedException">Текущий экземпляр уже был удалён.</exception>
         /// <exception cref="System.InvalidOperationException">Вызов метода во время выполнения асинхронной операции.</exception>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="action"/> равно <see langword="null"/>.</exception>
-        public void Run(Action<MultiThreading<TProgress>> action)
+        public virtual void Run(Action action)
         {
             #region Проверка состояния
 
@@ -334,11 +316,11 @@ namespace xNet.Threading
 
             #endregion
 
-            InitBeforeRun(_threadsCount);
+            InitBeforeRun(_threadCount);
 
             try
             {
-                for (int i = 0; i < _threadsCount; ++i)
+                for (int i = 0; i < _threadCount; ++i)
                 {
                     StartThread(Thread, action);
                 }
@@ -358,10 +340,13 @@ namespace xNet.Threading
         /// <param name="action">Операция, которая будет выполнятся в отдельных фоновых потоках на каждой итерации цикла.</param>
         /// <exception cref="System.ObjectDisposedException">Текущий экземпляр уже был удалён.</exception>
         /// <exception cref="System.InvalidOperationException">Вызов метода во время выполнения асинхронной операции.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="fromInclusive"/> меньше 0.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="fromInclusive"/> больше значения параметра <paramref name="toExclusive"/>.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Значение параметра <paramref name="fromInclusive"/> меньше 0.
+        /// -или-
+        /// Значение параметра <paramref name="fromInclusive"/> больше значения параметра <paramref name="toExclusive"/>.
+        /// </exception>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="action"/> равно <see langword="null"/>.</exception>
-        public void RunFor(int fromInclusive, int toExclusive, Action<MultiThreading<TProgress>, int> action)
+        public virtual void RunFor(int fromInclusive, int toExclusive, Action<int> action)
         {
             #region Проверка состояния
 
@@ -402,18 +387,18 @@ namespace xNet.Threading
                 return;
             }
 
-            int threadsCount = _threadsCount;
+            int threadCount = _threadCount;
 
-            if (threadsCount > range)
+            if (threadCount > range)
             {
-                threadsCount = range;
+                threadCount = range;
             }
 
-            InitBeforeRun(threadsCount);
+            InitBeforeRun(threadCount);
 
             int pos = 0;
             ForParams forParams;
-            int[] threadsIteration = CalculateThreadsIteration(range, threadsCount);
+            int[] threadsIteration = CalculateThreadsIterations(range, threadCount);
 
             try
             {
@@ -421,7 +406,7 @@ namespace xNet.Threading
                 {
                     forParams.Action = action;
 
-                    // Высчитываем диапазон итераций для текущего потока.
+                    // Высчитываем индексы диапазона итераций для текущего потока.
                     forParams.Begin = pos + fromInclusive;
                     forParams.End = (pos + threadsIteration[i]) + fromInclusive;
 
@@ -445,9 +430,12 @@ namespace xNet.Threading
         /// <param name="action">Операция, которая будет выполнятся в отдельных фоновых потоках на каждой итерации цикла.</param>
         /// <exception cref="System.ObjectDisposedException">Текущий экземпляр уже был удалён.</exception>
         /// <exception cref="System.InvalidOperationException">Вызов метода во время выполнения асинхронной операции.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="source"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="action"/> равно <see langword="null"/>.</exception>
-        public void RunForEach<T>(IEnumerable<T> source, Action<MultiThreading<TProgress>, T> action)
+        /// <exception cref="System.ArgumentNullException">
+        /// Значение параметра <paramref name="source"/> равно <see langword="null"/>.
+        /// -или-
+        /// Значение параметра <paramref name="action"/> равно <see langword="null"/>.
+        /// </exception>
+        public virtual void RunForEach<T>(IEnumerable<T> source, Action<T> action)
         {
             #region Проверка состояния
 
@@ -492,78 +480,37 @@ namespace xNet.Threading
         /// <summary>
         /// Вызывает событие <see cref="ProgressChanged"/>.
         /// </summary>
-        /// <param name="value">Значение передаваемое событием.</param>
+        /// <param name="value">Значение передаваемое событием, или значение <see langword="null"/>.</param>
         /// <exception cref="System.ObjectDisposedException">Текущий экземпляр уже был удалён.</exception>
-        public void ReportProgress(TProgress value = default(TProgress))
+        public void ReportProgress(object value = null)
         {
             ThrowIfDisposed();
 
             _progressChangedAsyncEvent.Post(_asyncOperation,
-                this, new MultiThreadingProgressEventArgs<TProgress>(value));
+                this, new MultiThreadingProgressEventArgs(value));
         }
 
         /// <summary>
         /// Вызывает обычным способом событие <see cref="ProgressChanged"/>.
         /// </summary>
-        /// <param name="value">Значение передаваемое событием.</param>
+        /// <param name="value">Значение передаваемое событием, или значение <see langword="null"/>.</param>
         /// <exception cref="System.ObjectDisposedException">Текущий экземпляр уже был удалён.</exception>
         /// <remarks>Если возможности асинхронных событий не требуются, то используйте данный метод, так как это повысит производительность.</remarks>
-        public void ReportProgressSync(TProgress value = default(TProgress))
+        public void ReportProgressSync(object value = null)
         {
             ThrowIfDisposed();
 
-            OnProgressChanged(new MultiThreadingProgressEventArgs<TProgress>(value));
-        }
-
-        /// <summary>
-        /// Вызывает событие <see cref="LogChanged"/>.
-        /// </summary>
-        /// <param name="message">Сообщение.</param>
-        /// <param name="messageType">Тип сообщения.</param>
-        /// <exception cref="System.ObjectDisposedException">Текущий экземпляр уже был удалён.</exception>
-        public void ReportLog(string message, MessageType messageType)
-        {
-            ThrowIfDisposed();
-
-            _logChangedkAsyncEvent.Post(_asyncOperation,
-                this, new MultiThreadingLoggingEventArgs(message, messageType));
-        }
-
-        /// <summary>
-        /// Вызывает обычным способом событие <see cref="LogChanged"/>.
-        /// </summary>
-        /// <param name="message">Сообщение.</param>
-        /// <param name="messageType">Тип сообщения.</param>
-        /// <exception cref="System.ObjectDisposedException">Текущий экземпляр уже был удалён.</exception>
-        /// <remarks>Если возможности асинхронных событий не требуются, то используйте данный метод, так как это повысит производительность.</remarks>
-        public void ReportLogSync(string message, MessageType messageType)
-        {
-            ThrowIfDisposed();
-
-            OnLogChanged(new MultiThreadingLoggingEventArgs(message, messageType));
+            OnProgressChanged(new MultiThreadingProgressEventArgs(value));
         }
 
         #endregion
-
-        /// <summary>
-        /// Генерирует исключение, если значение свойства <see cref="Canceling"/> равно <see langword="true"/>.
-        /// </summary>
-        /// <exception cref="xNet.Threading.MultiThreadingCanceledException">Значение свойства <see cref="Canceling"/> равно <see langword="true"/>.</exception>
-        /// <remarks>Генерируемое исключение поглощается автоматически, если оно произошло в методе действия.</remarks>
-        public void ThrowIfCanceling()
-        {
-            if (Canceling)
-            {
-                throw new MultiThreadingCanceledException();
-            }
-        }
 
         /// <summary>
         /// Запрашивает отмену выполнения асинхронной операции и вызывает событие <see cref="CancelingWork"/>.
         /// </summary>
         /// <exception cref="System.ObjectDisposedException">Текущий экземпляр уже был удалён.</exception>
         /// <remarks>Если отмена уже была запрошена, то повторного вызова события не будет.</remarks>
-        public void Cancel()
+        public virtual void Cancel()
         {
             ThrowIfDisposed();
 
@@ -623,12 +570,17 @@ namespace xNet.Threading
         }
 
         /// <summary>
-        /// Вызывает событие <see cref="CancelingWork"/>.
+        /// Вызывает событие <see cref="WorkCompleted"/>.
         /// </summary>
         /// <param name="e">Аргументы события.</param>
-        protected virtual void OnCancelingWork(EventArgs e)
+        protected virtual void OnWorkCompleted(EventArgs e)
         {
-            _cancelingWorkAsyncEvent.On(this, e);
+            EventHandler<EventArgs> eventHandler = _workCompletedAsyncEvent;
+
+            if (eventHandler != null)
+            {
+                eventHandler(this, e);
+            }
         }
 
         /// <summary>
@@ -646,35 +598,21 @@ namespace xNet.Threading
         }
 
         /// <summary>
-        /// Вызывает событие <see cref="WorkCompleted"/>.
-        /// </summary>
-        /// <param name="e">Аргументы события.</param>
-        protected virtual void OnWorkCompleted(MultiThreadingCompletedEventArgs e)
-        {
-            EventHandler<MultiThreadingCompletedEventArgs> eventHandler = _workCompletedAsyncEvent;
-
-            if (eventHandler != null)
-            {
-                eventHandler(this, e);
-            }
-        }
-
-        /// <summary>
         /// Вызывает событие <see cref="ProgressChanged"/>.
         /// </summary>
         /// <param name="e">Аргументы события.</param>
-        protected virtual void OnProgressChanged(MultiThreadingProgressEventArgs<TProgress> e)
+        protected virtual void OnProgressChanged(MultiThreadingProgressEventArgs e)
         {
             _progressChangedAsyncEvent.On(this, e);
         }
 
         /// <summary>
-        /// Вызывает событие <see cref="LogChanged"/>.
+        /// Вызывает событие <see cref="CancelingWork"/>.
         /// </summary>
         /// <param name="e">Аргументы события.</param>
-        protected virtual void OnLogChanged(MultiThreadingLoggingEventArgs e)
+        protected virtual void OnCancelingWork(EventArgs e)
         {
-            _logChangedkAsyncEvent.On(this, e);
+            _cancelingWorkAsyncEvent.On(this, e);
         }
 
         #endregion
@@ -682,29 +620,25 @@ namespace xNet.Threading
 
         #region Методы (закрытые)
 
-        private void InitBeforeRun(int threadsCount, bool needCreateBarrierForReps = true)
+        private void InitBeforeRun(int threadCount, bool needCreateBarrierForReps = true)
         {
-            _repsCount = 0;
+            _repeatCount = 0;
             _notImplementedReset = false;
-            _currentThreadsCount = threadsCount;
+            _currentThreadCount = threadCount;
 
             if (needCreateBarrierForReps)
             {
-                _barrierForReps = new Barrier(threadsCount, (b) =>
+                _barrierForReps = new Barrier(threadCount, (b) =>
                     {
-                        OnRepeatCompleted(
-                            new MultiThreadingRepeatEventArgs(++_repsCount));
+                        if (!Canceling)
+                        {
+                            OnRepeatCompleted(
+                                new MultiThreadingRepeatEventArgs(++_repeatCount));
+                        }
                     });
             }
 
-            _barrierForEndThreads = new Barrier(threadsCount, (b) =>
-                {
-                    _asyncOperation.PostOperationCompleted(_callbackEndWork,
-                        new MultiThreadingCompletedEventArgs(_exceptions.ToArray()));
-                });
-
             _canceling = false;
-            _exceptions = new ConcurrentBag<Exception>();
             _asyncOperation = AsyncOperationManager.CreateOperation(new object());
 
             Working = true;
@@ -712,13 +646,27 @@ namespace xNet.Threading
             OnBeginningWork(EventArgs.Empty);
         }
 
+        private bool EndThread()
+        {
+            lock (_lockForEndThread)
+            {
+                --_currentThreadCount;
+
+                if (_currentThreadCount == 0)
+                {
+                    _asyncOperation.PostOperationCompleted(
+                        _callbackEndWork, new EventArgs());
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void EndWork()
         {
             Working = false;
-            _exceptions = null;
-
-            _barrierForEndThreads.Dispose();
-            _barrierForEndThreads = null;
 
             if (_barrierForReps != null)
             {
@@ -732,10 +680,10 @@ namespace xNet.Threading
         private void EndWorkCallback(object param)
         {
             EndWork();
-            OnWorkCompleted(param as MultiThreadingCompletedEventArgs);
+            OnWorkCompleted(param as EventArgs);
         }
 
-        private int[] CalculateThreadsIteration(int iterationCount, int threadsCount)
+        private int[] CalculateThreadsIterations(int iterationCount, int threadsCount)
         {
             // Список итераций для всех потоков.
             int[] threadsIteration = new int[threadsCount];
@@ -766,6 +714,8 @@ namespace xNet.Threading
             return threadsIteration;
         }
 
+        #region Запуск потоков
+
         private void StartThread(Action<object> body, object param)
         {
             var thread = new Thread(new ParameterizedThreadStart(body))
@@ -776,7 +726,7 @@ namespace xNet.Threading
             thread.Start(param);
         }
 
-        private void RunForEachList<T>(IEnumerable<T> source, Action<MultiThreading<TProgress>, T> action)
+        private void RunForEachList<T>(IEnumerable<T> source, Action<T> action)
         {
             var list = source as IList<T>;
            
@@ -787,18 +737,18 @@ namespace xNet.Threading
                 return;
             }
 
-            int threadsCount = _threadsCount;
+            int threadCount = _threadCount;
 
-            if (threadsCount > range)
+            if (threadCount > range)
             {
-                threadsCount = range;
+                threadCount = range;
             }
 
-            InitBeforeRun(threadsCount);
+            InitBeforeRun(threadCount);
 
             int pos = 0;
             ForEachListParams<T> forEachParams;
-            int[] threadsIteration = CalculateThreadsIteration(range, threadsCount);
+            int[] threadsIteration = CalculateThreadsIterations(range, threadCount);
 
             try
             {
@@ -807,7 +757,7 @@ namespace xNet.Threading
                     forEachParams.Action = action;
                     forEachParams.List = list;
 
-                    // Высчитываем диапазон итераций для текущего потока.
+                    // Высчитываем индексы диапазона итераций для текущего потока.
                     forEachParams.Begin = pos;
                     forEachParams.End = pos + threadsIteration[i];
 
@@ -823,11 +773,11 @@ namespace xNet.Threading
             }
         }
 
-        private void RunForEachOther<T>(IEnumerable<T> source, Action<MultiThreading<TProgress>, T> action)
+        private void RunForEachOther<T>(IEnumerable<T> source, Action<T> action)
         {
             _endEnumerator = false;
 
-            InitBeforeRun(_threadsCount, false);
+            InitBeforeRun(_threadCount, false);
 
             ForEachParams<T> forEachParams;
 
@@ -836,7 +786,7 @@ namespace xNet.Threading
 
             try
             {
-                for (int i = 0; i < _threadsCount; ++i)
+                for (int i = 0; i < _threadCount; ++i)
                 {
                     StartThread(ForEachInThread<T>, forEachParams);
                 }
@@ -848,17 +798,19 @@ namespace xNet.Threading
             }
         }
 
+        #endregion
+
         #region Методы потоков
 
         private void Thread(object param)
         {
-            var action = param as Action<MultiThreading<TProgress>>;
+            var action = param as Action;
 
             try
             {
                 while (!Canceling)
                 {
-                    action(this);
+                    action();
 
                     if (_enableInfiniteRepeat)
                     {
@@ -870,23 +822,21 @@ namespace xNet.Threading
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                if (!(ex is MultiThreadingCanceledException))
-                {
-                    Cancel();
-                    _exceptions.Add(ex);
-                }
+                Cancel();
 
                 if (_enableInfiniteRepeat)
                 {
-                    // Надо сообщить, что один из потоков выбыл,
-                    // чтобы остальные потоки могли продолжить работу.
                     _barrierForReps.RemoveParticipant();
                 }
-            }
 
-            _barrierForEndThreads.SignalAndWait();
+                throw;
+            }
+            finally
+            {
+                EndThread();
+            }
         }
 
         private void ForInThread(object param)
@@ -899,7 +849,7 @@ namespace xNet.Threading
                 {
                     for (int i = forParams.Begin; i < forParams.End && !Canceling; ++i)
                     {
-                        forParams.Action(this, i);
+                        forParams.Action(i);
                     }
 
                     if (_enableInfiniteRepeat)
@@ -910,25 +860,64 @@ namespace xNet.Threading
                     {
                         break;
                     }
-                } while (!Canceling) ;
+                } while (!Canceling);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                if (!(ex is MultiThreadingCanceledException))
-                {
-                    Cancel();
-                    _exceptions.Add(ex);
-                }
+                Cancel();
 
                 if (_enableInfiniteRepeat)
                 {
-                    // Надо сообщить, что один из потоков выбыл,
-                    // чтобы остальные потоки могли продолжить работу.
                     _barrierForReps.RemoveParticipant();
                 }
-            }
 
-            _barrierForEndThreads.SignalAndWait();
+                throw;
+            }
+            finally
+            {
+                EndThread();
+            }
+        }
+
+        private void ForEachListInThread<T>(object param)
+        {
+            var forEachParams = (ForEachListParams<T>)param;
+            IList<T> list = forEachParams.List;
+
+            try
+            {
+                do
+                {
+                    for (int i = forEachParams.Begin; i < forEachParams.End && !Canceling; ++i)
+                    {
+                        forEachParams.Action(list[i]);
+                    }
+
+                    if (_enableInfiniteRepeat)
+                    {
+                        _barrierForReps.SignalAndWait();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                } while (!Canceling);
+            }
+            catch (Exception)
+            {
+                Cancel();
+
+                if (_enableInfiniteRepeat)
+                {
+                    _barrierForReps.RemoveParticipant();
+                }
+
+                throw;
+            }
+            finally
+            {
+                EndThread();
+            }
         }
 
         private void ForEachInThread<T>(object param)
@@ -943,6 +932,11 @@ namespace xNet.Threading
 
                     lock (forEachParams.Source)
                     {
+                        if (Canceling)
+                        {
+                            break;
+                        }
+
                         if (!forEachParams.Source.MoveNext())
                         {
                             if (_enableInfiniteRepeat && !_notImplementedReset)
@@ -958,7 +952,7 @@ namespace xNet.Threading
                                 }
 
                                 OnRepeatCompleted(
-                                    new MultiThreadingRepeatEventArgs(++_repsCount));
+                                    new MultiThreadingRepeatEventArgs(++_repeatCount));
 
                                 continue;
                             }
@@ -971,61 +965,22 @@ namespace xNet.Threading
                         value = forEachParams.Source.Current;
                     }
 
-                    forEachParams.Action(this, value);
+                    forEachParams.Action(value);
                 }
             }
-            catch (MultiThreadingCanceledException) { }
             catch (Exception ex)
             {
                 Cancel();
-                _exceptions.Add(ex);
             }
-
-            _barrierForEndThreads.SignalAndWait();
-            forEachParams.Source.Dispose();
-        }
-
-        private void ForEachListInThread<T>(object param)
-        {
-            var forEachParams = (ForEachListParams<T>)param;
-            IList<T> list = forEachParams.List;
-
-            try
+            finally
             {
-                do
-                {
-                    for (int i = forEachParams.Begin; i < forEachParams.End && !Canceling; ++i)
-                    {
-                        forEachParams.Action(this, list[i]);
-                    }
+                bool isLastThread = EndThread();
 
-                    if (_enableInfiniteRepeat)
-                    {
-                        _barrierForReps.SignalAndWait();
-                    }
-                    else
-                    {
-                        break;
-                    }
-                } while (!Canceling);
-            }
-            catch (Exception ex)
-            {
-                if (!(ex is MultiThreadingCanceledException))
+                if (isLastThread)
                 {
-                    Cancel();
-                    _exceptions.Add(ex);
-                }
-
-                if (_enableInfiniteRepeat)
-                {
-                    // Надо сообщить, что один из потоков выбыл,
-                    // чтобы остальные потоки могли продолжить работу.
-                    _barrierForReps.RemoveParticipant();
+                    forEachParams.Source.Dispose();
                 }
             }
-
-            _barrierForEndThreads.SignalAndWait();
         }
 
         #endregion

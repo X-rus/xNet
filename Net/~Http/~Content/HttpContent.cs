@@ -1,56 +1,45 @@
-﻿using System;
+﻿using System.IO;
 
 namespace xNet.Net
 {
     /// <summary>
-    /// Представляет контент, который отправляется HTTP-серверу.
+    /// Представляет контент.
     /// </summary>
-    /// <remarks>Вы можете реализовать свой класс на основе этого и передать объект этого класса в качестве параметра методу <see cref="HttpRequest.Raw"/>.</remarks>
-    public abstract class HttpContent : IDisposable
+    public abstract class HttpContent
     {
-        #region Поля (защищённые)
+        /// <summary>MIME-тип контента.</summary>
+        protected string _contentType = string.Empty;
 
-        protected HttpRequest _request;
-        protected Action<byte[], int> _writeBytesCallback; 
 
-        #endregion
+        /// <summary>
+        /// Возвращает или задаёт MIME-тип контента.
+        /// </summary>
+        public string ContentType
+        {
+            get
+            {
+                return _contentType;
+            }
+            set
+            {
+                _contentType = value ?? string.Empty;
+            }
+        }
 
 
         #region Методы (открытые)
 
         /// <summary>
-        /// Вызывается перед отправкой данных.
-        /// </summary>
-        /// <param name="request">Запрос, который отсылает текущий контент.</param>
-        /// <param name="writeBytesCallback">Метод обратного вызова для записи байтов контента в поток.</param>
-        public virtual void Init(HttpRequest request, Action<byte[], int> writeBytesCallback)
-        {
-            _request = request;
-            _writeBytesCallback = writeBytesCallback;
-        }
-
-        /// <summary>
-        /// Возвращает MIME-тип контента.
-        /// </summary>
-        /// <returns>MIME-тип контента.</returns>
-        public virtual string GetType()
-        {
-            return "";
-        }
-
-        /// <summary>
-        /// Возвращает длину контента в байтах.
+        /// Подсчитывает и возвращает длину контента в байтах.
         /// </summary>
         /// <returns>Длина контента в байтах.</returns>
-        public virtual long GetLength()
-        {
-            return 0;
-        }
+        public abstract long CalculateContentLength();
 
         /// <summary>
-        /// Вызывается, когда требуется отправить данные.
+        /// Записывает данные контента в поток.
         /// </summary>
-        public virtual void Send() { }
+        /// <param name="stream">Поток, куда будут записаны данные контента.</param>
+        public abstract void WriteTo(Stream stream);
 
         /// <summary>
         /// Освобождает все ресурсы, используемые текущим экземпляром класса <see cref="HttpContent"/>.
@@ -61,7 +50,6 @@ namespace xNet.Net
         }
 
         #endregion
-
 
         /// <summary>
         /// Освобождает неуправляемые (а при необходимости и управляемые) ресурсы, используемые объектом <see cref="HttpContent"/>.

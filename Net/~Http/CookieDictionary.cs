@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Text;
 using xNet.Collections;
 
 namespace xNet.Net
 {
     /// <summary>
-    /// Представляет коллекцию HTTP-кукиксов.
+    /// Представляет коллекцию HTTP-куки.
     /// </summary>
     public class CookieDictionary : StringDictionary
     {
         /// <summary>
-        /// Возвращает или задает значение, указывающие, закрыты ли кукисы для редактирования
+        /// Возвращает или задает значение, указывающие, закрыты ли куки для редактирования
         /// </summary>
         /// <value>Значение по умолчанию — <see langword="false"/>.</value>
         public bool IsLocked { get; set; }
@@ -19,18 +19,22 @@ namespace xNet.Net
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="CookieDictionary"/>.
         /// </summary>
-        /// <param name="isLocked">Указывает, закрыты ли кукисы для редактирования.</param>
-        public CookieDictionary(bool isLocked = false)
+        /// <param name="isLocked">Указывает, закрыты ли куки для редактирования.</param>
+        public CookieDictionary(bool isLocked = false) : base(StringComparer.OrdinalIgnoreCase)
         {
             IsLocked = isLocked;
         }
 
 
-        internal string ToString()
+        /// <summary>
+        /// Возвращает строку, состоящую из имён и значений куки.
+        /// </summary>
+        /// <returns>Строка, состоящая из имён и значений куки.</returns>
+        override public string ToString()
         {
-            StringBuilder strBuilder = new StringBuilder();        
+            var strBuilder = new StringBuilder();        
 
-            foreach (KeyValuePair<string, string> cookie in this)
+            foreach (var cookie in this)
             {
                 strBuilder.AppendFormat("{0}={1}; ", cookie.Key, cookie.Value);
             }

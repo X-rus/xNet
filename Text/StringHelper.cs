@@ -43,8 +43,11 @@ namespace xNet.Text
         /// <returns>Найденая подстрока, иначе пустая строка.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="left"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="left"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> меньше 0.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Значение параметра <paramref name="startIndex"/> меньше 0.
+        /// -или-
+        /// Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.
+        /// </exception>
         public static string Substring(this string str, string left,
             int startIndex, StringComparison comparsion = StringComparison.Ordinal)
         {
@@ -121,8 +124,11 @@ namespace xNet.Text
         /// <returns>Найденая подстрока, иначе пустая строка.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="left"/> или <paramref name="right"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="left"/> или <paramref name="right"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> меньше 0.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Значение параметра <paramref name="startIndex"/> меньше 0.
+        /// -или-
+        /// Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.
+        /// </exception>
         public static string Substring(this string str, string left, string right,
             int startIndex, StringComparison comparsion = StringComparison.Ordinal)
         {
@@ -217,8 +223,11 @@ namespace xNet.Text
         /// <returns>Найденая подстрока, иначе пустая строка.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="left"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="left"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> меньше 0.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Значение параметра <paramref name="startIndex"/> меньше 0.
+        /// -или-
+        /// Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.
+        /// </exception>
         public static string LastSubstring(this string str, string left,
             int startIndex, StringComparison comparsion = StringComparison.Ordinal)
         {
@@ -300,8 +309,11 @@ namespace xNet.Text
         /// <returns>Найденая подстрока, иначе пустая строка.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="left"/> или <paramref name="right"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="left"/> или <paramref name="right"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> меньше 0.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Значение параметра <paramref name="startIndex"/> меньше 0.
+        /// -или-
+        /// Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.
+        /// </exception>
         public static string LastSubstring(this string str, string left, string right,
             int startIndex, StringComparison comparsion = StringComparison.Ordinal)
         {
@@ -409,8 +421,11 @@ namespace xNet.Text
         /// <returns>Найденые подстроки, иначе пустой массив строк.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="left"/> или <paramref name="right"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="left"/> или <paramref name="right"/> является пустой строкой.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> меньше 0.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Значение параметра <paramref name="startIndex"/> меньше 0.
+        /// -или-
+        /// Значение параметра <paramref name="startIndex"/> равно или больше длины строки <paramref name="str"/>.
+        /// </exception>
         public static string[] Substrings(this string str, string left, string right,
             int startIndex, StringComparison comparsion = StringComparison.Ordinal)
         {

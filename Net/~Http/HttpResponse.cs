@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Net;
 using System.Text;
+using System.Threading;
+using xNet.Collections;
 using xNet.Text;
 
 namespace xNet.Net
@@ -15,6 +16,8 @@ namespace xNet.Net
     {
         #region Классы (закрытые)
 
+        // Обёртка для массива байтов.
+        // Указывает реальное количество байтов содержащихся в массиве.
         private sealed class BytesWraper
         {
             public int Length { get; set; }
@@ -59,16 +62,23 @@ namespace xNet.Net
             #endregion
 
 
-            public ReceiverHelper(Stream stream, int bufferSize)
+            public ReceiverHelper(int bufferSize)
             {
-                _stream = stream;
                 _bufferSize = bufferSize;
-
                 _buffer = new byte[_bufferSize];
             }
 
 
             #region Методы (открытые)
+
+            public void Init(Stream stream)
+            {
+                _stream = stream;
+                _linePosition = 0;
+
+                Length = 0;
+                Position = 0;
+            }
 
             public string ReadLine()
             {
@@ -131,8 +141,9 @@ namespace xNet.Net
         }
 
         // Данный класс используется при загрузки сжатых данных.
-        // Он позволяет определить точное количество считаных байт. А потоки для считывания сжатых данных сообщают количество байт уже преобразованных данных.
-        private sealed class StreamWrapper : Stream
+        // Он позволяет определить точное количество считаных байт (сжатых данных).
+        // Это нужно, так как потоки для считывания сжатых данных сообщают количество байт уже преобразованных данных.
+        private sealed class ZipWraperStream : Stream
         {
             #region Поля (закрытые)
 
@@ -208,7 +219,8 @@ namespace xNet.Net
 
             #endregion
 
-            public StreamWrapper(Stream baseStream, ReceiverHelper receiverHelper)
+
+            public ZipWraperStream(Stream baseStream, ReceiverHelper receiverHelper)
             {
                 _baseStream = baseStream;
                 _receiverHelper = receiverHelper;
@@ -284,10 +296,143 @@ namespace xNet.Net
             #endregion
         }
 
+        // Поток для считывания тела сообщения.
+        private sealed class HttpResponseStream : Stream
+        {
+            #region Поля (закрытые)
+
+            private Stream _baseStream;
+            private ReceiverHelper _receiverHelper;
+            private Action<Exception> _endWrite;
+
+            #endregion
+
+
+            #region Свойства (открытые)
+
+            public override bool CanRead
+            {
+                get
+                {
+                    return true;
+                }
+            }
+
+            public override bool CanSeek
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            public override bool CanTimeout
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            public override bool CanWrite
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            public override long Length
+            {
+                get
+                {
+                    throw new NotSupportedException();
+                }
+            }
+
+            public override long Position
+            {
+                get
+                {
+                    throw new NotSupportedException();
+                }
+                set
+                {
+                    throw new NotSupportedException();
+                }
+            }
+
+            #endregion
+
+
+            public HttpResponseStream(Stream baseStream,
+                ReceiverHelper receiverHelper, Action<Exception> endWrite)
+            {
+                _baseStream = baseStream;
+                _receiverHelper = receiverHelper;
+                _endWrite = endWrite;
+            }
+
+
+            #region Методы (открытые)
+
+            public override void Flush()
+            {
+                _baseStream.Flush();
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                int bytesRead;
+
+                try
+                {
+                    if (_receiverHelper.HasData)
+                    {
+                        bytesRead = _receiverHelper.Read(buffer, offset, count);
+                    }
+                    else
+                    {
+                        bytesRead = _baseStream.Read(buffer, offset, count);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _endWrite(ex);
+
+                    throw ex;
+                }
+
+                if (bytesRead == 0)
+                {
+                    _endWrite(null);
+                }
+
+                return bytesRead;
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotSupportedException();
+            }
+
+            #endregion
+        }
+
         #endregion
 
 
-        private readonly byte[] _signatureBytes = Encoding.ASCII.GetBytes("</html>");
+        private readonly byte[] _htmlSignatureBytes = Encoding.ASCII.GetBytes("</html>");
 
 
         #region Поля (закрытые)
@@ -295,8 +440,10 @@ namespace xNet.Net
         private readonly HttpRequest _request;
         private ReceiverHelper _receiverHelper;
 
-        private readonly Dictionary<string, string> _headers =
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly StringDictionary _headers =
+            new StringDictionary(StringComparer.OrdinalIgnoreCase);
+
+        private readonly CookieDictionary _rawCookies = new CookieDictionary(); 
 
         #endregion
 
@@ -325,7 +472,7 @@ namespace xNet.Net
         }
 
         /// <summary>
-        /// Возвращает значение, указывающие, имеется ли переадресация (код ответа = 3xx).
+        /// Возвращает значение, указывающие, имеется ли переадресация.
         /// </summary>
         public bool HasRedirect
         {
@@ -333,7 +480,22 @@ namespace xNet.Net
             {
                 int numStatusCode = (int)StatusCode;
 
-                return (numStatusCode >= 300 && numStatusCode < 400);
+                if (numStatusCode >= 300 && numStatusCode < 400)
+                {
+                    return true;
+                }
+
+                if (_headers.ContainsKey("Location"))
+                {
+                    return true;
+                }
+
+                if (_headers.ContainsKey("Redirect-Location"))
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
 
@@ -359,6 +521,12 @@ namespace xNet.Net
         /// </summary>
         public HttpStatusCode StatusCode { get; private set; }
 
+        /// <summary>
+        /// Возвращает адрес переадресации.
+        /// </summary>
+        /// <returns>Адрес переадресации, иначе <see langword="null"/>.</returns>
+        public Uri RedirectAddress { get; private set; }
+
         #endregion
 
         #region HTTP-заголовки
@@ -366,19 +534,19 @@ namespace xNet.Net
         /// <summary>
         /// Возвращает кодировку тела сообщения.
         /// </summary>
-        /// <value>Значение заголовка, если такой заголок задан, иначе значение заданное в <see cref="xNet.Net.HttpRequest"/>. Если и оно не задано, то значение <see cref="System.Text.Encoding.Default"/>.</value>
+        /// <value>Кодировка тела сообщения, если соответствующий заголок задан, иначе значение заданное в <see cref="xNet.Net.HttpRequest"/>. Если и оно не задано, то значение <see cref="System.Text.Encoding.Default"/>.</value>
         public Encoding CharacterSet { get; private set; }
 
         /// <summary>
         /// Возвращает длину тела сообщения.
         /// </summary>
-        /// <value>Значение заголовка, если такой заголок задан, иначе -1.</value>
+        /// <value>Длина тела сообщения, если соответствующий заголок задан, иначе -1.</value>
         public int ContentLength { get; private set; }
 
         /// <summary>
         /// Возвращает тип содержимого ответа.
         /// </summary>
-        /// <value>Значение заголовка, если такой заголок задан, иначе пустая строка.</value>
+        /// <value>Тип содержимого ответа, если соответствующий заголок задан, иначе пустая строка.</value>
         public string ContentType { get; private set; }
 
         /// <summary>
@@ -394,9 +562,9 @@ namespace xNet.Net
         }
 
         /// <summary>
-        /// Возвращает кукисы, образовавшиеся в результате запроса, или установленные в <see cref="xNet.Net.HttpRequest"/>.
+        /// Возвращает куки, образовавшиеся в результате запроса, или установленные в <see cref="xNet.Net.HttpRequest"/>.
         /// </summary>
-        /// <remarks>Если кукиксы были установлены в <see cref="xNet.Net.HttpRequest"/> и значение свойства <see cref="xNet.Net.CookieDictionary.IsLocked"/> равно <see langword="true"/>, то будут созданы новые кукиксы.</remarks>
+        /// <remarks>Если куки были установлены в <see cref="xNet.Net.HttpRequest"/> и значение свойства <see cref="xNet.Net.CookieDictionary.IsLocked"/> равно <see langword="true"/>, то будут созданы новые куки.</remarks>
         public CookieDictionary Cookies { get; private set; }
 
         #endregion
@@ -404,11 +572,13 @@ namespace xNet.Net
         #endregion
 
 
+        #region Индексаторы (открытые)
+
         /// <summary>
         /// Возвращает значение HTTP-заголовка.
         /// </summary>
-        /// <param name="headerName">Название заголовка.</param>
-        /// <returns>Значение заголовка, если такой заголок задан, иначе пустая строка.</returns>
+        /// <param name="headerName">Название HTTP-заголовка.</param>
+        /// <value>Значение HTTP-заголовка, если он задан, иначе пустая строка.</value>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="headerName"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="headerName"/> является пустой строкой.</exception>
         public string this[string headerName]
@@ -422,23 +592,38 @@ namespace xNet.Net
                     throw new ArgumentNullException("headerName");
                 }
 
-                if (string.IsNullOrEmpty(headerName))
+                if (headerName.Length == 0)
                 {
                     throw ExceptionHelper.EmptyString("headerName");
                 }
 
                 #endregion
 
-                if (_headers.ContainsKey(headerName))
+                string value;
+
+                if (!_headers.TryGetValue(headerName, out value))
                 {
-                    return _headers[headerName];
+                    value = string.Empty;
                 }
-                else
-                {
-                    return string.Empty;
-                }
+
+                return value;
             }
         }
+
+        /// <summary>
+        /// Возвращает значение HTTP-заголовка.
+        /// </summary>
+        /// <param name="header">HTTP-заголовок.</param>
+        /// <value>Значение HTTP-заголовка, если он задан, иначе пустая строка.</value>
+        public string this[HttpHeader header]
+        {
+            get
+            {
+                return this[HttpHelper.HttpHeaders[header]];
+            }
+        }
+
+        #endregion
 
 
         internal HttpResponse(HttpRequest request)
@@ -453,7 +638,7 @@ namespace xNet.Net
         #region Методы (открытые)
 
         /// <summary>
-        /// Загружает тело сообщения и возвращает его в виде байтов.
+        /// Загружает тело сообщения и возвращает его в виде массива байтов.
         /// </summary>
         /// <returns>Если тело сообщения отсутствует, или оно уже было загружено, то будет возвращён пустой массив байтов.</returns>
         /// <exception cref="System.InvalidOperationException">Вызов метода из ошибочного ответа.</exception>
@@ -482,10 +667,9 @@ namespace xNet.Net
             {
                 IEnumerable<BytesWraper> source = GetMessageBodySource();
 
-                foreach (BytesWraper bytes in source)
+                foreach (var bytes in source)
                 {
                     memoryStream.Write(bytes.Value, 0, bytes.Length);
-                    _request.ReportBytesReceived(bytes.Length, ContentLength);
                 }
             }
             catch (Exception ex)
@@ -499,10 +683,6 @@ namespace xNet.Net
 
                 throw;
             }
-            finally
-            {
-                _receiverHelper = null;
-            }
 
             if (ConnectionClosed())
             {
@@ -515,7 +695,7 @@ namespace xNet.Net
         }
 
         /// <summary>
-        /// Загружает тело сообщения и возвращает его в виде текста.
+        /// Загружает тело сообщения и возвращает его в виде строки.
         /// </summary>
         /// <returns>Если тело сообщения отсутствует, или оно уже было загружено, то будет возвращена пустая строка.</returns>
         /// <exception cref="System.InvalidOperationException">Вызов метода из ошибочного ответа.</exception>
@@ -544,10 +724,9 @@ namespace xNet.Net
             {
                 IEnumerable<BytesWraper> source = GetMessageBodySource();
 
-                foreach (BytesWraper bytes in source)
+                foreach (var bytes in source)
                 {
                     memoryStream.Write(bytes.Value, 0, bytes.Length);
-                    _request.ReportBytesReceived(bytes.Length, ContentLength);
                 }
             }
             catch (Exception ex)
@@ -560,10 +739,6 @@ namespace xNet.Net
                 }
 
                 throw;
-            }
-            finally
-            {
-                _receiverHelper = null;
             }
 
             if (ConnectionClosed())
@@ -591,9 +766,13 @@ namespace xNet.Net
         /// <exception cref="System.IO.DirectoryNotFoundException">Значение параметра <paramref name="path"/> указывает на недопустимый путь.</exception>
         /// <exception cref="System.IO.IOException">При открытии файла возникла ошибка ввода-вывода.</exception>
         /// <exception cref="System.Security.SecurityException">Вызывающий оператор не имеет необходимого разрешения.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Операция чтения файла не поддерживается на текущей платформе.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Значение параметра <paramref name="path"/> определяет каталог.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">Вызывающий оператор не имеет необходимого разрешения.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">
+        /// Операция чтения файла не поддерживается на текущей платформе.
+        /// -или-
+        /// Значение параметра <paramref name="path"/> определяет каталог.
+        /// -или-
+        /// Вызывающий оператор не имеет необходимого разрешения.
+        /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         public void ToFile(string path)
         {
@@ -623,14 +802,13 @@ namespace xNet.Net
 
             try
             {
-                using (var fStream = new FileStream(path, FileMode.Create))
+                using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     IEnumerable<BytesWraper> source = GetMessageBodySource();
 
-                    foreach (BytesWraper bytes in source)
+                    foreach (var bytes in source)
                     {
-                        fStream.Write(bytes.Value, 0, bytes.Length);
-                        _request.ReportBytesReceived(bytes.Length, ContentLength);
+                        fileStream.Write(bytes.Value, 0, bytes.Length);
                     }
                 }
             }
@@ -657,9 +835,113 @@ namespace xNet.Net
             }
 
             #endregion
-            finally
+
+            if (ConnectionClosed())
             {
-                _receiverHelper = null;
+                _request.Dispose();
+            }
+
+            MessageBodyLoaded = true;
+        }
+
+        /// <summary>
+        /// Возвращает поток тела сообщения.
+        /// </summary>
+        /// <returns>>Если тело сообщения отсутствует, или оно уже было загружено, то будет возвращено значение <see langword="null"/>.</returns>
+        /// <exception cref="System.InvalidOperationException">Вызов метода из ошибочного ответа.</exception>
+        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
+        public Stream ToStream()
+        {
+            #region Проверка состояния
+
+            if (HasError)
+            {
+                throw new InvalidOperationException(
+                    Resources.InvalidOperationException_HttpResponse_HasError);
+            }
+
+            #endregion
+
+            if (MessageBodyLoaded)
+            {
+                return null;
+            }
+
+            var stream = new HttpResponseStream(_request.ClientStream, _receiverHelper, (ex) =>
+            {
+                if (ex != null)
+                {
+                    HasError = true;
+
+                    if (ex is IOException || ex is InvalidOperationException)
+                    {
+                        throw NewHttpException(Resources.HttpException_FailedReceiveMessageBody, ex);
+                    }
+
+                    throw ex;
+                }
+
+                if (ConnectionClosed())
+                {
+                    _request.Dispose();
+                }
+
+                MessageBodyLoaded = true;
+            });
+
+            if (_headers.ContainsKey("Content-Encoding"))
+            {
+                return GetZipStream(stream);
+            }
+
+            return stream;
+        }
+
+        /// <summary>
+        /// Загружает тело сообщения и возвращает его в виде потока байтов из памяти.
+        /// </summary>
+        /// <returns>Если тело сообщения отсутствует, или оно уже было загружено, то будет возвращено значение <see langword="null"/>.</returns>
+        /// <exception cref="System.InvalidOperationException">Вызов метода из ошибочного ответа.</exception>
+        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
+        public MemoryStream ToMemoryStream()
+        {
+            #region Проверка состояния
+
+            if (HasError)
+            {
+                throw new InvalidOperationException(
+                    Resources.InvalidOperationException_HttpResponse_HasError);
+            }
+
+            #endregion
+
+            if (MessageBodyLoaded)
+            {
+                return null;
+            }
+            
+            var memoryStream = new MemoryStream(
+                (ContentLength == -1) ? 0 : ContentLength);
+
+            try
+            {
+                IEnumerable<BytesWraper> source = GetMessageBodySource();
+
+                foreach (var bytes in source)
+                {
+                    memoryStream.Write(bytes.Value, 0, bytes.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                HasError = true;
+
+                if (ex is IOException || ex is InvalidOperationException)
+                {
+                    throw NewHttpException(Resources.HttpException_FailedReceiveMessageBody, ex);
+                }
+
+                throw;
             }
 
             if (ConnectionClosed())
@@ -668,6 +950,8 @@ namespace xNet.Net
             }
 
             MessageBodyLoaded = true;
+
+            return memoryStream;
         }
 
         /// <summary>
@@ -695,7 +979,6 @@ namespace xNet.Net
             if (ConnectionClosed())
             {
                 _request.Dispose();
-                _receiverHelper = null;
             }
             else
             {
@@ -703,10 +986,7 @@ namespace xNet.Net
                 {
                     IEnumerable<BytesWraper> source = GetMessageBodySource();
 
-                    foreach (BytesWraper bytes in source)
-                    {
-                        _request.ReportBytesReceived(bytes.Length, ContentLength);
-                    }
+                    foreach (var bytes in source) { }
                 }
                 catch (Exception ex)
                 {
@@ -719,48 +999,157 @@ namespace xNet.Net
 
                     throw;
                 }
-                finally
-                {
-                    _receiverHelper = null;
-                }
             }
 
             MessageBodyLoaded = true;
         }
 
+        #region Работа с куки
+
+        /// <summary>
+        /// Определяет, содержатся ли указанные куки.
+        /// </summary>
+        /// <param name="name">Название куки.</param>
+        /// <returns>Значение <see langword="true"/>, если указанные куки содержатся, иначе значение <see langword="false"/>.</returns>
+        public bool ContainsCookie(string name)
+        {
+            if (Cookies == null)
+            {
+                return false;
+            }
+
+            return Cookies.ContainsKey(name);
+        }
+
+        /// <summary>
+        /// Определяет, содержится ли сырое значение указанной куки.
+        /// </summary>
+        /// <param name="name">Название куки.</param>
+        /// <returns>Значение <see langword="true"/>, если указанные куки содержатся, иначе значение <see langword="false"/>.</returns>
+        /// <remarks>Это куки, которые были заданы в текущем ответе. Их сырые значения могут быть использованы для получения каких-нибудь дополнительных данных.</remarks>
+        public bool ContainsRawCookie(string name)
+        {
+            return _rawCookies.ContainsKey(name);
+        }
+
+        /// <summary>
+        /// Возвращает сырое значение куки.
+        /// </summary>
+        /// <param name="name">Название куки.</param>
+        /// <returns>Значение куки, если она задана, иначе пустая строка.</returns>
+        /// <remarks>Это куки, которые были заданы в текущем ответе. Их сырые значения могут быть использованы для получения каких-нибудь дополнительных данных.</remarks>
+        public string GetRawCookie(string name)
+        {
+            string value;
+
+            if (!_rawCookies.TryGetValue(name, out value))
+            {
+                value = string.Empty;
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Возвращает перечисляемую коллекцию сырых значений куки.
+        /// </summary>
+        /// <returns>Коллекция сырых значений куки.</returns>
+        /// <remarks>Это куки, которые были заданы в текущем ответе. Их сырые значения могут быть использованы для получения каких-нибудь дополнительных данных.</remarks>
+        public StringDictionary.Enumerator EnumerateRawCookies()
+        {
+            return _rawCookies.GetEnumerator();
+        }
+
+        #endregion
+
+        #region Работа с заголовками
+
+        /// <summary>
+        /// Определяет, содержится ли указанный HTTP-заголовок.
+        /// </summary>
+        /// <param name="headerName">Название HTTP-заголовка.</param>
+        /// <returns>Значение <see langword="true"/>, если указанный HTTP-заголовок содержится, иначе значение <see langword="false"/>.</returns>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="headerName"/> равно <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="headerName"/> является пустой строкой.</exception>
+        public bool ContainsHeader(string headerName)
+        {
+            #region Проверка параметров
+
+            if (headerName == null)
+            {
+                throw new ArgumentNullException("headerName");
+            }
+
+            if (headerName.Length == 0)
+            {
+                throw ExceptionHelper.EmptyString("headerName");
+            }
+
+            #endregion
+
+            return _headers.ContainsKey(headerName);
+        }
+
+        /// <summary>
+        /// Определяет, содержится ли указанный HTTP-заголовок.
+        /// </summary>
+        /// <param name="header">HTTP-заголовок.</param>
+        /// <returns>Значение <see langword="true"/>, если указанный HTTP-заголовок содержится, иначе значение <see langword="false"/>.</returns>
+        public bool ContainsHeader(HttpHeader header)
+        {
+            return ContainsHeader(HttpHelper.HttpHeaders[header]);
+        }
+
+        /// <summary>
+        /// Возвращает перечисляемую коллекцию HTTP-заголовков.
+        /// </summary>
+        /// <returns>Коллекция HTTP-заголовков.</returns>
+        public StringDictionary.Enumerator EnumerateHeaders()
+        {
+            return _headers.GetEnumerator();
+        }
+
+        #endregion
+
         #endregion
 
 
-        internal void LoadResponse(HttpMethod method)
+        // Загружает ответ и возвращает размер ответа в байтах.
+        internal long LoadResponse(HttpMethod method)
         {
-            HasError = false;
-            Address = _request.Address;
             Method = method;
+            Address = _request.Address;
 
+            HasError = false;
             MessageBodyLoaded = false;
 
-            _receiverHelper = new ReceiverHelper(
-                _request.ClientStream, _request.TcpClient.ReceiveBufferSize);
+            _headers.Clear();
+            _rawCookies.Clear();
+
+            if (_request.Cookies != null && !_request.Cookies.IsLocked)
+            {
+                Cookies = _request.Cookies;
+            }
+            else
+            {
+                Cookies = new CookieDictionary();
+            }
+
+            if (_receiverHelper == null)
+            {
+                _receiverHelper = new ReceiverHelper(
+                    _request.TcpClient.ReceiveBufferSize);
+            }
+
+             _receiverHelper.Init(_request.ClientStream);
 
             try
             {
-                WaitData();
-
                 ReceiveStartingLine();
-
-                _headers.Clear();
-
-                if (_request.Cookies != null && !_request.Cookies.IsLocked)
-                {
-                    Cookies = _request.Cookies;
-                }
-                else
-                {
-                    Cookies = new CookieDictionary();
-                }
 
                 ReceiveHeaders();
 
+                RedirectAddress = GetLocation();
                 CharacterSet = GetCharacterSet();
                 ContentLength = GetContentLength();
                 ContentType = GetContentType();
@@ -771,8 +1160,7 @@ namespace xNet.Net
 
                 if (ex is IOException)
                 {
-                    throw NewHttpException(
-                        Resources.HttpException_FailedReceiveResponse, ex);
+                    throw NewHttpException(Resources.HttpException_FailedReceiveResponse, ex);
                 }
 
                 throw;
@@ -785,6 +1173,15 @@ namespace xNet.Net
             {
                 MessageBodyLoaded = true;
             }
+
+            long responseSize = _receiverHelper.Position;
+
+            if (ContentLength > 0)
+            {
+                responseSize += ContentLength;
+            }
+
+            return responseSize;
         }
 
 
@@ -834,10 +1231,88 @@ namespace xNet.Net
                 typeof(HttpStatusCode), statusCode);
         }
 
+        private void SetCookie(string value)
+        {
+            if (value.Length == 0)
+            {
+                return;
+            }
+
+            // Ищем позицию, где заканчивается куки и начинается описание его параметров.
+            int endCookiePos = value.IndexOf(';');
+
+            // Ищем позицию между именем и значением куки.
+            int separatorPos = value.IndexOf('=');
+
+            if (separatorPos == -1)
+            {
+                string message = string.Format(
+                    Resources.HttpException_WrongCookie, value, Address.Host);
+
+                throw NewHttpException(message);
+            }
+
+            string cookieValue;
+            string cookieName = value.Substring(0, separatorPos);
+
+            if (endCookiePos == -1)
+            {
+                cookieValue = value.Substring(separatorPos + 1);
+            }
+            else
+            {
+                cookieValue = value.Substring(separatorPos + 1,
+                    (endCookiePos - separatorPos) - 1);
+
+                #region Получаем время, которое куки будет действителен
+
+                int expiresPos = value.IndexOf("expires=");
+
+                if (expiresPos != -1)
+                {
+                    string expiresStr;
+                    int endExpiresPos = value.IndexOf(';', expiresPos);
+
+                    expiresPos += 8;
+
+                    if (endExpiresPos == -1)
+                    {
+                        expiresStr = value.Substring(expiresPos);
+                    }
+                    else
+                    {
+                        expiresStr = value.Substring(expiresPos, endExpiresPos - expiresPos);
+                    }
+
+                    DateTime expires;
+
+                    // Если время куки вышло, то удаляем её.
+                    if (DateTime.TryParse(expiresStr, out expires) &&
+                        expires < DateTime.Now)
+                    {
+                        Cookies.Remove(cookieName);
+                    }
+                }
+
+                #endregion
+            }
+
+            // Если куки нужно удалить.
+            if (cookieValue.Length == 0 ||
+                cookieValue.Equals("deleted", StringComparison.OrdinalIgnoreCase))
+            {
+                Cookies.Remove(cookieName);
+            }
+            else
+            {
+                Cookies[cookieName] = cookieValue;
+            }
+
+             _rawCookies[cookieName] = value;
+        }
+
         private void ReceiveHeaders()
         {
-            DateTime dateTimeNow = DateTime.Now;
-
             while (true)
             {
                 string header = _receiverHelper.ReadLine();
@@ -865,79 +1340,7 @@ namespace xNet.Net
 
                 if (headerName.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase))
                 {
-                    #region Устанавливаем кукикс
-
-                    // Ищем позицию, где заканчивается кукис и начинается описание его параметров.
-                    int endCookiePos = headerValue.IndexOf(';');
-
-                    // Ищем позицию между именем и значением кукикса.
-                    separatorPos = headerValue.IndexOf('=');
-
-                    if (separatorPos == -1)
-                    {
-                        string message = string.Format(
-                            Resources.HttpException_WrongCookie, headerValue, Address.Host);
-
-                        throw NewHttpException(message);
-                    }
-
-                    string cookieValue;
-                    string cookieName = headerValue.Substring(0, separatorPos);
-
-                    if (endCookiePos == -1)
-                    {
-                        cookieValue = headerValue.Substring(separatorPos + 1);
-                    }
-                    else
-                    {
-                        cookieValue = headerValue.Substring(separatorPos + 1,
-                            (endCookiePos - separatorPos) - 1);
-
-                        #region Получаем время, которое кукис будет действителен и проверяем его
-
-                        int expiresPos = headerValue.IndexOf("expires=");
-
-                        if (expiresPos != -1)
-                        {
-                            string expiresStr;
-                            int endExpiresPos = headerValue.IndexOf(';', expiresPos);
-
-                            expiresPos += 8;
-
-                            if (endExpiresPos == -1)
-                            {
-                                expiresStr = headerValue.Substring(expiresPos);
-                            }
-                            else
-                            {
-                                expiresStr = headerValue.Substring(expiresPos, endExpiresPos - expiresPos);
-                            }
-
-                            DateTime expires;
-
-                            if (DateTime.TryParse(expiresStr, out expires) &&
-                                expires < dateTimeNow)
-                            {
-                                Cookies.Remove(cookieName);
-                                continue;
-                            }
-                        }
-
-                        #endregion
-                    }
-
-                    // Если кукис нужно удалить.
-                    if (cookieValue.Length == 0 ||
-                        cookieValue.Equals("deleted", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Cookies.Remove(cookieName);
-                    }
-                    else
-                    {
-                        Cookies[cookieName] = cookieValue;
-                    }
-
-                    #endregion
+                    SetCookie(headerValue);
                 }
                 else
                 {
@@ -960,7 +1363,7 @@ namespace xNet.Net
             return GetMessageBodySourceStd();
         }
 
-        // Приём обычных данных.
+        // Загрузка обычных данных.
         private IEnumerable<BytesWraper> GetMessageBodySourceStd()
         {
             if (_headers.ContainsKey("Transfer-Encoding"))
@@ -987,7 +1390,7 @@ namespace xNet.Net
             return ReceiveMessageBody(_request.ClientStream, isHtml);
         }
 
-        // Приём сжатых данных.
+        // Загрузка сжатых данных.
         private IEnumerable<BytesWraper> GetMessageBodySourceZip()
         {
             if (_headers.ContainsKey("Transfer-Encoding"))
@@ -1011,13 +1414,13 @@ namespace xNet.Net
                 isHtml = false;
             }
 
-            var streamWrapper = new StreamWrapper(
+            var streamWrapper = new ZipWraperStream(
                 _request.ClientStream, _receiverHelper);
 
             return ReceiveMessageBody(GetZipStream(streamWrapper), isHtml);
         }
 
-        // Считывания тела сообщения неизвестной длины.
+        // Загрузка тела сообщения неизвестной длины.
         private IEnumerable<BytesWraper> ReceiveMessageBody(Stream stream, bool isHtml)
         {
             var bytesWraper = new BytesWraper();
@@ -1029,7 +1432,16 @@ namespace xNet.Net
 
             while (true)
             {
-                int bytesRead = stream.Read(buffer, 0, bufferSize);
+                int bytesRead;
+
+                if (_receiverHelper.HasData)
+                {
+                    bytesRead = _receiverHelper.Read(buffer, 0, bufferSize);
+                }
+                else
+                {
+                    bytesRead = stream.Read(buffer, 0, bufferSize);
+                }
 
                 #region Проверка на конец тела сообщения
 
@@ -1044,7 +1456,7 @@ namespace xNet.Net
                     }
 
                     bool found = false;
-                    int newBufferLength = (buffer.Length - _signatureBytes.Length) + 1;
+                    int newBufferLength = (buffer.Length - _htmlSignatureBytes.Length) + 1;
 
                     #region Поиск сигнатуры
 
@@ -1055,7 +1467,7 @@ namespace xNet.Net
                             continue;
                         }
 
-                        for (int signatureIndex = 0; signatureIndex < _signatureBytes.Length; ++signatureIndex)
+                        for (int signatureIndex = 0; signatureIndex < _htmlSignatureBytes.Length; ++signatureIndex)
                         {
                             byte b = buffer[bufferIndex + signatureIndex];
 
@@ -1068,7 +1480,7 @@ namespace xNet.Net
                                 b = (byte)char.ToLower(c);
                             }
 
-                            if (_signatureBytes[signatureIndex] == b)
+                            if (_htmlSignatureBytes[signatureIndex] == b)
                             {
                                 found = true;
                             }
@@ -1090,12 +1502,9 @@ namespace xNet.Net
                         yield break;
                     }
                 }
-                else
+                else if (bytesRead == 0)
                 {
-                    if (bytesRead == 0)
-                    {
-                        yield break;
-                    }
+                    yield break;
                 }
 
                 #endregion
@@ -1105,7 +1514,7 @@ namespace xNet.Net
             }
         }
 
-        // Считывание тела сообщения известной длины.
+        // Загрузка тела сообщения известной длины.
         private IEnumerable<BytesWraper> ReceiveMessageBody(int contentLength)
         {
             Stream stream = _request.ClientStream;
@@ -1145,6 +1554,7 @@ namespace xNet.Net
             }
         }
 
+        // Загрузка тела сообщения частями.
         private IEnumerable<BytesWraper> ReceiveMessageBodyChunked()
         {
             Stream stream = _request.ClientStream;
@@ -1234,7 +1644,7 @@ namespace xNet.Net
         private IEnumerable<BytesWraper> ReceiveMessageBodyZip(int contentLength)
         {
             var bytesWraper = new BytesWraper();
-            var streamWrapper = new StreamWrapper(
+            var streamWrapper = new ZipWraperStream(
                 _request.ClientStream, _receiverHelper);
 
             using (Stream stream = GetZipStream(streamWrapper))
@@ -1271,7 +1681,7 @@ namespace xNet.Net
         private IEnumerable<BytesWraper> ReceiveMessageBodyChunkedZip()
         {
             var bytesWraper = new BytesWraper();
-            var streamWrapper = new StreamWrapper
+            var streamWrapper = new ZipWraperStream
                 (_request.ClientStream, _receiverHelper);
 
             using (Stream stream = GetZipStream(streamWrapper))
@@ -1370,11 +1780,55 @@ namespace xNet.Net
             return false;
         }
 
+        private Uri GetLocation()
+        {
+            string location;
+
+            _headers.TryGetValue("Location", out location);
+
+            if (string.IsNullOrEmpty(location))
+            {
+                _headers.TryGetValue("Redirect-Location", out location);
+            }
+
+            if (string.IsNullOrEmpty(location))
+            {
+                return null;
+            }
+
+            Uri redirectAddress;
+
+            if (location.StartsWith("http", StringComparison.Ordinal))
+            {
+                redirectAddress = new Uri(location);
+            }
+            else
+            {
+                string[] values = Uri.UnescapeDataString(location).Split('?');
+
+                var uriBuilder = new UriBuilder(_request.Address);
+                uriBuilder.Path = values[0];
+
+                if (values.Length > 1)
+                {
+                    uriBuilder.Query = values[1];
+                }
+                else
+                {
+                    uriBuilder.Query = string.Empty;
+                }
+
+                redirectAddress = uriBuilder.Uri;
+            }
+
+            return redirectAddress;
+        }
+
         private Encoding GetCharacterSet()
         {
             if (!_headers.ContainsKey("Content-Type"))
             {
-                return (_request.CharacterSet == null ? Encoding.Default : _request.CharacterSet);
+                return (_request.CharacterSet ?? Encoding.Default);
             }
 
             string contentType = _headers["Content-Type"];
@@ -1384,7 +1838,7 @@ namespace xNet.Net
 
             if (charsetPos == -1)
             {
-                return (_request.CharacterSet == null ? Encoding.Default : _request.CharacterSet);
+                return (_request.CharacterSet ?? Encoding.Default);
             }
 
             contentType = contentType.Substring(charsetPos + 1);
@@ -1395,7 +1849,7 @@ namespace xNet.Net
             }
             catch (ArgumentException)
             {
-                return (_request.CharacterSet == null ? Encoding.Default : _request.CharacterSet);
+                return (_request.CharacterSet ?? Encoding.Default);
             }
         }
 
@@ -1448,7 +1902,7 @@ namespace xNet.Net
                 }
 
                 sleepTime += 10;
-                System.Threading.Thread.Sleep(10);
+                Thread.Sleep(10);
             }
         }
 
@@ -1470,10 +1924,10 @@ namespace xNet.Net
             }
         }
 
-        private HttpException NewHttpException(string message,
-            Exception innerException = null)
+        private HttpException NewHttpException(string message, Exception innerException = null)
         {
-            return new HttpException(string.Format(message, Address.Host), innerException);
+            return new HttpException(string.Format(message, Address.Host),
+                HttpExceptionStatus.ReceiveFailure, HttpStatusCode.None, innerException);
         }
 
         #endregion

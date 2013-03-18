@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
+using System.Linq;
 
 namespace xNet
 {
@@ -210,6 +211,49 @@ namespace xNet
             }
 
             return strBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Возвращает случайный элемент из последовательности. Если последовательность пуста, то <see langword="null"/>.
+        /// </summary>
+        /// <typeparam name="TSource">Тип элементов последовательности <paramref name="source"/>.</typeparam>
+        /// <param name="source">Последовательность, из которой будет возвращён случайный элемент.</param>
+        /// <returns>Случайный элемент из последовательности.</returns>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="source"/> равно <see langword="null"/>.</exception>
+        public static TSource NextElement<TSource>(IEnumerable<TSource> source)
+        {
+            #region Проверка параметров
+
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            #endregion
+
+            int count = source.Count();
+
+            if (count == 0)
+            {
+                return default(TSource);
+            }
+
+            lock (_rand)
+            {
+                return source.ElementAt(_rand.Next(count));
+            }
+        }
+
+        /// <summary>
+        /// Возвращает <see langword="true"/>, либо <see langword="false"/>.
+        /// </summary>
+        /// <returns><see langword="true"/>, либо <see langword="false"/>.</returns>
+        public static bool IsTrue()
+        {
+            lock (_rand)
+            {
+                return (_rand.NextDouble() < 0.5);
+            }
         }
 
         #endregion

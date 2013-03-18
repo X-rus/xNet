@@ -86,12 +86,10 @@ namespace xNet.Net
         /// Преобразует строку в экземпляр класса <see cref="Socks5ProxyClient"/>.
         /// </summary>
         /// <param name="proxyAddress">Строка вида - хост:порт:имя_пользователя:пароль. Три последних параметра являются необязательными.</param>
-        /// <param name="proxyType">Тип прокси-сервера.</param>
         /// <returns>Экземпляр класса <see cref="Socks5ProxyClient"/>.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="proxyAddress"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="proxyAddress"/> является пустой строкой.</exception>
         /// <exception cref="System.FormatException">Формат порта является неправильным.</exception>
-        /// <exception cref="System.InvalidOperationException">Получен неподдерживаемый тип прокси-сервера.</exception>
         public static Socks5ProxyClient Parse(string proxyAddress)
         {
             return ProxyClient.Parse(ProxyType.Socks5, proxyAddress) as Socks5ProxyClient;
@@ -101,14 +99,13 @@ namespace xNet.Net
         /// Преобразует строку в экземпляр класса <see cref="Socks5ProxyClient"/>. Возвращает значение, указывающее, успешно ли выполнено преобразование.
         /// </summary>
         /// <param name="proxyAddress">Строка вида - хост:порт:имя_пользователя:пароль. Три последних параметра являются необязательными.</param>
-        /// <param name="proxyType">Тип прокси-сервера.</param>
         /// <param name="result">Если преобразование выполнено успешно, то содержит экземпляр класса <see cref="Socks5ProxyClient"/>, иначе <see langword="null"/>.</param>
         /// <returns>Значение <see langword="true"/>, если параметр <paramref name="proxyAddress"/> преобразован успешно, иначе <see langword="false"/>.</returns>
-        public static bool TryParse(string s, out Socks5ProxyClient result)
+        public static bool TryParse(string proxyAddress, out Socks5ProxyClient result)
         {
             ProxyClient proxy;
 
-            if (ProxyClient.TryParse(ProxyType.Socks5, s, out proxy))
+            if (ProxyClient.TryParse(ProxyType.Socks5, proxyAddress, out proxy))
             {
                 result = proxy as Socks5ProxyClient;
                 return true;
@@ -124,20 +121,26 @@ namespace xNet.Net
 
 
         /// <summary>
-        /// Создаёт соединение с прокси-сервером.
+        /// Создаёт соединение с сервером через прокси-сервер.
         /// </summary>
-        /// <param name="destinationHost">Хост пункта назначения, с которым нужно связаться через прокси-сервер.</param>
-        /// <param name="destinationPort">Порт пункта назначения, с которым нужно связаться через прокси-сервер.</param>
-        /// <returns>Соединение с прокси-сервером.</returns>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="xNet.Net.ProxyClient.Host"/> равно <see langword="null"/> или имеет нулевую длину.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="xNet.Net.ProxyClient.Port"/> меньше 1 или больше 65535.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="xNet.Net.ProxyClient.Username"/> имеет длину более 255 символов.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="xNet.Net.ProxyClient.Password"/> имеет длину более 255 символов.</exception>
+        /// <param name="destinationHost">Хост сервера, с которым нужно связаться через прокси-сервер.</param>
+        /// <param name="destinationPort">Порт сервера, с которым нужно связаться через прокси-сервер.</param>
+        /// <param name="tcpClient">Соединение, через которое нужно работать, или значение <see langword="null"/>.</param>
+        /// <returns>Соединение с сервером через прокси-сервер.</returns>
+        /// <exception cref="System.InvalidOperationException">
+        /// Значение свойства <see cref="Host"/> равно <see langword="null"/> или имеет нулевую длину.
+        /// -или-
+        /// Значение свойства <see cref="Port"/> меньше 1 или больше 65535.
+        /// -или-
+        /// Значение свойства <see cref="Username"/> имеет длину более 255 символов.
+        /// -или-
+        /// Значение свойства <see cref="Password"/> имеет длину более 255 символов.
+        /// </exception>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="destinationHost"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="destinationHost"/> является пустой строкой.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="destinationPort"/> меньше 1 или больше 65535.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-       public override TcpClient CreateConnection(string destinationHost, int destinationPort)
+        public override TcpClient CreateConnection(string destinationHost, int destinationPort, TcpClient tcpClient = null)
         {
             CheckState();
 
@@ -160,18 +163,23 @@ namespace xNet.Net
 
             #endregion
 
-            TcpClient tcpClient = CreateConnectionWithProxy();
+            TcpClient curTcpClient = tcpClient;
+
+            if (curTcpClient == null)
+            {
+                curTcpClient = CreateConnectionToProxy();
+            }
 
             try
             {
-                NetworkStream nStream = tcpClient.GetStream();
+                NetworkStream nStream = curTcpClient.GetStream();
 
                 InitialNegotiation(nStream);
                 SendCommand(nStream, CommandConnect, destinationHost, destinationPort);
             }
             catch (Exception ex)
             {
-                tcpClient.Close();
+                curTcpClient.Close();
 
                 if (ex is IOException || ex is SocketException)
                 {
@@ -181,7 +189,7 @@ namespace xNet.Net
                 throw;
             }
 
-            return tcpClient;
+            return curTcpClient;
         }
 
 

@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ArgumentException_HttpRequest_GetNotAvailableHeader" xml:space="preserve">
-    <value>Значение заголовка '{0}' можно получить только с помощью специального свойства.</value>
-  </data>
   <data name="ArgumentException_HttpRequest_SetNotAvailableHeader" xml:space="preserve">
     <value>Значение заголовка '{0}' можно задать только с помощью специального свойства.</value>
   </data>
@@ -132,7 +129,7 @@
   <data name="ArgumentOutOfRangeException_CanNotBeLess" xml:space="preserve">
     <value>Значение параметра не может быть меньше {0}.</value>
   </data>
-  <data name="ArgumentOutOfRangeException_CanNotBeLessOrMore" xml:space="preserve">
+  <data name="ArgumentOutOfRangeException_CanNotBeLessOrGreater" xml:space="preserve">
     <value>Значение параметра не может быть меньше {0} или больше {1}.</value>
   </data>
   <data name="ArgumentOutOfRangeException_StringLengthCanNotBeMore" xml:space="preserve">
@@ -182,12 +179,6 @@
   </data>
   <data name="InvalidOperationException_HttpResponse_HasError" xml:space="preserve">
     <value>Невозможно выполнить метод, так как при получении ответа произошла ошибка.</value>
-  </data>
-  <data name="InvalidOperationException_MultipartDataElement_FailedGetFileSize" xml:space="preserve">
-    <value>Не удалось получить размер файла '{0}', так как он не существует, либо по другой причине.</value>
-  </data>
-  <data name="InvalidOperationException_MultipartDataElement_FailedReadFile" xml:space="preserve">
-    <value>Не удалось считать файл '{0}', так как он не существует, либо по другой причине.</value>
   </data>
   <data name="InvalidOperationException_NetProcesses_CannotSetValue" xml:space="preserve">
     <value>Невозможно установить значение во время выполнения асинхронного действия.</value>
@@ -291,12 +282,6 @@
   <data name="DirectoryNotFoundException_DirectoryNotFound" xml:space="preserve">
     <value>Путь указывает на несуществующую директорию {0}.</value>
   </data>
-  <data name="ArgumentException_WrongPath" xml:space="preserve">
-    <value>Путь является пустой строкой, содержит только пробелы или содержит недопустимые символы.</value>
-  </data>
-  <data name="UnauthorizedAccessException_DirOnlyForRead" xml:space="preserve">
-    <value>Каталог '{0}' доступен только для чтения.</value>
-  </data>
   <data name="HttpException_Default" xml:space="preserve">
     <value>Произошла ошибка при работе с HTTP-протоколом.</value>
   </data>
@@ -315,10 +300,19 @@
   <data name="HttpException_LimitRedirections" xml:space="preserve">
     <value>Превышено допустимое количество последовательных переадресаций.</value>
   </data>
-  <data name="ArgumentException_NotContainAttribute" xml:space="preserve">
-    <value>Заданный тип не содержит обязательного атрибута: {0}</value>
-  </data>
   <data name="HttpException_WrongChunkedBlockLength" xml:space="preserve">
     <value>Получен неверный размер блока данных при использовании Chunked: {0}</value>
+  </data>
+  <data name="InvalidOperationException_ChainProxyClient_NotProxies" xml:space="preserve">
+    <value>Не задано ни одного прокси-сервера для цепочки.</value>
+  </data>
+  <data name="ArgumentOutOfRangeException_CanNotBeGreater" xml:space="preserve">
+    <value>Значение параметра не может быть больше {0}.</value>
+  </data>
+  <data name="ArgumentException_CanNotReadOrSeek" xml:space="preserve">
+    <value>Поток не поддерживает чтение или перемещение позиции.</value>
+  </data>
+  <data name="ArgumentException_WrongPath" xml:space="preserve">
+    <value>Путь является пустой строкой, содержит только пробелы или содержит недопустимые символы.</value>
   </data>
 </root>

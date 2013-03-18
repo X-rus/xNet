@@ -11,17 +11,24 @@ namespace xNet.Net
     /// </summary>
     public abstract class ProxyClient : IEquatable<ProxyClient>
     {
-        #region Поля (внутренние защищённые)
+        #region Поля (защищённые)
 
-        internal protected ProxyType _proxyClientType;
+        /// <summary>Тип прокси-сервера.</summary>
+        protected ProxyType _type;
 
-        internal protected string _host;
-        internal protected int _port = 1;
-        internal protected string _username;
-        internal protected string _password;
+        /// <summary>Хост прокси-сервера.</summary>
+        protected string _host;
+        /// <summary>Порт прокси-сервера.</summary>
+        protected int _port = 1;
+        /// <summary>Имя пользователя для авторизации на прокси-сервере.</summary>
+        protected string _username;
+        /// <summary>Пароль для авторизации на прокси-сервере.</summary>
+        protected string _password;
 
-        internal protected int _connectTimeout = 60000;
-        internal protected int _readWriteTimeout = 60000;
+        /// <summary>Время ожидания в миллисекундах при подключении к прокси-серверу.</summary>
+        protected int _connectTimeout = 60000;
+        /// <summary>Время ожидания в миллисекундах при записи в поток или при чтении из него.</summary>
+        protected int _readWriteTimeout = 60000;
 
         #endregion
 
@@ -31,11 +38,11 @@ namespace xNet.Net
         /// <summary>
         /// Возвращает тип прокси-сервера.
         /// </summary>
-        public ProxyType ProxyType
+        public virtual ProxyType Type
         {
             get
             {
-                return _proxyClientType;
+                return _type;
             }
         }
 
@@ -45,7 +52,7 @@ namespace xNet.Net
         /// <value>Значение по умолчанию — <see langword="null"/>.</value>
         /// <exception cref="System.ArgumentNullException">Значение параметра равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра является пустой строкой.</exception>
-        public string Host
+        public virtual string Host
         {
             get
             {
@@ -76,7 +83,7 @@ namespace xNet.Net
         /// </summary>
         /// <value>Значение по умолчанию — 1.</value>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра меньше 1 или больше 65535.</exception>
-        public int Port
+        public virtual int Port
         {
             get
             {
@@ -102,7 +109,7 @@ namespace xNet.Net
         /// </summary>
         /// <value>Значение по умолчанию — <see langword="null"/>.</value>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра имеет длину более 255 символов.</exception>
-        public string Username
+        public virtual string Username
         {
             get
             {
@@ -129,7 +136,7 @@ namespace xNet.Net
         /// </summary>
         /// <value>Значение по умолчанию — <see langword="null"/>.</value>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра имеет длину более 255 символов.</exception>
-        public string Password
+        public virtual string Password
         {
             get
             {
@@ -156,7 +163,7 @@ namespace xNet.Net
         /// </summary>
         /// <value>Значение по умолчанию - 60.000, что равняется одной минуте.</value>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра меньше 0.</exception>
-        public int ConnectTimeout
+        public virtual int ConnectTimeout
         {
             get
             {
@@ -182,7 +189,7 @@ namespace xNet.Net
         /// </summary>
         /// <value>Значение по умолчанию - 60.000, что равняется одной минуте.</value>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра меньше 0.</exception>
-        public int ReadWriteTimeout
+        public virtual int ReadWriteTimeout
         {
             get
             {
@@ -206,23 +213,41 @@ namespace xNet.Net
         #endregion
 
 
-        #region Конструкторы (внутренние защищённые)
+        #region Конструкторы (защищённые)
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса <see cref="ProxyClient"/>.
+        /// </summary>
+        /// <param name="proxyType">Тип прокси-сервера.</param>
         internal protected ProxyClient(ProxyType proxyType)
         {
-            _proxyClientType = proxyType;
+            _type = proxyType;
         }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса <see cref="ProxyClient"/>.
+        /// </summary>
+        /// <param name="proxyType">Тип прокси-сервера.</param>
+        /// <param name="address">Хост прокси-сервера.</param>
+        /// <param name="port">Порт прокси-сервера.</param>
         internal protected ProxyClient(ProxyType proxyType, string address, int port)
         {
-            _proxyClientType = proxyType;
+            _type = proxyType;
             _host = address;
             _port = port;
         }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса <see cref="ProxyClient"/>.
+        /// </summary>
+        /// <param name="proxyType">Тип прокси-сервера.</param>
+        /// <param name="address">Хост прокси-сервера.</param>
+        /// <param name="port">Порт прокси-сервера.</param>
+        /// <param name="username">Имя пользователя для авторизации на прокси-сервере.</param>
+        /// <param name="password">Пароль для авторизации на прокси-сервере.</param>
         internal protected ProxyClient(ProxyType proxyType, string address, int port, string username, string password)
         {
-            _proxyClientType = proxyType;
+            _type = proxyType;
             _host = address;
             _port = port;
             _username = username;
@@ -371,20 +396,26 @@ namespace xNet.Net
 
 
         /// <summary>
-        /// Создаёт соединение с прокси-сервером.
+        /// Создаёт соединение с сервером через прокси-сервер.
         /// </summary>
         /// <param name="destinationHost">Хост пункта назначения, с которым нужно связаться через прокси-сервер.</param>
         /// <param name="destinationPort">Порт пункта назначения, с которым нужно связаться через прокси-сервер.</param>
+        /// <param name="tcpClient">Соединение, через которое нужно работать, или значение <see langword="null"/>.</param>
         /// <returns>Соединение с прокси-сервером.</returns>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="Host"/> равно <see langword="null"/> или имеет нулевую длину.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="Port"/> меньше 1 или больше 65535.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="Username"/> имеет длину более 255 символов.</exception>
-        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="Password"/> имеет длину более 255 символов.</exception>
+        /// <exception cref="System.InvalidOperationException">
+        /// Значение свойства <see cref="Host"/> равно <see langword="null"/> или имеет нулевую длину.
+        /// -или-
+        /// Значение свойства <see cref="Port"/> меньше 1 или больше 65535.
+        /// -или-
+        /// Значение свойства <see cref="Username"/> имеет длину более 255 символов.
+        /// -или-
+        /// Значение свойства <see cref="Password"/> имеет длину более 255 символов.
+        /// </exception>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="destinationHost"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="destinationHost"/> является пустой строкой.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">Значение параметра <paramref name="destinationPort"/> меньше 1 или больше 65535.</exception>
         /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
-        public abstract TcpClient CreateConnection(string destinationHost, int destinationPort);
+        public abstract TcpClient CreateConnection(string destinationHost, int destinationPort, TcpClient tcpClient = null);
 
 
         #region Методы (открытые)
@@ -402,7 +433,7 @@ namespace xNet.Net
         /// Формирует строку вида - хост:порт:имя_пользователя:пароль. Последние два параметра добавляются, если они заданы.
         /// </summary>
         /// <returns>Строка вида - хост:порт:имя_пользователя:пароль.</returns>
-        public string ToExtendedString()
+        public virtual string ToExtendedString()
         {
             var strBuilder = new StringBuilder();
 
@@ -476,9 +507,14 @@ namespace xNet.Net
         #endregion
 
 
-        #region Методы (внутренние защищённые)
+        #region Методы (защищённые)
 
-        internal protected TcpClient CreateConnectionWithProxy()
+        /// <summary>
+        /// Создаёт соединение с прокси-сервером.
+        /// </summary>
+        /// <returns>Соединение с прокси-сервером.</returns>
+        /// <exception cref="xNet.Net.ProxyException">Ошибка при работе с прокси-сервером.</exception>
+        protected TcpClient CreateConnectionToProxy()
         {
             TcpClient tcpClient = null;
 
@@ -559,7 +595,14 @@ namespace xNet.Net
             return tcpClient;
         }
 
-        internal protected void CheckState()
+        /// <summary>
+        /// Проверяет различные параметры прокси-клиента на ошибочные значения.
+        /// </summary>
+        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="Host"/> равно <see langword="null"/> или имеет нулевую длину.</exception>
+        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="Port"/> меньше 1 или больше 65535.</exception>
+        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="Username"/> имеет длину более 255 символов.</exception>
+        /// <exception cref="System.InvalidOperationException">Значение свойства <see cref="Password"/> имеет длину более 255 символов.</exception>
+        protected void CheckState()
         {
             if (string.IsNullOrEmpty(_host))
             {
@@ -586,7 +629,13 @@ namespace xNet.Net
             }
         }
 
-        internal protected ProxyException NewProxyException(
+        /// <summary>
+        /// Создаёт объект исключения прокси.
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке с объяснением причины исключения.</param>
+        /// <param name="innerException">Исключение, вызвавшее текущие исключение, или значение <see langword="null"/>.</param>
+        /// <returns>Объект исключения прокси.</returns>
+        protected ProxyException NewProxyException(
             string message, Exception innerException = null)
         {
             return new ProxyException(string.Format(

@@ -12,7 +12,7 @@ namespace xNet.Net
         /// <summary>
         /// Возвращает количество полученных байтов.
         /// </summary>
-        public int BytesReceived { get; private set; }
+        public long BytesReceived { get; private set; }
 
         /// <summary>
         /// Возвращает общее количество получаемых байтов.
@@ -39,7 +39,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="bytesReceived">Количество полученных байтов.</param>
         /// <param name="totalBytesToReceive">Общее количество получаемых байтов.</param>
-        public DownloadProgressChangedEventArgs(int bytesReceived, long totalBytesToReceive)
+        public DownloadProgressChangedEventArgs(long bytesReceived, long totalBytesToReceive)
         {
             BytesReceived = bytesReceived;
             TotalBytesToReceive = totalBytesToReceive;

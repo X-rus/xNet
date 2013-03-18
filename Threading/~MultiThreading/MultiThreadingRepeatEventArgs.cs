@@ -10,16 +10,16 @@ namespace xNet.Threading
         /// <summary>
         /// Возвращает число выполненных повторов.
         /// </summary>
-        public int RepsCount { get; private set; }
+        public ulong RepeatCount { get; private set; }
 
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MultiThreadingRepeatEventArgs"/>.
         /// </summary>
-        /// <param name="exception">Число выполненных повторов.</param>
-        public MultiThreadingRepeatEventArgs(int repsCount)
+        /// <param name="repeatCount">Число выполненных повторов.</param>
+        public MultiThreadingRepeatEventArgs(ulong repeatCount)
         {
-            RepsCount = repsCount;
+            RepeatCount = repeatCount;
         }
     }
 }

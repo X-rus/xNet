@@ -40,7 +40,7 @@ namespace xNet.Net
         public Socks4aProxyClient(string host, int port, string username)
             : base(host, port, username)
         {
-            _proxyClientType = ProxyType.Socks4a;
+            _type = ProxyType.Socks4a;
         }
 
         #endregion
@@ -52,12 +52,10 @@ namespace xNet.Net
         /// Преобразует строку в экземпляр класса <see cref="Socks4aProxyClient"/>.
         /// </summary>
         /// <param name="proxyAddress">Строка вида - хост:порт:имя_пользователя:пароль. Три последних параметра являются необязательными.</param>
-        /// <param name="proxyType">Тип прокси-сервера.</param>
         /// <returns>Экземпляр класса <see cref="Socks4aProxyClient"/>.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="proxyAddress"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="proxyAddress"/> является пустой строкой.</exception>
         /// <exception cref="System.FormatException">Формат порта является неправильным.</exception>
-        /// <exception cref="System.InvalidOperationException">Получен неподдерживаемый тип прокси-сервера.</exception>
         public static Socks4aProxyClient Parse(string proxyAddress)
         {
             return ProxyClient.Parse(ProxyType.Socks4a, proxyAddress) as Socks4aProxyClient;
@@ -67,14 +65,13 @@ namespace xNet.Net
         /// Преобразует строку в экземпляр класса <see cref="Socks4aProxyClient"/>. Возвращает значение, указывающее, успешно ли выполнено преобразование.
         /// </summary>
         /// <param name="proxyAddress">Строка вида - хост:порт:имя_пользователя:пароль. Три последних параметра являются необязательными.</param>
-        /// <param name="proxyType">Тип прокси-сервера.</param>
         /// <param name="result">Если преобразование выполнено успешно, то содержит экземпляр класса <see cref="Socks4aProxyClient"/>, иначе <see langword="null"/>.</param>
         /// <returns>Значение <see langword="true"/>, если параметр <paramref name="proxyAddress"/> преобразован успешно, иначе <see langword="false"/>.</returns>
-        public static bool TryParse(string s, out Socks4aProxyClient result)
+        public static bool TryParse(string proxyAddress, out Socks4aProxyClient result)
         {
             ProxyClient proxy;
 
-            if (ProxyClient.TryParse(ProxyType.Socks4a, s, out proxy))
+            if (ProxyClient.TryParse(ProxyType.Socks4a, proxyAddress, out proxy))
             {
                 result = proxy as Socks4aProxyClient;
                 return true;
