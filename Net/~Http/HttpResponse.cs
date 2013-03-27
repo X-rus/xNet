@@ -1378,7 +1378,8 @@ namespace xNet.Net
 
             bool isHtml;
 
-            if (ContentType.Equals("text/html", StringComparison.OrdinalIgnoreCase))
+            if (!_request.IgnoreResponseContentType &&
+                ContentType.Equals("text/html", StringComparison.OrdinalIgnoreCase))
             {
                 isHtml = true;
             }
@@ -1405,7 +1406,8 @@ namespace xNet.Net
 
             bool isHtml;
 
-            if (ContentType.Equals("text/html", StringComparison.OrdinalIgnoreCase))
+            if (!_request.IgnoreResponseContentType &&
+                ContentType.Equals("text/html", StringComparison.OrdinalIgnoreCase))
             {
                 isHtml = true;
             }

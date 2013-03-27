@@ -173,8 +173,6 @@ namespace xNet.Net
 
         #region Статические поля (закрытые)
 
-        private static ProxyClient _currentProxy;
-
         // Заголовки, которые можно задать только с помощью специального свойства/метода.
         private static readonly List<string> _closedHeaders = new List<string>()
         {
@@ -221,6 +219,8 @@ namespace xNet.Net
         private TcpClient _tcpClient;
         private Stream _clientStream;
         private NetworkStream _clientNetworkStream;
+
+        private ProxyClient _currentProxy;
 
         private int _connectTimeout = 60000;
         private int _readWriteTimeout = 60000;
@@ -503,6 +503,14 @@ namespace xNet.Net
         /// <value>Значение по умолчанию — <see langword="null"/>.</value>
         /// <remarks>Куки могут изменяться ответом от HTTP-сервера. Чтобы не допустить этого, нужно установить свойство <see cref="xNet.Net.CookieDictionary.IsLocked"/> равным <see langword="true"/>.</remarks>
         public CookieDictionary Cookies { get; set; }
+
+        /// <summary>
+        /// Возвращает или задает значение, указывающее, нужно ли игнорировать тип контента ответа.
+        /// </summary>
+        /// <value>Значение по умолчанию — <see langword="false"/>.</value>
+        /// <remarks>Если установить значение <see langword="true"/>, то тело сообщения будет считываться обычным образом до тех пор, пока будут поступать данные.
+        /// Это свойство следует использовать в том случае, если, допустим, сервер возвращает тип 'text/html', а на самом деле отправляет другие данные и при этом не указывает длину тела сообщения.</remarks>
+        public bool IgnoreResponseContentType { get; set; }
 
         #endregion
 
@@ -2128,13 +2136,16 @@ namespace xNet.Net
 
             bool createdNewConnection = false;
 
+            ProxyClient proxy = GetProxy();
+
             // Если нужно создать новое подключение.
             if (_tcpClient == null || Address.Port != address.Port ||
                 !Address.Host.Equals(address.Host, StringComparison.OrdinalIgnoreCase) ||
                 !Address.Scheme.Equals(address.Scheme, StringComparison.OrdinalIgnoreCase) ||
-                _response.HasError)
+                _response.HasError || _currentProxy != proxy)
             {
                 Address = address;
+                _currentProxy = proxy;
 
                 Dispose();
                 CreateConnection();
@@ -2305,7 +2316,6 @@ namespace xNet.Net
         private TcpClient CreateTcpConnection(string host, int port)
         {
             TcpClient tcpClient;
-            _currentProxy = GetProxy();
 
             if (_currentProxy == null)
             {

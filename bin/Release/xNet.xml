@@ -2339,6 +2339,14 @@
             <value>Значение по умолчанию — <see langword="null"/>.</value>
             <remarks>Куки могут изменяться ответом от HTTP-сервера. Чтобы не допустить этого, нужно установить свойство <see cref="P:xNet.Net.CookieDictionary.IsLocked"/> равным <see langword="true"/>.</remarks>
         </member>
+        <member name="P:xNet.Net.HttpRequest.IgnoreResponseContentType">
+            <summary>
+            Возвращает или задает значение, указывающее, нужно ли игнорировать тип контента ответа.
+            </summary>
+            <value>Значение по умолчанию — <see langword="false"/>.</value>
+            <remarks>Если установить значение <see langword="true"/>, то тело сообщения будет считываться обычным образом до тех пор, пока будут поступать данные.
+            Это свойство следует использовать в том случае, если, допустим, сервер возвращает тип 'text/html', а на самом деле отправляет другие данные и при этом не указывает длину тела сообщения.</remarks>
+        </member>
         <member name="P:xNet.Net.HttpRequest.Item(System.String)">
             <summary>
             Возвращает или задаёт значение HTTP-заголовка.
