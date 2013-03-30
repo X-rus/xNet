@@ -1806,6 +1806,19 @@ namespace xNet.Net
             }
             else
             {
+                // Если в строке редиректа находится какой-нибудь мусор, то удаляем его.
+                if (!location.StartsWith("/"))
+                {
+                    int start = location.IndexOf('/');
+
+                    if (start == -1)
+                    {
+                        return null;
+                    }
+
+                    location = location.Substring(start);
+                }
+
                 string[] values = Uri.UnescapeDataString(location).Split('?');
 
                 var uriBuilder = new UriBuilder(_request.Address);
