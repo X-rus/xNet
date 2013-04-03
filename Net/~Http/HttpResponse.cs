@@ -432,7 +432,12 @@ namespace xNet.Net
         #endregion
 
 
-        private readonly byte[] _htmlSignatureBytes = Encoding.ASCII.GetBytes("</html>");
+        #region Статические поля (закрытые)
+
+        private static readonly byte[] _openHtmlSignatureBytes = Encoding.ASCII.GetBytes("<html");
+        private static readonly byte[] _closeHtmlSignatureBytes = Encoding.ASCII.GetBytes("</html>");
+
+        #endregion
 
 
         #region Поля (закрытые)
@@ -1376,19 +1381,7 @@ namespace xNet.Net
                 return ReceiveMessageBody(ContentLength);
             }
 
-            bool isHtml;
-
-            if (!_request.IgnoreResponseContentType &&
-                ContentType.Equals("text/html", StringComparison.OrdinalIgnoreCase))
-            {
-                isHtml = true;
-            }
-            else
-            {
-                isHtml = false;
-            }
-
-            return ReceiveMessageBody(_request.ClientStream, isHtml);
+            return ReceiveMessageBody(_request.ClientStream);
         }
 
         // Загрузка сжатых данных.
@@ -1404,26 +1397,14 @@ namespace xNet.Net
                 return ReceiveMessageBodyZip(ContentLength);
             }
 
-            bool isHtml;
-
-            if (!_request.IgnoreResponseContentType &&
-                ContentType.Equals("text/html", StringComparison.OrdinalIgnoreCase))
-            {
-                isHtml = true;
-            }
-            else
-            {
-                isHtml = false;
-            }
-
             var streamWrapper = new ZipWraperStream(
                 _request.ClientStream, _receiverHelper);
 
-            return ReceiveMessageBody(GetZipStream(streamWrapper), isHtml);
+            return ReceiveMessageBody(GetZipStream(streamWrapper));
         }
 
         // Загрузка тела сообщения неизвестной длины.
-        private IEnumerable<BytesWraper> ReceiveMessageBody(Stream stream, bool isHtml)
+        private IEnumerable<BytesWraper> ReceiveMessageBody(Stream stream)
         {
             var bytesWraper = new BytesWraper();
 
@@ -1432,22 +1413,43 @@ namespace xNet.Net
 
             bytesWraper.Value = buffer;
 
+            int begBytesRead = 0;
+
+            // Считываем начальные данные из тела сообщения.
+            if (_receiverHelper.HasData)
+            {
+                begBytesRead = _receiverHelper.Read(buffer, 0, bufferSize);
+            }
+
+            if (begBytesRead < bufferSize)
+            {
+                begBytesRead += stream.Read(buffer, begBytesRead, bufferSize - begBytesRead);
+            }
+
+            // Возвращаем начальные данные.
+            bytesWraper.Length = begBytesRead;
+            yield return bytesWraper;
+
+            // Проверяем, есть ли открывающий тег '<html'.
+            // Если есть, то считываем данные то тех пор, пока не встретим закрывающий тек '</html>'.
+            bool isHtml = FindSignature(buffer, begBytesRead, _openHtmlSignatureBytes);
+
+            if (isHtml)
+            {
+                bool found = FindSignature(buffer, begBytesRead, _closeHtmlSignatureBytes);
+
+                // Проверяем, есть ли в начальных данных закрывающий тег.
+                if (found)
+                {
+                    yield break;
+                }
+            }
+
             while (true)
             {
-                int bytesRead;
+                int bytesRead = stream.Read(buffer, 0, bufferSize);
 
-                if (_receiverHelper.HasData)
-                {
-                    bytesRead = _receiverHelper.Read(buffer, 0, bufferSize);
-                }
-                else
-                {
-                    bytesRead = stream.Read(buffer, 0, bufferSize);
-                }
-
-                #region Проверка на конец тела сообщения
-
-                // Если тело сообщения содержит HTML.
+                // Если тело сообщения представляет HTML.
                 if (isHtml)
                 {
                     if (bytesRead == 0)
@@ -1457,44 +1459,7 @@ namespace xNet.Net
                         continue;
                     }
 
-                    bool found = false;
-                    int newBufferLength = (buffer.Length - _htmlSignatureBytes.Length) + 1;
-
-                    #region Поиск сигнатуры
-
-                    for (int bufferIndex = 0; bufferIndex < newBufferLength && !found; ++bufferIndex)
-                    {
-                        if (buffer[bufferIndex] == 0)
-                        {
-                            continue;
-                        }
-
-                        for (int signatureIndex = 0; signatureIndex < _htmlSignatureBytes.Length; ++signatureIndex)
-                        {
-                            byte b = buffer[bufferIndex + signatureIndex];
-
-                            // Если достигнуты буквы сигнатуры.
-                            if (signatureIndex >= 2)
-                            {
-                                char c = (char)b;
-
-                                // Приводим символ к нижнему регистру для правильного сравнения.
-                                b = (byte)char.ToLower(c);
-                            }
-
-                            if (_htmlSignatureBytes[signatureIndex] == b)
-                            {
-                                found = true;
-                            }
-                            else
-                            {
-                                found = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    #endregion
+                    bool found = FindSignature(buffer, bytesRead, _closeHtmlSignatureBytes);
 
                     if (found)
                     {
@@ -1508,8 +1473,6 @@ namespace xNet.Net
                 {
                     yield break;
                 }
-
-                #endregion
 
                 bytesWraper.Length = bytesRead;
                 yield return bytesWraper;
@@ -1937,6 +1900,38 @@ namespace xNet.Net
                     throw new InvalidOperationException(string.Format(
                         Resources.InvalidOperationException_NotSupportedEncodingFormat, contentEncoding));
             }
+        }
+
+        private bool FindSignature(byte[] source, int sourceLength, byte[] signature)
+        {
+            int length = (sourceLength - signature.Length) + 1;
+
+            for (int sourceIndex = 0; sourceIndex < length; ++sourceIndex)
+            {
+                for (int signatureIndex = 0; signatureIndex < signature.Length; ++signatureIndex)
+                {
+                    byte sourceByte = source[signatureIndex + sourceIndex];
+                    char sourceChar = (char)sourceByte;
+
+                    if (char.IsLetter(sourceChar))
+                    {
+                        sourceChar = char.ToLower(sourceChar);
+                    }
+
+                    sourceByte = (byte)sourceChar;
+
+                    if (sourceByte != signature[signatureIndex])
+                    {
+                        break;
+                    }
+                    else if (signatureIndex == (signature.Length - 1))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private HttpException NewHttpException(string message, Exception innerException = null)

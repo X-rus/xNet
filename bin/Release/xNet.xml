@@ -2272,6 +2272,13 @@
             <value>Значение по умолчанию - 60.000, что равняется одной минуте.</value>
             <exception cref="T:System.ArgumentOutOfRangeException">Значение параметра меньше 1.</exception>
         </member>
+        <member name="P:xNet.Net.HttpRequest.IgnoreProtocolErrors">
+            <summary>
+            Возвращает или задает значение, указывающие, нужно ли игнорировать ошибки протокола и не генерировать исключения.
+            </summary>
+            <value>Значение по умолчанию — <see langword="false"/>.</value>
+            <remarks>Если установить значение <see langword="true"/>, то в случае получения ошибочного ответа с кодом состояния 4xx или 5xx, не будет сгенерировано исключение. Вы можете узнать код состояния ответа с помощью свойства <see cref="P:xNet.Net.HttpResponse.StatusCode"/>.</remarks>
+        </member>
         <member name="P:xNet.Net.HttpRequest.KeepAlive">
             <summary>
             Возвращает или задает значение, указывающее, необходимо ли устанавливать постоянное подключение к интернет-ресурсу.
@@ -2338,14 +2345,6 @@
             </summary>
             <value>Значение по умолчанию — <see langword="null"/>.</value>
             <remarks>Куки могут изменяться ответом от HTTP-сервера. Чтобы не допустить этого, нужно установить свойство <see cref="P:xNet.Net.CookieDictionary.IsLocked"/> равным <see langword="true"/>.</remarks>
-        </member>
-        <member name="P:xNet.Net.HttpRequest.IgnoreResponseContentType">
-            <summary>
-            Возвращает или задает значение, указывающее, нужно ли игнорировать тип контента ответа.
-            </summary>
-            <value>Значение по умолчанию — <see langword="false"/>.</value>
-            <remarks>Если установить значение <see langword="true"/>, то тело сообщения будет считываться обычным образом до тех пор, пока будут поступать данные.
-            Это свойство следует использовать в том случае, если, допустим, сервер возвращает тип 'text/html', а на самом деле отправляет другие данные и при этом не указывает длину тела сообщения.</remarks>
         </member>
         <member name="P:xNet.Net.HttpRequest.Item(System.String)">
             <summary>

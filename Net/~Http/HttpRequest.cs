@@ -413,6 +413,13 @@ namespace xNet.Net
             }
         }
 
+        /// <summary>
+        /// Возвращает или задает значение, указывающие, нужно ли игнорировать ошибки протокола и не генерировать исключения.
+        /// </summary>
+        /// <value>Значение по умолчанию — <see langword="false"/>.</value>
+        /// <remarks>Если установить значение <see langword="true"/>, то в случае получения ошибочного ответа с кодом состояния 4xx или 5xx, не будет сгенерировано исключение. Вы можете узнать код состояния ответа с помощью свойства <see cref="HttpResponse.StatusCode"/>.</remarks>
+        public bool IgnoreProtocolErrors { get; set; }
+
         #endregion
 
         #region HTTP-заголовки
@@ -503,14 +510,6 @@ namespace xNet.Net
         /// <value>Значение по умолчанию — <see langword="null"/>.</value>
         /// <remarks>Куки могут изменяться ответом от HTTP-сервера. Чтобы не допустить этого, нужно установить свойство <see cref="xNet.Net.CookieDictionary.IsLocked"/> равным <see langword="true"/>.</remarks>
         public CookieDictionary Cookies { get; set; }
-
-        /// <summary>
-        /// Возвращает или задает значение, указывающее, нужно ли игнорировать тип контента ответа.
-        /// </summary>
-        /// <value>Значение по умолчанию — <see langword="false"/>.</value>
-        /// <remarks>Если установить значение <see langword="true"/>, то тело сообщения будет считываться обычным образом до тех пор, пока будут поступать данные.
-        /// Это свойство следует использовать в том случае, если, допустим, сервер возвращает тип 'text/html', а на самом деле отправляет другие данные и при этом не указывает длину тела сообщения.</remarks>
-        public bool IgnoreResponseContentType { get; set; }
 
         #endregion
 
@@ -2234,19 +2233,22 @@ namespace xNet.Net
 
             #region Проверка кода ответа
 
-            int statusCodeNum = (int)_response.StatusCode;
+            if (!IgnoreProtocolErrors)
+            {
+                int statusCodeNum = (int)_response.StatusCode;
 
-            if (statusCodeNum >= 400 && statusCodeNum < 500)
-            {
-                throw new HttpException(string.Format(
-                    Resources.HttpException_ClientError, statusCodeNum),
-                    HttpExceptionStatus.ProtocolError, _response.StatusCode);
-            }
-            else if (statusCodeNum >= 500)
-            {
-                throw new HttpException(string.Format(
-                    Resources.HttpException_SeverError, statusCodeNum),
-                    HttpExceptionStatus.ProtocolError, _response.StatusCode);
+                if (statusCodeNum >= 400 && statusCodeNum < 500)
+                {
+                    throw new HttpException(string.Format(
+                        Resources.HttpException_ClientError, statusCodeNum),
+                        HttpExceptionStatus.ProtocolError, _response.StatusCode);
+                }
+                else if (statusCodeNum >= 500)
+                {
+                    throw new HttpException(string.Format(
+                        Resources.HttpException_SeverError, statusCodeNum),
+                        HttpExceptionStatus.ProtocolError, _response.StatusCode);
+                }
             }
 
             #endregion

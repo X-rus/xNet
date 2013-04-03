@@ -42,7 +42,7 @@ public class Account : IHttpConnect
     {
         Request = request;
 
-        request.Cookies = Cookies; // На случай, если аккаунт уже авторизован.
+        request.Cookies = Cookies; // РќР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё Р°РєРєР°СѓРЅС‚ СѓР¶Рµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ.
         request.AllowAutoRedirect = false;
 
         request.Referer = "http://www.site.com";
@@ -51,7 +51,7 @@ public class Account : IHttpConnect
 
     public AccountStatus Logining(ref Captcha captcha)
     {
-        // Если это первое обращение, то устанавливаем новые куки.
+        // Р•СЃР»Рё СЌС‚Рѕ РїРµСЂРІРѕРµ РѕР±СЂР°С‰РµРЅРёРµ, С‚Рѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІС‹Рµ РєСѓРєРё.
         if (captcha == null)
         {
             Cookies = new CookieDictionary();
@@ -60,7 +60,7 @@ public class Account : IHttpConnect
 
         Request.AddParam("login", Login).AddParam("password", Password);
 
-        // Если до этого требовался ввод капчи.
+        // Р•СЃР»Рё РґРѕ СЌС‚РѕРіРѕ С‚СЂРµР±РѕРІР°Р»СЃСЏ РІРІРѕРґ РєР°РїС‡Рё.
         if (captcha != null)
         {
             Request.AddParam("c_key", captcha.Key);
@@ -68,7 +68,7 @@ public class Account : IHttpConnect
 
         string loginingResult = Request.Post("/logining.php").ToString();
 
-        // Если требуется ввод капчи.
+        // Р•СЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ РІРІРѕРґ РєР°РїС‡Рё.
         if (loginingResult.Contains("need_captcha"))
         {
             string captchaUrl = loginingResult.Substring("captcha_url=", "&");
@@ -91,7 +91,7 @@ public class Account : IHttpConnect
 
         var messages = new List<Message>();
 
-        // парсим список личных сообщений
+        // РїР°СЂСЃРёРј СЃРїРёСЃРѕРє Р»РёС‡РЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№
 
         return messages.ToArray();
     }
@@ -121,7 +121,7 @@ static void Main()
         {
             accountStatus = account.Logining(ref captcha);
 
-            // Нужно ввести капчу.
+            // РќСѓР¶РЅРѕ РІРІРµСЃС‚Рё РєР°РїС‡Сѓ.
             if (captcha != null)
             {
                 request.Get(captcha.Url).ToFile("cap.jpg");
@@ -136,7 +136,7 @@ static void Main()
             foreach (var message in messages)
             {
                 string answer = string.Format(
-                    "Привет, {0}! Мой хозяин сейчас занят и не может ответить тебе...",
+                    "РџСЂРёРІРµС‚, {0}! РњРѕР№ С…РѕР·СЏРёРЅ СЃРµР№С‡Р°СЃ Р·Р°РЅСЏС‚ Рё РЅРµ РјРѕР¶РµС‚ РѕС‚РІРµС‚РёС‚СЊ С‚РµР±Рµ...",
                     message.AuthorName);
 
                 account.ReplyToMessage(message.AuthorID, answer);
