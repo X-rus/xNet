@@ -231,14 +231,14 @@ namespace xNet.Net
         private HttpContent _content; // Отправляемые данные.
         private long _contentLenght;
 
-        private readonly StringDictionary _headers =
-            new StringDictionary(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _headers =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         // Временные данные, которые задаются через специальные методы.
         // Удаляются после первого запроса.
-        private StringDictionary _addedParams;
-        private StringDictionary _addedHeaders;
-        private StringDictionary _addedUrlParams;
+        private RequestParams _addedParams;
+        private RequestParams _addedUrlParams;
+        private Dictionary<string, string> _addedHeaders;
         private MultipartContent _addedMultipartContent;
 
         // Количество отправленных и принятых байт.
@@ -806,7 +806,7 @@ namespace xNet.Net
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public HttpResponse Get(string address, StringDictionary urlParams = null)
+        public HttpResponse Get(string address, RequestParams urlParams = null)
         {
             if (urlParams != null)
             {
@@ -824,7 +824,7 @@ namespace xNet.Net
         /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public HttpResponse Get(Uri address, StringDictionary urlParams = null)
+        public HttpResponse Get(Uri address, RequestParams urlParams = null)
         {
             if (urlParams != null)
             {
@@ -877,7 +877,7 @@ namespace xNet.Net
         /// </exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public HttpResponse Post(string address, StringDictionary reqParams, bool dontEscape = false)
+        public HttpResponse Post(string address, RequestParams reqParams, bool dontEscape = false)
         {
             #region Проверка параметров
 
@@ -904,7 +904,7 @@ namespace xNet.Net
         /// Значение параметра <paramref name="reqParams"/> равно <see langword="null"/>.
         /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public HttpResponse Post(Uri address, StringDictionary reqParams, bool dontEscape = false)
+        public HttpResponse Post(Uri address, RequestParams reqParams, bool dontEscape = false)
         {
             #region Проверка параметров
 
@@ -1465,10 +1465,10 @@ namespace xNet.Net
 
             if (_addedUrlParams == null)
             {
-                _addedUrlParams = new StringDictionary();
+                _addedUrlParams = new RequestParams();
             }
 
-            _addedUrlParams[name] = (value == null ? string.Empty : value.ToString());
+            _addedUrlParams[name] = value;
 
             return this;
         }
@@ -1499,10 +1499,10 @@ namespace xNet.Net
 
             if (_addedParams == null)
             {
-                _addedParams = new StringDictionary();
+                _addedParams = new RequestParams();
             }
 
-            _addedParams[name] = (value == null ? string.Empty : value.ToString());
+            _addedParams[name] = value;
 
             return this;
         }
@@ -1868,7 +1868,7 @@ namespace xNet.Net
         /// <remarks>Данный HTTP-заголовок будет стёрт после первого запроса.</remarks>
         public HttpRequest AddHeader(string name, string value)
         {
-            #region Проверка параметра
+            #region Проверка параметров
 
             if (name == null)
             {
@@ -1900,7 +1900,7 @@ namespace xNet.Net
 
             if (_addedHeaders == null)
             {
-                _addedHeaders = new StringDictionary();
+                _addedHeaders = new Dictionary<string, string>();
             }
 
             _addedHeaders[name] = value;
@@ -2003,7 +2003,7 @@ namespace xNet.Net
         /// Возвращает перечисляемую коллекцию HTTP-заголовков.
         /// </summary>
         /// <returns>Коллекция HTTP-заголовков.</returns>
-        public StringDictionary.Enumerator EnumerateHeaders()
+        public Dictionary<string, string>.Enumerator EnumerateHeaders()
         {
             return _headers.GetEnumerator();
         }
@@ -2549,7 +2549,7 @@ namespace xNet.Net
             return string.Format("{0},utf-8;q=0.7,*;q=0.3", charsetName);
         }
 
-        private void MergeHeaders(StringDictionary dic1, StringDictionary dic2)
+        private void MergeHeaders(Dictionary<string, string> dic1, Dictionary<string, string> dic2)
         {
             foreach (var dicItem2 in dic2)
             {
@@ -2594,7 +2594,7 @@ namespace xNet.Net
             return foundProxy;
         }
 
-        private string ToHeadersString(StringDictionary headers)
+        private string ToHeadersString(Dictionary<string, string> headers)
         {
             var headersBuilder = new StringBuilder();
 
@@ -2614,7 +2614,7 @@ namespace xNet.Net
         // - временные заголовки, которые задаются через метод AddHeader
         private string GenerateHeaders(HttpMethod method)
         {
-            var headers = new StringDictionary(StringComparer.OrdinalIgnoreCase);
+            var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             #region Host
 

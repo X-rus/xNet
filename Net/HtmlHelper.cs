@@ -1,6 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
-using xNet.Collections;
 
 namespace xNet.Net
 {
@@ -11,7 +11,7 @@ namespace xNet.Net
     {
         #region _htmlMnemonics
 
-        private static readonly StringDictionary _htmlMnemonics = new StringDictionary()
+        private static readonly Dictionary<string, string> _htmlMnemonics = new Dictionary<string, string>()
         {
             { "apos", "'" },
             { "quot", "\"" },

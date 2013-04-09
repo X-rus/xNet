@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
-using xNet.Collections;
 
 namespace xNet.Net
 {
     /// <summary>
     /// Представляет коллекцию HTTP-куки.
     /// </summary>
-    public class CookieDictionary : StringDictionary
+    public class CookieDictionary : Dictionary<string, string>
     {
         /// <summary>
         /// Возвращает или задает значение, указывающие, закрыты ли куки для редактирования

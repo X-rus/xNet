@@ -810,7 +810,7 @@
             <param name="encoding">Кодировка, применяемая для преобразования данных в последовательность байтов. Если значение параметра равно <see langword="null"/>, то будет использовано значение <see cref="P:System.Text.Encoding.UTF8"/>.</param>
             <returns>Закодированная строка.</returns>
         </member>
-        <member name="M:xNet.Net.HttpHelper.ToQueryString(xNet.Collections.StringDictionary,System.Boolean)">
+        <member name="M:xNet.Net.HttpHelper.ToQueryString(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.Boolean)">
             <summary>
             Преобразует параметры в строку запроса.
             </summary>
@@ -1162,54 +1162,6 @@
             <summary>
             Представляет коллекцию HTTP-куки.
             </summary>
-        </member>
-        <member name="T:xNet.Collections.StringDictionary">
-            <summary>
-            Представляет коллекцию строк. Данный класс наследует от <see cref="T:System.Collections.Generic.Dictionary`2"/>, где ключ и значение представлены в виде строки.
-            </summary>
-        </member>
-        <member name="M:xNet.Collections.StringDictionary.#ctor">
-            <summary>
-            Инициализирует новый пустой экземпляр класса <see cref="T:xNet.Collections.StringDictionary"/> с начальной емкостью по умолчанию и использующий компаратор по умолчанию, проверяющий на равенство.
-            </summary>
-        </member>
-        <member name="M:xNet.Collections.StringDictionary.#ctor(System.Int32)">
-            <summary>
-            Инициализирует новый пустой экземпляр класса <see cref="T:xNet.Collections.StringDictionary"/> с заданной начальной емкостью и использующий компаратор по умолчанию, проверяющий на равенство.
-            </summary>
-            <param name="capacity">Начальное количество элементов, которое может содержать коллекция.</param>
-            <exception cref="T:System.ArgumentOutOfRangeException">Значение параметра <paramref name="capacity"/> меньше 0.</exception>
-        </member>
-        <member name="M:xNet.Collections.StringDictionary.#ctor(System.Collections.Generic.IEqualityComparer{System.String})">
-            <summary>
-            Инициализирует новый пустой экземпляр класса <see cref="T:xNet.Collections.StringDictionary"/> с начальной емкостью по умолчанию и использующий указанный компаратор <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
-            </summary>
-            <param name="comparer">Реализация <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>, которую следует использовать при сравнении ключей, или <see langword="null"/>, если для данного типа ключа должна использоваться реализация <see cref="T:System.Collections.Generic.EqualityComparer`1"/> по умолчанию.</param>
-        </member>
-        <member name="M:xNet.Collections.StringDictionary.#ctor(System.Collections.Generic.IDictionary{System.String,System.String})">
-            <summary>
-            Инициализирует новый экземпляр класса <see cref="T:xNet.Collections.StringDictionary"/>, который содержит элементы, скопированные из заданного словаря <see cref="T:System.Collections.Generic.IDictionary`2"/> и использует компаратор по умолчанию, проверяющий на равенство.
-            </summary>
-            <param name="dictionary">Словарь, элементы которого будут скопированы в новый словарь.</param>
-            <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="dictionary"/> равно <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException">Значение параметра <paramref name="dictionary"/> содержит один или более повторяющихся ключей.</exception>
-        </member>
-        <member name="M:xNet.Collections.StringDictionary.#ctor(System.Int32,System.Collections.Generic.IEqualityComparer{System.String})">
-            <summary>
-            Инициализирует новый пустой экземпляр класса <see cref="T:xNet.Collections.StringDictionary"/> с заданной начальной емкостью и использует заданный компаратор <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
-            </summary>
-            <param name="capacity">Начальное количество элементов, которое может содержать коллекция.</param>
-            <param name="comparer">Реализация <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>, которую следует использовать при сравнении ключей, или <see langword="null"/>, если для данного типа ключа должна использоваться реализация <see cref="T:System.Collections.Generic.EqualityComparer`1"/> по умолчанию.</param>
-            <exception cref="T:System.ArgumentOutOfRangeException">Значение параметра <paramref name="capacity"/> меньше 0.</exception>
-        </member>
-        <member name="M:xNet.Collections.StringDictionary.#ctor(System.Collections.Generic.IDictionary{System.String,System.String},System.Collections.Generic.IEqualityComparer{System.String})">
-            <summary>
-            Инициализирует новый экземпляр <see cref="T:xNet.Collections.StringDictionary"/>, который содержит элементы, скопированные из заданного словаря <see cref="T:System.Collections.Generic.IDictionary`2"/> и использует заданный компаратор <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
-            </summary>
-            <param name="dictionary">Словарь, элементы которого будут скопированы в новый словарь.</param>
-            <param name="comparer">Реализация <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>, которую следует использовать при сравнении ключей, или <see langword="null"/>, если для данного типа ключа должна использоваться реализация <see cref="T:System.Collections.Generic.EqualityComparer`1"/> по умолчанию.</param>
-            <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="dictionary"/> равно <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException">Значение параметра <paramref name="dictionary"/> содержит один или более повторяющихся ключей.</exception>
         </member>
         <member name="M:xNet.Net.CookieDictionary.#ctor(System.Boolean)">
             <summary>
@@ -1668,7 +1620,7 @@
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="baseAddress"/> равно <see langword="null"/>.</exception>
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="baseAddress"/> не является абсолютным URI.</exception>
         </member>
-        <member name="M:xNet.Net.HttpRequest.Get(System.String,xNet.Collections.StringDictionary)">
+        <member name="M:xNet.Net.HttpRequest.Get(System.String,xNet.Collections.RequestParams)">
             <summary>
             Отправляет GET-запрос HTTP-серверу.
             </summary>
@@ -1679,7 +1631,7 @@
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpRequest.Get(System.Uri,xNet.Collections.StringDictionary)">
+        <member name="M:xNet.Net.HttpRequest.Get(System.Uri,xNet.Collections.RequestParams)">
             <summary>
             Отправляет GET-запрос HTTP-серверу.
             </summary>
@@ -1708,7 +1660,7 @@
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpRequest.Post(System.String,xNet.Collections.StringDictionary,System.Boolean)">
+        <member name="M:xNet.Net.HttpRequest.Post(System.String,xNet.Collections.RequestParams,System.Boolean)">
             <summary>
             Отправляет POST-запрос HTTP-серверу.
             </summary>
@@ -1724,7 +1676,7 @@
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpRequest.Post(System.Uri,xNet.Collections.StringDictionary,System.Boolean)">
+        <member name="M:xNet.Net.HttpRequest.Post(System.Uri,xNet.Collections.RequestParams,System.Boolean)">
             <summary>
             Отправляет POST-запрос HTTP-серверу.
             </summary>
@@ -2767,11 +2719,11 @@
             <param name="result">Если преобразование выполнено успешно, то содержит экземпляр класса <see cref="T:xNet.Net.Socks4aProxyClient"/>, иначе <see langword="null"/>.</param>
             <returns>Значение <see langword="true"/>, если параметр <paramref name="proxyAddress"/> преобразован успешно, иначе <see langword="false"/>.</returns>
         </member>
-        <member name="M:xNet.Net.FormUrlEncodedContent.#ctor(xNet.Collections.StringDictionary,System.Boolean)">
+        <member name="M:xNet.Net.FormUrlEncodedContent.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.Boolean)">
             <summary>
             Инициализирует новый экземпляр класса <see cref="T:xNet.Net.FormUrlEncodedContent"/>.
             </summary>
-            <param name="content">Содержимое контента.</param>
+            <param name="content">Содержимое контента в виде параметров запроса.</param>
             <param name="dontEscape">Указывает, нужно ли кодировать значения параметров.</param>
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="content"/> равно <see langword="null"/>.</exception>
             <remarks>По умолчанию используется тип контента - 'application/x-www-form-urlencoded'.</remarks>
@@ -2781,7 +2733,7 @@
             Представляет статические класс, предназначенный для работы с HTTP-сервером.
             </summary>
         </member>
-        <member name="M:xNet.Net.HttpClient.Get(System.String,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.Get(System.String,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет GET-запрос HTTP-серверу.
             </summary>
@@ -2793,7 +2745,7 @@
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.Get(System.Uri,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.Get(System.Uri,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет GET-запрос HTTP-серверу.
             </summary>
@@ -2804,7 +2756,7 @@
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.GetString(System.String,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.GetString(System.String,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
             </summary>
@@ -2817,7 +2769,7 @@
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.GetString(System.Uri,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.GetString(System.Uri,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
             </summary>
@@ -2829,7 +2781,7 @@
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.GetBytes(System.String,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.GetBytes(System.String,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
             </summary>
@@ -2842,7 +2794,7 @@
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.GetBytes(System.Uri,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.GetBytes(System.Uri,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде текста.
             </summary>
@@ -2854,7 +2806,7 @@
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.GetFile(System.String,System.String,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.GetFile(System.String,System.String,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и сохраняет его в новый файл по указанному пути. Если файл уже существует, то он будет перезаписан.
             </summary>
@@ -2884,7 +2836,7 @@
             </exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.GetFile(System.Uri,System.String,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.GetFile(System.Uri,System.String,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет GET-запрос HTTP-серверу. Загружает тело сообщения и сохраняет его в новый файл по указанному пути. Если файл уже существует, то он будет перезаписан.
             </summary>
@@ -2913,7 +2865,7 @@
             </exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.Post(System.String,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.Post(System.String,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
             </summary>
@@ -2930,7 +2882,7 @@
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
             <exception cref="T:xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         </member>
-        <member name="M:xNet.Net.HttpClient.Post(System.Uri,xNet.Collections.StringDictionary,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
+        <member name="M:xNet.Net.HttpClient.Post(System.Uri,xNet.Collections.RequestParams,xNet.Net.CookieDictionary,xNet.Net.ProxyClient)">
             <summary>
             Отправляет POST-запрос HTTP-серверу. Загружает тело сообщения и возвращает его в виде строки.
             </summary>
@@ -3486,6 +3438,19 @@
             <summary>
             Определяет коды состояния HTTP.
             </summary>
+        </member>
+        <member name="T:xNet.Collections.RequestParams">
+            <summary>
+            Представляет коллекцию строк, представляющих параметры запроса.
+            </summary>
+        </member>
+        <member name="P:xNet.Collections.RequestParams.Item(System.String)">
+            <summary>
+            Задаёт новый параметр запроса.
+            </summary>
+            <param name="paramName">Название параметра запроса.</param>
+            <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="paramName"/> равно <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">Значение параметра <paramref name="paramName"/> является пустой строкой.</exception>
         </member>
     </members>
 </doc>

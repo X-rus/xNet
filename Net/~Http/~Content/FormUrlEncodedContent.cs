@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
-using xNet.Collections;
 
 namespace xNet.Net
 {
@@ -9,11 +9,11 @@ namespace xNet.Net
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="FormUrlEncodedContent"/>.
         /// </summary>
-        /// <param name="content">Содержимое контента.</param>
+        /// <param name="content">Содержимое контента в виде параметров запроса.</param>
         /// <param name="dontEscape">Указывает, нужно ли кодировать значения параметров.</param>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="content"/> равно <see langword="null"/>.</exception>
         /// <remarks>По умолчанию используется тип контента - 'application/x-www-form-urlencoded'.</remarks>
-        public FormUrlEncodedContent(StringDictionary content, bool dontEscape = false)
+        public FormUrlEncodedContent(IEnumerable<KeyValuePair<string, string>> content, bool dontEscape = false)
         {
             #region Проверка параметров
 

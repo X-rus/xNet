@@ -75,7 +75,7 @@ namespace xNet.Net
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static void Get(string address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static void Get(string address, RequestParams urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -105,7 +105,7 @@ namespace xNet.Net
         /// <param name="proxy">Прокси-клиент, используемый для запроса, или значение <see langword="null"/>.</param>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static void Get(Uri address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static void Get(Uri address, RequestParams urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -141,7 +141,7 @@ namespace xNet.Net
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static string GetString(string address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static string GetString(string address, RequestParams urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -172,7 +172,7 @@ namespace xNet.Net
         /// <returns>Если тело сообщения отсутствует, то будет возвращена пустая строка.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static string GetString(Uri address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static string GetString(Uri address, RequestParams urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -208,7 +208,7 @@ namespace xNet.Net
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static byte[] GetBytes(string address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static byte[] GetBytes(string address, RequestParams urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -239,7 +239,7 @@ namespace xNet.Net
         /// <returns>Если тело сообщения отсутствует, то будет возвращён пустой массив байтов.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static byte[] GetBytes(Uri address, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static byte[] GetBytes(Uri address, RequestParams urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -292,7 +292,7 @@ namespace xNet.Net
         /// Вызывающий оператор не имеет необходимого разрешения.
         /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static void GetFile(string address, string path, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static void GetFile(string address, string path, RequestParams urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -340,7 +340,7 @@ namespace xNet.Net
         /// Вызывающий оператор не имеет необходимого разрешения.
         /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static void GetFile(Uri address, string path, StringDictionary urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static void GetFile(Uri address, string path, RequestParams urlParams = null, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -380,7 +380,7 @@ namespace xNet.Net
         /// </exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static string Post(string address, StringDictionary reqParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static string Post(string address, RequestParams reqParams, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {
@@ -415,7 +415,7 @@ namespace xNet.Net
         /// Значение параметра <paramref name="reqParams"/> равно <see langword="null"/>.
         /// </exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public static string Post(Uri address, StringDictionary reqParams, CookieDictionary cookies = null, ProxyClient proxy = null)
+        public static string Post(Uri address, RequestParams reqParams, CookieDictionary cookies = null, ProxyClient proxy = null)
         {
             using (var request = new HttpRequest())
             {

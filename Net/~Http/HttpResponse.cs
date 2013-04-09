@@ -445,8 +445,8 @@ namespace xNet.Net
         private readonly HttpRequest _request;
         private ReceiverHelper _receiverHelper;
 
-        private readonly StringDictionary _headers =
-            new StringDictionary(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _headers =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         private readonly CookieDictionary _rawCookies = new CookieDictionary(); 
 
@@ -1060,7 +1060,7 @@ namespace xNet.Net
         /// </summary>
         /// <returns>Коллекция сырых значений куки.</returns>
         /// <remarks>Это куки, которые были заданы в текущем ответе. Их сырые значения могут быть использованы для получения каких-нибудь дополнительных данных.</remarks>
-        public StringDictionary.Enumerator EnumerateRawCookies()
+        public Dictionary<string, string>.Enumerator EnumerateRawCookies()
         {
             return _rawCookies.GetEnumerator();
         }
@@ -1109,7 +1109,7 @@ namespace xNet.Net
         /// Возвращает перечисляемую коллекцию HTTP-заголовков.
         /// </summary>
         /// <returns>Коллекция HTTP-заголовков.</returns>
-        public StringDictionary.Enumerator EnumerateHeaders()
+        public Dictionary<string, string>.Enumerator EnumerateHeaders()
         {
             return _headers.GetEnumerator();
         }

@@ -4,7 +4,6 @@ using System.IO;
 using System.Security;
 using System.Text;
 using Microsoft.Win32;
-using xNet.Collections;
 
 namespace xNet.Net
 {
@@ -151,7 +150,7 @@ namespace xNet.Net
         /// <param name="dontEscape">Указывает, нужно ли кодировать значения параметров.</param>
         /// <returns>Строка запроса.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="parameters"/> равно <see langword="null"/>.</exception>
-        public static string ToQueryString(StringDictionary parameters, bool dontEscape)
+        public static string ToQueryString(IEnumerable<KeyValuePair<string, string>> parameters, bool dontEscape)
         {
             #region Проверка параметров
 
