@@ -2670,6 +2670,19 @@
             Возвращает процент отправленных байтов.
             </summary>
         </member>
+        <member name="T:xNet.Collections.RequestParams">
+            <summary>
+            Представляет коллекцию строк, представляющих параметры запроса.
+            </summary>
+        </member>
+        <member name="P:xNet.Collections.RequestParams.Item(System.String)">
+            <summary>
+            Задаёт новый параметр запроса.
+            </summary>
+            <param name="paramName">Название параметра запроса.</param>
+            <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="paramName"/> равно <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">Значение параметра <paramref name="paramName"/> является пустой строкой.</exception>
+        </member>
         <member name="T:xNet.Net.Socks4aProxyClient">
             <summary>
             Представляет клиент для Socks4a прокси-сервера.
@@ -3438,19 +3451,6 @@
             <summary>
             Определяет коды состояния HTTP.
             </summary>
-        </member>
-        <member name="T:xNet.Collections.RequestParams">
-            <summary>
-            Представляет коллекцию строк, представляющих параметры запроса.
-            </summary>
-        </member>
-        <member name="P:xNet.Collections.RequestParams.Item(System.String)">
-            <summary>
-            Задаёт новый параметр запроса.
-            </summary>
-            <param name="paramName">Название параметра запроса.</param>
-            <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="paramName"/> равно <see langword="null"/>.</exception>
-            <exception cref="T:System.ArgumentException">Значение параметра <paramref name="paramName"/> является пустой строкой.</exception>
         </member>
     </members>
 </doc>

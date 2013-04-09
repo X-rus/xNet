@@ -229,7 +229,7 @@ namespace xNet.Net
         private int _maximumAutomaticRedirections = 5;
 
         private HttpContent _content; // Отправляемые данные.
-        private long _contentLenght;
+        private long _contentLength;
 
         private readonly Dictionary<string, string> _headers =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -2162,24 +2162,24 @@ namespace xNet.Net
             {
                 if (_content == null)
                 {
-                    _contentLenght = 0;
+                    _contentLength = 0;
                 }
                 else
                 {
-                    _contentLenght = _content.CalculateContentLength();
+                    _contentLength = _content.CalculateContentLength();
                 }
 
                 byte[] startingLineBytes = Encoding.ASCII.GetBytes(GenerateStartingLine(method));
                 byte[] headersBytes = Encoding.ASCII.GetBytes(GenerateHeaders(method));
 
                 _bytesSent = 0;
-                _totalBytesSent = startingLineBytes.Length + headersBytes.Length + _contentLenght;
+                _totalBytesSent = startingLineBytes.Length + headersBytes.Length + _contentLength;
 
                 _clientStream.Write(startingLineBytes, 0, startingLineBytes.Length);
                 _clientStream.Write(headersBytes, 0, headersBytes.Length);
 
                 // Отправляем тело сообщения, если оно не пустое.
-                if (_content != null && _contentLenght > 0)
+                if (_content != null && _contentLength > 0)
                 {
                     _content.WriteTo(_clientStream);
                 }
@@ -2710,9 +2710,9 @@ namespace xNet.Net
                 headers["Content-Type"] = _content.ContentType;
             }
 
-            if (_content != null && _contentLenght > 0)
+            if (_content != null && _contentLength > 0)
             {
-                headers["Content-Length"] = _contentLenght.ToString();
+                headers["Content-Length"] = _contentLength.ToString();
             }
 
             #endregion

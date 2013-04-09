@@ -165,6 +165,11 @@ namespace xNet.Net
 
             foreach (var param in parameters)
             {
+                if (string.IsNullOrEmpty(param.Key))
+                {
+                    continue;
+                }
+
                 queryBuilder.Append(param.Key);
                 queryBuilder.Append('=');
 
@@ -174,7 +179,8 @@ namespace xNet.Net
                 }
                 else
                 {
-                    queryBuilder.Append(Uri.EscapeDataString(param.Value));
+                    queryBuilder.Append(
+                        Uri.EscapeDataString(param.Value ?? string.Empty));
                 }
 
                 queryBuilder.Append('&');

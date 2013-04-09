@@ -1172,7 +1172,8 @@ namespace xNet.Net
             }
 
             // Если пришёл ответ без тела сообщения.
-            if (Method == HttpMethod.HEAD || Method == HttpMethod.DELETE ||
+            if (ContentLength == 0 ||
+                Method == HttpMethod.HEAD || Method == HttpMethod.DELETE ||
                 StatusCode == HttpStatusCode.Continue || StatusCode == HttpStatusCode.NoContent ||
                 StatusCode == HttpStatusCode.NotModified)
             {
@@ -1769,17 +1770,9 @@ namespace xNet.Net
             }
             else
             {
-                // Если в строке редиректа находится какой-нибудь мусор, то удаляем его.
-                if (!location.StartsWith("/"))
+                if (location.StartsWith("./"))
                 {
-                    int start = location.IndexOf('/');
-
-                    if (start == -1)
-                    {
-                        return null;
-                    }
-
-                    location = location.Substring(start);
+                    location = location.Substring(1);
                 }
 
                 string[] values = Uri.UnescapeDataString(location).Split('?');
