@@ -145,16 +145,18 @@ namespace xNet.Net
                         if (count >= _sendBufferSize)
                         {
                             bytesWrite = _sendBufferSize;
+                            _baseStream.Write(buffer, index, bytesWrite);
+
                             index += _sendBufferSize;
                             count -= _sendBufferSize;
                         }
                         else
                         {
                             bytesWrite = count;
+                            _baseStream.Write(buffer, index, bytesWrite);
+
                             count = 0;
                         }
-
-                        _baseStream.Write(buffer, index, bytesWrite);
 
                         BytesWriteCallback(bytesWrite);
                     }
