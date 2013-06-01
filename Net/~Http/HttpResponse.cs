@@ -1417,14 +1417,21 @@ namespace xNet.Net
             int begBytesRead = 0;
 
             // Считываем начальные данные из тела сообщения.
-            if (_receiverHelper.HasData)
+            if (stream is GZipStream || stream is DeflateStream)
             {
-                begBytesRead = _receiverHelper.Read(buffer, 0, bufferSize);
+                begBytesRead = stream.Read(buffer, 0, bufferSize);
             }
-
-            if (begBytesRead < bufferSize)
+            else
             {
-                begBytesRead += stream.Read(buffer, begBytesRead, bufferSize - begBytesRead);
+                if (_receiverHelper.HasData)
+                {
+                    begBytesRead = _receiverHelper.Read(buffer, 0, bufferSize);
+                }
+
+                if (begBytesRead < bufferSize)
+                {
+                    begBytesRead += stream.Read(buffer, begBytesRead, bufferSize - begBytesRead);
+                }
             }
 
             // Возвращаем начальные данные.
