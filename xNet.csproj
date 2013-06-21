@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\StringDictionary.cs" />
+    <Compile Include="Collections\RequestParams.cs" />
     <Compile Include="Net\~Http\HttpClient.cs" />
     <Compile Include="Net\~Http\HttpExceptionStatus.cs" />
     <Compile Include="Net\~Http\~Content\BytesContent.cs" />
