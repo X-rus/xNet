@@ -326,7 +326,7 @@ namespace xNet.Net
         /// <summary>
         /// Возвращает или задает метод делегата, вызываемый при проверки сертификата SSL, используемый для проверки подлинности.
         /// </summary>
-        /// <value>Значение по умолчанию — <see langword="null"/>.</value>
+        /// <value>Значение по умолчанию — <see langword="null"/>. Если установлено значение по умолчанию, то используется метод, который принимает все сертификаты SSL.</value>
         public RemoteCertificateValidationCallback SslCertificateValidatorCallback;
 
         #region Поведение
@@ -804,7 +804,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
@@ -823,7 +823,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="urlParams">Параметры URL-адреса, или значение <see langword="null"/>.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         public HttpResponse Get(Uri address, RequestParams urlParams = null)
@@ -844,7 +844,7 @@ namespace xNet.Net
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
@@ -857,7 +857,7 @@ namespace xNet.Net
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         public HttpResponse Post(Uri address)
@@ -871,7 +871,7 @@ namespace xNet.Net
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу.</param>
         /// <param name="dontEscape">Указывает, нужно ли кодировать параметры запроса.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -899,7 +899,7 @@ namespace xNet.Net
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="reqParams">Параметры запроса, отправляемые HTTP-серверу.</param>
         /// <param name="dontEscape">Указывает, нужно ли кодировать параметры запроса.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -926,7 +926,7 @@ namespace xNet.Net
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="str">Строка, отправляемая HTTP-серверу.</param>
         /// <param name="contentType">Тип отправляемых данных.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -982,7 +982,7 @@ namespace xNet.Net
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="str">Строка, отправляемая HTTP-серверу.</param>
         /// <param name="contentType">Тип отправляемых данных.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1036,7 +1036,7 @@ namespace xNet.Net
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="bytes">Массив байтов, отправляемый HTTP-серверу.</param>
         /// <param name="contentType">Тип отправляемых данных.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1085,7 +1085,7 @@ namespace xNet.Net
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="bytes">Массив байтов, отправляемый HTTP-серверу.</param>
         /// <param name="contentType">Тип отправляемых данных.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1130,7 +1130,7 @@ namespace xNet.Net
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="stream">Поток данных, отправляемый HTTP-серверу.</param>
         /// <param name="contentType">Тип отправляемых данных.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1179,7 +1179,7 @@ namespace xNet.Net
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="stream">Поток данных, отправляемый HTTP-серверу.</param>
         /// <param name="contentType">Тип отправляемых данных.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1223,7 +1223,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="path">Путь к файлу, данные которого будут отправлены HTTP-серверу.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1259,7 +1259,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="path">Путь к файлу, данные которого будут отправлены HTTP-серверу.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1291,7 +1291,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="content">Контент, отправляемый HTTP-серверу.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1318,7 +1318,7 @@ namespace xNet.Net
         /// </summary>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="content">Контент, отправляемый HTTP-серверу.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="address"/> равно <see langword="null"/>.
         /// -или-
@@ -1344,12 +1344,12 @@ namespace xNet.Net
         #region Raw
 
         /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу.
+        /// Отправляет запрос HTTP-серверу.
         /// </summary>
         /// <param name="method">HTTP-метод запроса.</param>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="content">Контент, отправляемый HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="address"/> является пустой строкой.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
@@ -1375,12 +1375,12 @@ namespace xNet.Net
         }
 
         /// <summary>
-        /// Отправляет GET-запрос HTTP-серверу.
+        /// Отправляет запрос HTTP-серверу.
         /// </summary>
         /// <param name="method">HTTP-метод запроса.</param>
         /// <param name="address">Адрес интернет-ресурса.</param>
         /// <param name="content">Контент, отправляемый HTTP-серверу, или значение <see langword="null"/>.</param>
-        /// <returns>Объект, предназначенный для приёма ответа от HTTP-сервера.</returns>
+        /// <returns>Объект, предназначенный для загрузки ответа от HTTP-сервера.</returns>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="address"/> равно <see langword="null"/>.</exception>
         /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
         public HttpResponse Raw(HttpMethod method, Uri address, HttpContent content = null)
@@ -1558,7 +1558,7 @@ namespace xNet.Net
 
             string contentValue = (value == null ? string.Empty : value);
 
-            AddedMultipartData.Add(new StringContent(contentValue), name);
+            AddedMultipartData.Add(new StringContent(contentValue, encoding), name);
 
             return this;
         }
@@ -2422,7 +2422,7 @@ namespace xNet.Net
 
                     if (SslCertificateValidatorCallback == null)
                     {
-                        sslStream = new SslStream(_clientNetworkStream, false);
+                        sslStream = new SslStream(_clientNetworkStream, false, HttpHelper.AcceptAllCertificationsCallback);
                     }
                     else
                     {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Security;
 using System.Text;
 using Microsoft.Win32;
+using System.Net.Security;
 
 namespace xNet.Net
 {
@@ -65,10 +66,25 @@ namespace xNet.Net
         #endregion
 
 
+        #region Константы (открытые)
+
         /// <summary>
         /// Обозначает новую строку в HTTP-протоколе.
         /// </summary>
         public const string NewLine = "\r\n";
+
+        /// <summary>
+        /// Метод делегата, который принимает все сертификаты SSL.
+        /// </summary>
+        public static readonly RemoteCertificateValidationCallback AcceptAllCertificationsCallback;
+
+        #endregion
+
+
+        static HttpHelper()
+        {
+            AcceptAllCertificationsCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
+        }
 
 
         #region Статические методы (открытые)
@@ -474,6 +490,14 @@ namespace xNet.Net
 
 
         #region Статические методы (закрытые)
+
+        private static bool AcceptAllCertifications(object sender,
+            System.Security.Cryptography.X509Certificates.X509Certificate certification,
+            System.Security.Cryptography.X509Certificates.X509Chain chain,
+            System.Net.Security.SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
 
         private static bool IsUrlSafeChar(char c)
         {

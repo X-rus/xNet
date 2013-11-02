@@ -10,7 +10,7 @@ using xNet.Text;
 namespace xNet.Net
 {
     /// <summary>
-    /// Представляет класс, предназначеннный для приёма ответа от HTTP-сервера.
+    /// Представляет класс, предназначеннный для загрузки ответа от HTTP-сервера.
     /// </summary>
     public sealed class HttpResponse
     {

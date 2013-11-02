@@ -30,7 +30,7 @@ namespace xNet.Net
         /// Значение параметра <paramref name="encoding"/> равно <see langword="null"/>.
         /// </exception>
         /// <remarks>По умолчанию используется тип контента - 'text/plain'.</remarks>
-        private StringContent(string content, Encoding encoding)
+        public StringContent(string content, Encoding encoding)
         {
             #region Проверка параметров
 
