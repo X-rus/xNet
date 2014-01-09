@@ -824,6 +824,16 @@
             <returns>Строка запроса.</returns>
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="parameters"/> равно <see langword="null"/>.</exception>
         </member>
+        <member name="M:xNet.Net.HttpHelper.ToPostQueryString(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.Boolean,System.Text.Encoding)">
+            <summary>
+            Преобразует параметры в строку POST-запроса.
+            </summary>
+            <param name="parameters">Параметры.</param>
+            <param name="dontEscape">Указывает, нужно ли кодировать значения параметров.</param>
+            <param name="encoding">Кодировка, применяемая для преобразования параметров запроса. Если значение параметра равно <see langword="null"/>, то будет использовано значение <see cref="P:System.Text.Encoding.UTF8"/>.</param>
+            <returns>Строка запроса.</returns>
+            <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="parameters"/> равно <see langword="null"/>.</exception>
+        </member>
         <member name="M:xNet.Net.HttpHelper.DetermineMediaType(System.String)">
             <summary>
             Определяет и возвращает MIME-тип на основе расширения файла.
@@ -1928,22 +1938,22 @@
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="name"/> является пустой строкой.</exception>
             <remarks>Данный параметр будет стёрт после первого запроса.</remarks>
         </member>
-        <member name="M:xNet.Net.HttpRequest.AddField(System.String,System.String)">
+        <member name="M:xNet.Net.HttpRequest.AddField(System.String,System.Object)">
             <summary>
             Добавляет временный элемент Multipart/form данных.
             </summary>
             <param name="name">Имя элемента.</param>
-            <param name="value">Значение элемента.</param>
+            <param name="value">Значение элемента, или значение <see langword="null"/>.</param>
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="name"/> равно <see langword="null"/>.</exception>
             <exception cref="T:System.ArgumentException">Значение параметра <paramref name="name"/> является пустой строкой.</exception>
             <remarks>Данный элемент будет стёрт после первого запроса.</remarks>
         </member>
-        <member name="M:xNet.Net.HttpRequest.AddField(System.String,System.String,System.Text.Encoding)">
+        <member name="M:xNet.Net.HttpRequest.AddField(System.String,System.Object,System.Text.Encoding)">
             <summary>
             Добавляет временный элемент Multipart/form данных.
             </summary>
             <param name="name">Имя элемента.</param>
-            <param name="value">Значение элемента.</param>
+            <param name="value">Значение элемента, или значение <see langword="null"/>.</param>
             <param name="encoding">Кодировка, применяемая для преобразования значения в последовательность байтов.</param>
             <exception cref="T:System.ArgumentNullException">
             Значение параметра <paramref name="name"/> равно <see langword="null"/>.
@@ -2737,12 +2747,13 @@
             <param name="result">Если преобразование выполнено успешно, то содержит экземпляр класса <see cref="T:xNet.Net.Socks4aProxyClient"/>, иначе <see langword="null"/>.</param>
             <returns>Значение <see langword="true"/>, если параметр <paramref name="proxyAddress"/> преобразован успешно, иначе <see langword="false"/>.</returns>
         </member>
-        <member name="M:xNet.Net.FormUrlEncodedContent.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.Boolean)">
+        <member name="M:xNet.Net.FormUrlEncodedContent.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.Boolean,System.Text.Encoding)">
             <summary>
             Инициализирует новый экземпляр класса <see cref="T:xNet.Net.FormUrlEncodedContent"/>.
             </summary>
             <param name="content">Содержимое контента в виде параметров запроса.</param>
             <param name="dontEscape">Указывает, нужно ли кодировать значения параметров.</param>
+            <param name="encoding">Кодировка, применяемая для преобразования параметров запроса. Если значение параметра равно <see langword="null"/>, то будет использовано значение <see cref="P:System.Text.Encoding.UTF8"/>.</param>
             <exception cref="T:System.ArgumentNullException">Значение параметра <paramref name="content"/> равно <see langword="null"/>.</exception>
             <remarks>По умолчанию используется тип контента - 'application/x-www-form-urlencoded'.</remarks>
         </member>

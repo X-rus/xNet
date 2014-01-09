@@ -890,7 +890,7 @@ namespace xNet.Net
 
             #endregion
 
-            return Raw(HttpMethod.POST, address, new FormUrlEncodedContent(reqParams, dontEscape));
+            return Raw(HttpMethod.POST, address, new FormUrlEncodedContent(reqParams, dontEscape, CharacterSet));
         }
 
         /// <summary>
@@ -917,7 +917,7 @@ namespace xNet.Net
 
             #endregion
 
-            return Raw(HttpMethod.POST, address, new FormUrlEncodedContent(reqParams, dontEscape));
+            return Raw(HttpMethod.POST, address, new FormUrlEncodedContent(reqParams, dontEscape, CharacterSet));
         }
 
         /// <summary>
@@ -1414,7 +1414,7 @@ namespace xNet.Net
             {
                 if (_addedParams != null)
                 {
-                    content = new FormUrlEncodedContent(_addedParams);
+                    content = new FormUrlEncodedContent(_addedParams, false, CharacterSet);
                 }
                 else if (_addedMultipartContent != null)
                 {
@@ -1513,11 +1513,11 @@ namespace xNet.Net
         /// Добавляет временный элемент Multipart/form данных.
         /// </summary>
         /// <param name="name">Имя элемента.</param>
-        /// <param name="value">Значение элемента.</param>
+        /// <param name="value">Значение элемента, или значение <see langword="null"/>.</param>
         /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="name"/> равно <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="name"/> является пустой строкой.</exception>
         /// <remarks>Данный элемент будет стёрт после первого запроса.</remarks>
-        public HttpRequest AddField(string name, string value)
+        public HttpRequest AddField(string name, object value = null)
         {
             return AddField(name, value, CharacterSet ?? Encoding.UTF8);
         }
@@ -1526,7 +1526,7 @@ namespace xNet.Net
         /// Добавляет временный элемент Multipart/form данных.
         /// </summary>
         /// <param name="name">Имя элемента.</param>
-        /// <param name="value">Значение элемента.</param>
+        /// <param name="value">Значение элемента, или значение <see langword="null"/>.</param>
         /// <param name="encoding">Кодировка, применяемая для преобразования значения в последовательность байтов.</param>
         /// <exception cref="System.ArgumentNullException">
         /// Значение параметра <paramref name="name"/> равно <see langword="null"/>.
@@ -1535,7 +1535,7 @@ namespace xNet.Net
         /// </exception>
         /// <exception cref="System.ArgumentException">Значение параметра <paramref name="name"/> является пустой строкой.</exception>
         /// <remarks>Данный элемент будет стёрт после первого запроса.</remarks>
-        public HttpRequest AddField(string name, string value, Encoding encoding)
+        public HttpRequest AddField(string name, object value, Encoding encoding)
         {
             #region Проверка параметров
 
@@ -1556,7 +1556,7 @@ namespace xNet.Net
 
             #endregion
 
-            string contentValue = (value == null ? string.Empty : value);
+            string contentValue = (value == null ? string.Empty : value.ToString());
 
             AddedMultipartData.Add(new StringContent(contentValue, encoding), name);
 

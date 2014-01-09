@@ -212,6 +212,59 @@ namespace xNet.Net
         }
 
         /// <summary>
+        /// Преобразует параметры в строку POST-запроса.
+        /// </summary>
+        /// <param name="parameters">Параметры.</param>
+        /// <param name="dontEscape">Указывает, нужно ли кодировать значения параметров.</param>
+        /// <param name="encoding">Кодировка, применяемая для преобразования параметров запроса. Если значение параметра равно <see langword="null"/>, то будет использовано значение <see cref="System.Text.Encoding.UTF8"/>.</param>
+        /// <returns>Строка запроса.</returns>
+        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="parameters"/> равно <see langword="null"/>.</exception>
+        public static string ToPostQueryString(IEnumerable<KeyValuePair<string, string>> parameters, bool dontEscape, Encoding encoding = null)
+        {
+            #region Проверка параметров
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException("parameters");
+            }
+
+            #endregion
+
+            var queryBuilder = new StringBuilder();
+
+            foreach (var param in parameters)
+            {
+                if (string.IsNullOrEmpty(param.Key))
+                {
+                    continue;
+                }
+
+                queryBuilder.Append(param.Key);
+                queryBuilder.Append('=');
+
+                if (dontEscape)
+                {
+                    queryBuilder.Append(param.Value);
+                }
+                else
+                {
+                    queryBuilder.Append(
+                        UrlEncode(param.Value ?? string.Empty, encoding));
+                }
+
+                queryBuilder.Append('&');
+            }
+
+            if (queryBuilder.Length != 0)
+            {
+                // Удаляем '&' в конце.
+                queryBuilder.Remove(queryBuilder.Length - 1, 1);
+            }
+
+            return queryBuilder.ToString();
+        }
+
+        /// <summary>
         /// Определяет и возвращает MIME-тип на основе расширения файла.
         /// </summary>
         /// <param name="extension">Расширение файла.</param>
@@ -255,49 +308,42 @@ namespace xNet.Net
         /// <returns>Случайный User-Agent от браузера IE.</returns>
         public static string IEUserAgent()
         {
+            string windowsVersion = RandomWindowsVersion();
+
             string version = null;
             string mozillaVersion = null;
+            string otherParams = null;
 
             #region Генерация случайной версии
 
-            switch (Rand.Next(3))
+            if (windowsVersion.Contains("NT 5.1"))
             {
-                case 0:
-                    version = "9.0";
-                    mozillaVersion = "5.0";
-                    break;
-
-                case 1:
-                    version = "10.0";
-                    mozillaVersion = "5.0";
-                    break;
-
-                case 2:
-                    version = "10.6";
-                    mozillaVersion = "5.0";
-                    break;
+                version = "9.0";
+                mozillaVersion = "5.0";
+                otherParams = ".NET CLR 2.0.50727; .NET CLR 3.5.30729";
             }
-
-            #endregion
-
-            string otherParams = null;
-            string windowsVersion = RandomWindowsVersion();
-
-            #region Генерация дополнительных параметров
-
-            switch (windowsVersion)
+            else if (windowsVersion.Contains("NT 6.0"))
             {
-                case "Windows NT 5.1":
-                    otherParams = ".NET CLR 2.0.50727; .NET CLR 3.5.30729";
-                    break;
+                version = "9.0";
+                mozillaVersion = "5.0";
+                otherParams = ".NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.5.30729";
+            }
+            else
+            {
+                switch (Rand.Next(2))
+                {
+                    case 0:
+                        version = "10.0";
+                        mozillaVersion = "5.0";
+                        break;
 
-                case "Windows NT 6.0":
-                    otherParams = ".NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.5.30729";
-                    break;
+                    case 1:
+                        version = "10.6";
+                        mozillaVersion = "5.0";
+                        break;
+                }
 
-                case "Windows NT 6.1":
-                    otherParams = ".NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E";
-                    break;
+                otherParams = ".NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E";
             }
 
             #endregion
@@ -321,33 +367,33 @@ namespace xNet.Net
             switch (Rand.Next(6))
             {
                 case 0:
-                    version = "11.00";
-                    presto = "2.7.62";
-                    break;
-
-                case 1:
                     version = "11.10";
                     presto = "2.8.131";
                     break;
 
-                case 2:
+                case 1:
                     version = "11.50";
                     presto = "2.9.168";
                     break;
 
-                case 3:
+                case 2:
                     version = "11.62";
                     presto = "2.10.229";
                     break;
 
-                case 4:
+                case 3:
                     version = "12.00";
                     presto = "2.10.181";
                     break;
 
-                case 5:
+                case 4:
                     version = "12.02";
                     presto = "2.10.289";
+                    break;
+
+                case 5:
+                    version = "12.14";
+                    presto = "2.12.388";
                     break;
             }
 
@@ -372,35 +418,35 @@ namespace xNet.Net
             switch (Rand.Next(5))
             {
                 case 0:
-                    version = "22.0.1229.79";
-                    safari = "537.4";
+                    version = "28.0.1468.0";
+                    safari = "537.36";
                     break;
 
                 case 1:
-                    version = "23.0.1271.17";
-                    safari = "537.11";
+                    version = "29.0.1547.57";
+                    safari = "537.36";
                     break;
 
                 case 2:
-                    version = "23.0.1271.6";
-                    safari = "537.11";
+                    version = "30.0.1599.17";
+                    safari = "537.36";
                     break;
 
                 case 3:
-                    version = "24.0.1290.1";
-                    safari = "537.13";
+                    version = "31.0.1650.16";
+                    safari = "537.36";
                     break;
 
                 case 4:
-                    version = "24.0.1309.0";
-                    safari = "537.17";
+                    version = "32.0.1667.0";
+                    safari = "537.36";
                     break;
             }
 
             #endregion
 
             return string.Format(
-                "Mozilla/5.0 ({0}) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/{1} Safari/{2}",
+                "Mozilla/5.0 ({0}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{1} Safari/{2}",
                 RandomWindowsVersion(), version, safari);
         }
 
@@ -410,34 +456,44 @@ namespace xNet.Net
         /// <returns>Случайный User-Agent от браузера Firefox.</returns>
         public static string FirefoxUserAgent()
         {
+            string gecko = null;
             string version = null;
-            string revision = null;
-            
+
             #region Генерация случайной версии
 
-            switch (Rand.Next(3))
+            switch (Rand.Next(5))
             {
                 case 0:
-                    version = "15.0.1";
-                    revision = "15.0";
+                    version = "21.0";
+                    gecko = "20130331";
                     break;
 
                 case 1:
-                    version = "15.0.2";
-                    revision = "15.0";
+                    version = "22.0";
+                    gecko = "20130405";
                     break;
 
                 case 2:
-                    version = "16.0.1";
-                    revision = "16.0.1";
+                    version = "23.0";
+                    gecko = "20130406";
+                    break;
+
+                case 3:
+                    version = "24.0";
+                    gecko = "20100101";
+                    break;
+
+                case 4:
+                    version = "25.0";
+                    gecko = "20100101";
                     break;
             }
 
             #endregion
 
             return string.Format(
-                "Mozilla/5.0 (Windows; U; {0}; rv:{1}) Gecko/20121011 Firefox/{2}",
-                RandomWindowsVersion(), revision, version);
+                "Mozilla/5.0 ({0}; rv:{1}) Gecko/{2} Firefox/{1}",
+                RandomWindowsVersion(), version, gecko);
         }
 
         /// <summary>
@@ -537,18 +593,22 @@ namespace xNet.Net
         {
             string windowsVersion = "Windows NT ";
 
-            switch (Rand.Next(3))
+            switch (Rand.Next(4))
             {
                 case 0:
-                    windowsVersion += "5.1"; // Windows XP.
+                    windowsVersion += "5.1"; // Windows XP
                     break;
 
                 case 1:
-                    windowsVersion += "6.0"; // Windows Vista.
+                    windowsVersion += "6.0"; // Windows Vista
                     break;
 
                 case 2:
-                    windowsVersion += "6.1"; // Windows 7.
+                    windowsVersion += "6.1"; // Windows 7
+                    break;
+
+                case 3:
+                    windowsVersion += "6.2"; // Windows 8
                     break;
             }
 
