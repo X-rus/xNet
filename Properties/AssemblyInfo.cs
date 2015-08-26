@@ -9,9 +9,9 @@ using System.Resources;
 [assembly: AssemblyTitle("xNet")]
 [assembly: AssemblyDescription("http://habrahabr.ru/post/146475/")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("X-rus")]
+[assembly: AssemblyCompany("Ruslan Khuduev")]
 [assembly: AssemblyProduct("xNet")]
-[assembly: AssemblyCopyright("Copyright © X-rus 2011-2014")]
+[assembly: AssemblyCopyright("Copyright © 2012-2015 Ruslan Khuduev <x-rus@list.ru>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Resources;
 // Можно задать все значения или принять номер построения и номер редакции по умолчанию, 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.1.4.0")]
-[assembly: AssemblyFileVersion("3.1.4.0")]
+[assembly: AssemblyVersion("3.2.0.0")]
+[assembly: AssemblyFileVersion("3.2.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("ru")]

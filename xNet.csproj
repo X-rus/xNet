@@ -46,54 +46,45 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\RequestParams.cs" />
-    <Compile Include="Net\~Http\HttpClient.cs" />
-    <Compile Include="Net\~Http\HttpExceptionStatus.cs" />
-    <Compile Include="Net\~Http\~Content\BytesContent.cs" />
-    <Compile Include="Net\~Http\~Content\FileContent.cs" />
-    <Compile Include="Net\~Http\~Content\FormUrlEncodedContent.cs" />
-    <Compile Include="Net\~Http\~Content\HttpContent.cs" />
-    <Compile Include="Net\~Http\HttpStatusCode.cs" />
-    <Compile Include="Net\~Http\~Content\MultipartContent.cs" />
-    <Compile Include="Net\~Http\~Content\StreamContent.cs" />
-    <Compile Include="Net\~Http\~Content\StringContent.cs" />
-    <Compile Include="Net\~Proxy\ChainProxyClient.cs" />
-    <Compile Include="Net\DownloadProgressChangedEventArgs.cs" />
-    <Compile Include="Net\~Http\HttpHeader.cs" />
-    <Compile Include="Net\UploadProgressChangedEventArgs.cs" />
-    <Compile Include="~Other\ExceptionHelper.cs" />
-    <Compile Include="Net\HtmlHelper.cs" />
-    <Compile Include="Net\NetException.cs" />
-    <Compile Include="Net\WinInet.cs" />
-    <Compile Include="Net\~Http\HttpMethod.cs" />
-    <Compile Include="Net\~Http\IHttpConnect.cs" />
-    <Compile Include="Net\~Http\CookieDictionary.cs" />
-    <Compile Include="Net\~Proxy\HttpProxyClient.cs" />
-    <Compile Include="Net\~Http\HttpException.cs" />
-    <Compile Include="Net\~Http\HttpRequest.cs" />
-    <Compile Include="Net\~Http\HttpResponse.cs" />
-    <Compile Include="Net\~Http\HttpHelper.cs" />
-    <Compile Include="Net\~Proxy\ProxyClient.cs" />
-    <Compile Include="Net\~Proxy\ProxyType.cs" />
-    <Compile Include="Net\~Proxy\ProxyException.cs" />
-    <Compile Include="Net\~Proxy\ProxyHelper.cs" />
-    <Compile Include="xNet\Rand.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="~Other\SafeNativeMethods.cs" />
-    <Compile Include="Security\Cryptography\CryptographyHelper.cs" />
-    <Compile Include="Net\~Proxy\Socks4aProxyClient.cs" />
-    <Compile Include="Net\~Proxy\Socks4ProxyClient.cs" />
-    <Compile Include="Net\~Proxy\Socks5ProxyClient.cs" />
-    <Compile Include="Text\StringHelper.cs" />
-    <Compile Include="Threading\AsyncEvent.cs" />
-    <Compile Include="Threading\~MultiThreading\MultiThreadingRepeatEventArgs.cs" />
+    <Compile Include="xNet\RequestParams.cs" />
+    <Compile Include="xNet\~Http\HttpExceptionStatus.cs" />
+    <Compile Include="xNet\~Http\~Content\BytesContent.cs" />
+    <Compile Include="xNet\~Http\~Content\FileContent.cs" />
+    <Compile Include="xNet\~Http\~Content\FormUrlEncodedContent.cs" />
+    <Compile Include="xNet\~Http\~Content\HttpContent.cs" />
+    <Compile Include="xNet\~Http\HttpStatusCode.cs" />
+    <Compile Include="xNet\~Http\~Content\MultipartContent.cs" />
+    <Compile Include="xNet\~Http\~Content\StreamContent.cs" />
+    <Compile Include="xNet\~Http\~Content\StringContent.cs" />
+    <Compile Include="xNet\~Proxy\ChainProxyClient.cs" />
+    <Compile Include="xNet\~Http\~Misc\DownloadProgressChangedEventArgs.cs" />
+    <Compile Include="xNet\~Http\HttpHeader.cs" />
+    <Compile Include="xNet\~Http\~Misc\UploadProgressChangedEventArgs.cs" />
+    <Compile Include="xNet\~Internal\ExceptionHelper.cs" />
+    <Compile Include="xNet\Html.cs" />
+    <Compile Include="xNet\NetException.cs" />
+    <Compile Include="xNet\WinInet.cs" />
+    <Compile Include="xNet\~Http\HttpMethod.cs" />
+    <Compile Include="xNet\~Http\CookieDictionary.cs" />
+    <Compile Include="xNet\~Proxy\HttpProxyClient.cs" />
+    <Compile Include="xNet\~Http\HttpException.cs" />
+    <Compile Include="xNet\~Http\HttpRequest.cs" />
+    <Compile Include="xNet\~Http\HttpResponse.cs" />
+    <Compile Include="xNet\~Http\Http.cs" />
+    <Compile Include="xNet\~Proxy\ProxyClient.cs" />
+    <Compile Include="xNet\~Proxy\ProxyType.cs" />
+    <Compile Include="xNet\~Proxy\ProxyException.cs" />
+    <Compile Include="xNet\~Internal\ProxyHelper.cs" />
+    <Compile Include="xNet\~Internal\SafeNativeMethods.cs" />
+    <Compile Include="xNet\~Proxy\Socks4aProxyClient.cs" />
+    <Compile Include="xNet\~Proxy\Socks4ProxyClient.cs" />
+    <Compile Include="xNet\~Proxy\Socks5ProxyClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Threading\~MultiThreading\MultiThreading.cs" />
-    <Compile Include="Threading\~MultiThreading\MultiThreadingProgressEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
@@ -101,8 +92,15 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

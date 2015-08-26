@@ -180,12 +180,6 @@
   <data name="InvalidOperationException_HttpResponse_HasError" xml:space="preserve">
     <value>Невозможно выполнить метод, так как при получении ответа произошла ошибка.</value>
   </data>
-  <data name="InvalidOperationException_NetProcesses_CannotSetValue" xml:space="preserve">
-    <value>Невозможно установить значение во время выполнения асинхронного действия.</value>
-  </data>
-  <data name="InvalidOperationException_MultiThreading_CannotStart" xml:space="preserve">
-    <value>Невозможно начать новую работу во время выполнения асинхронной операции.</value>
-  </data>
   <data name="InvalidOperationException_NotSupportedEncodingFormat" xml:space="preserve">
     <value>Получен неподдерживаемый формат кодирования: {0}</value>
   </data>
@@ -200,9 +194,6 @@
   </data>
   <data name="InvalidOperationException_ProxyClient_WrongUsername" xml:space="preserve">
     <value>Длина имени пользователя не может быть больше 255 символов.</value>
-  </data>
-  <data name="InvalidOperationException_ProxyHelper_NotSupportedProxyType" xml:space="preserve">
-    <value>Не поддерживаемый тип прокси-сервера '{0}'.</value>
   </data>
   <data name="ProxyException_CommandError" xml:space="preserve">
     <value>{0} Прокси-сервер '{1}'.</value>
