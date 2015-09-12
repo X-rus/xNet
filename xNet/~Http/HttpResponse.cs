@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace xNet
@@ -432,8 +433,20 @@ namespace xNet
 
         #region Статические поля (закрытые)
 
-        private static readonly byte[] _openHtmlSignatureBytes = Encoding.ASCII.GetBytes("<html");
-        private static readonly byte[] _closeHtmlSignatureBytes = Encoding.ASCII.GetBytes("</html>");
+        private static readonly byte[] _openHtmlSignature = Encoding.ASCII.GetBytes("<html");
+        private static readonly byte[] _closeHtmlSignature = Encoding.ASCII.GetBytes("</html>");
+
+        private static readonly Regex _keepAliveTimeoutRegex = new Regex(
+            @"timeout(|\s+)=(|\s+)(?<value>\d+)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        private static readonly Regex _keepAliveMaxRegex = new Regex(
+            @"max(|\s+)=(|\s+)(?<value>\d+)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        private static readonly Regex _contentCharsetRegex = new Regex(
+           @"charset(|\s+)=(|\s+)(?<value>[a-z,0-9,-]+)",
+           RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         #endregion
 
@@ -502,6 +515,11 @@ namespace xNet
             }
         }
 
+        /// <summary>
+        /// Возвращает количество попыток переподключения.
+        /// </summary>
+        public int ReconnectCount { get; internal set; }
+
         #region Основные данные
 
         /// <summary>
@@ -569,6 +587,18 @@ namespace xNet
         /// </summary>
         /// <remarks>Если куки были установлены в <see cref="xNet.Net.HttpRequest"/> и значение свойства <see cref="xNet.Net.CookieDictionary.IsLocked"/> равно <see langword="true"/>, то будут созданы новые куки.</remarks>
         public CookieDictionary Cookies { get; private set; }
+
+        /// <summary>
+        /// Возвращает время простаивания постоянного соединения в миллисекундах.
+        /// </summary>
+        /// <value>Значение по умолчанию - <see langword="null"/>.</value>
+        public int? KeepAliveTimeout { get; private set; }
+
+        /// <summary>
+        /// Возвращает максимально допустимое количество запросов для одного соединения.
+        /// </summary>
+        /// <value>Значение по умолчанию - <see langword="null"/>.</value>
+        public int? MaximumKeepAliveRequests { get; private set; }
 
         #endregion
 
@@ -1125,18 +1155,16 @@ namespace xNet
 
             HasError = false;
             MessageBodyLoaded = false;
+            KeepAliveTimeout = null;
+            MaximumKeepAliveRequests = null;
 
             _headers.Clear();
             _rawCookies.Clear();
 
             if (_request.Cookies != null && !_request.Cookies.IsLocked)
-            {
                 Cookies = _request.Cookies;
-            }
             else
-            {
                 Cookies = new CookieDictionary();
-            }
 
             if (_receiverHelper == null)
             {
@@ -1156,6 +1184,9 @@ namespace xNet
                 CharacterSet = GetCharacterSet();
                 ContentLength = GetContentLength();
                 ContentType = GetContentType();
+
+                KeepAliveTimeout = GetKeepAliveTimeout();
+                MaximumKeepAliveRequests = GetKeepAliveMax();
             }
             catch (Exception ex)
             {
@@ -1172,7 +1203,8 @@ namespace xNet
             // Если пришёл ответ без тела сообщения.
             if (ContentLength == 0 ||
                 Method == HttpMethod.HEAD ||
-                StatusCode == HttpStatusCode.Continue || StatusCode == HttpStatusCode.NoContent ||
+                StatusCode == HttpStatusCode.Continue ||
+                StatusCode == HttpStatusCode.NoContent ||
                 StatusCode == HttpStatusCode.NotModified)
             {
                 MessageBodyLoaded = true;
@@ -1434,11 +1466,11 @@ namespace xNet
 
             // Проверяем, есть ли открывающий тег '<html'.
             // Если есть, то считываем данные то тех пор, пока не встретим закрывающий тек '</html>'.
-            bool isHtml = FindSignature(buffer, begBytesRead, _openHtmlSignatureBytes);
+            bool isHtml = FindSignature(buffer, begBytesRead, _openHtmlSignature);
 
             if (isHtml)
             {
-                bool found = FindSignature(buffer, begBytesRead, _closeHtmlSignatureBytes);
+                bool found = FindSignature(buffer, begBytesRead, _closeHtmlSignature);
 
                 // Проверяем, есть ли в начальных данных закрывающий тег.
                 if (found)
@@ -1461,7 +1493,7 @@ namespace xNet
                         continue;
                     }
 
-                    bool found = FindSignature(buffer, bytesRead, _closeHtmlSignatureBytes);
+                    bool found = FindSignature(buffer, bytesRead, _closeHtmlSignature);
 
                     if (found)
                     {
@@ -1745,6 +1777,34 @@ namespace xNet
             return false;
         }
 
+        private int? GetKeepAliveTimeout()
+        {
+            if (!_headers.ContainsKey("Keep-Alive"))
+                return null;
+
+            var header = _headers["Keep-Alive"];
+            var match = _keepAliveTimeoutRegex.Match(header);
+
+            if (match.Success)
+                return int.Parse(match.Groups["value"].Value) * 1000; // В миллисекундах.
+
+            return null;
+        }
+
+        private int? GetKeepAliveMax()
+        {
+            if (!_headers.ContainsKey("Keep-Alive"))
+                return null;
+
+            var header = _headers["Keep-Alive"];
+            var match = _keepAliveMaxRegex.Match(header);
+
+            if (match.Success)
+                return int.Parse(match.Groups["value"].Value);
+
+            return null;
+        }
+
         private Uri GetLocation()
         {
             string location;
@@ -1765,29 +1825,23 @@ namespace xNet
         private Encoding GetCharacterSet()
         {
             if (!_headers.ContainsKey("Content-Type"))
-            {
-                return (_request.CharacterSet ?? Encoding.Default);
-            }
+                return _request.CharacterSet ?? Encoding.Default;
 
-            string contentType = _headers["Content-Type"];
+            var header = _headers["Content-Type"];
+            var match = _contentCharsetRegex.Match(header);
 
-            // Пример текста, где ищется позиция символа: text/html; charset=UTF-8
-            int charsetPos = contentType.IndexOf('=');
+            if (!match.Success)
+                return _request.CharacterSet ?? Encoding.Default;
 
-            if (charsetPos == -1)
-            {
-                return (_request.CharacterSet ?? Encoding.Default);
-            }
-
-            contentType = contentType.Substring(charsetPos + 1);
+            var charset = match.Groups["value"];
 
             try
             {
-                return Encoding.GetEncoding(contentType);
+                return Encoding.GetEncoding(header);
             }
             catch (ArgumentException)
             {
-                return (_request.CharacterSet ?? Encoding.Default);
+                return _request.CharacterSet ?? Encoding.Default;
             }
         }
 
@@ -1797,7 +1851,6 @@ namespace xNet
             {
                 int contentLength;
                 int.TryParse(_headers["Content-Length"], out contentLength);
-
                 return contentLength;
             }
 
@@ -1812,12 +1865,9 @@ namespace xNet
 
                 // Ищем позицию, где заканчивается описание типа контента и начинается описание его параметров.
                 int endTypePos = contentType.IndexOf(';');
-
                 if (endTypePos != -1)
-                {
                     contentType = contentType.Substring(0, endTypePos);
-                }
-
+  
                 return contentType;
             }
 
