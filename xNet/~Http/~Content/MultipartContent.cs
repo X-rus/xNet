@@ -43,8 +43,16 @@ namespace xNet
 
         #region Статические поля (закрытые)
 
-        [ThreadStatic]
-        private static readonly Random _rand = new Random();
+        [ThreadStatic] private static Random _rand;
+        private static Random Rand
+        {
+            get
+            {
+                if (_rand == null)
+                    _rand = new Random();
+                return _rand;
+            }
+        }
 
         #endregion
 
@@ -397,18 +405,18 @@ namespace xNet
 
             for (int i = 0; i < length; ++i)
             {
-                switch (_rand.Next(3))
+                switch (Rand.Next(3))
                 {
                     case 0:
-                        strBuilder.Append((char)_rand.Next(48, 58));
+                        strBuilder.Append((char)Rand.Next(48, 58));
                         break;
 
                     case 1:
-                        strBuilder.Append((char)_rand.Next(97, 123));
+                        strBuilder.Append((char)Rand.Next(97, 123));
                         break;
 
                     case 2:
-                        strBuilder.Append((char)_rand.Next(65, 91));
+                        strBuilder.Append((char)Rand.Next(65, 91));
                         break;
                 }
             }

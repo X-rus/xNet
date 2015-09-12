@@ -83,8 +83,16 @@ namespace xNet
 
         #region Статические поля (закрытые)
 
-        [ThreadStatic]
-        private static readonly Random _rand = new Random();
+        [ThreadStatic] private static Random _rand;
+        private static Random Rand
+        {
+            get
+            {
+                if (_rand == null)
+                    _rand = new Random();
+                return _rand;
+            }
+        }
 
         #endregion
 
@@ -341,7 +349,7 @@ namespace xNet
             }
             else
             {
-                switch (_rand.Next(3))
+                switch (Rand.Next(3))
                 {
                     case 0:
                         version = "10.0";
@@ -383,7 +391,7 @@ namespace xNet
 
             #region Генерация случайной версии
 
-            switch (_rand.Next(4))
+            switch (Rand.Next(4))
             {
                 case 0:
                     version = "12.16";
@@ -424,7 +432,7 @@ namespace xNet
 
             #region Генерация случайной версии
 
-            switch (_rand.Next(5))
+            switch (Rand.Next(5))
             {
                 case 0:
                     version = "41.0.2228.0";
@@ -470,7 +478,7 @@ namespace xNet
 
             #region Генерация случайной версии
 
-            switch (_rand.Next(5))
+            switch (Rand.Next(5))
             {
                 case 0:
                     version = "36.0";
@@ -518,7 +526,7 @@ namespace xNet
 
             #region Генерация случайной версии
 
-            switch (_rand.Next(3))
+            switch (Rand.Next(3))
             {
                 case 0:
                     os = "iOS";
@@ -602,7 +610,7 @@ namespace xNet
         {
             string windowsVersion = "Windows NT ";
 
-            switch (_rand.Next(4))
+            switch (Rand.Next(4))
             {
                 case 0:
                     windowsVersion += "5.1"; // Windows XP
@@ -621,7 +629,7 @@ namespace xNet
                     break;
             }
 
-            if (_rand.NextDouble() < 0.2)
+            if (Rand.NextDouble() < 0.2)
             {
                 windowsVersion += "; WOW64"; // 64-битная версия.
             }

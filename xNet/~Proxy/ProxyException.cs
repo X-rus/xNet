@@ -1,41 +1,42 @@
-using System;
+п»їusing System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
 namespace xNet
 {
     /// <summary>
-    /// Исключение, которое выбрасывается, в случае возникновения ошибки при работе с прокси.
+    /// РСЃРєР»СЋС‡РµРЅРёРµ, РєРѕС‚РѕСЂРѕРµ РІС‹Р±СЂР°СЃС‹РІР°РµС‚СЃСЏ, РІ СЃР»СѓС‡Р°Рµ РІРѕР·РЅРёРєРЅРѕРІРµРЅРёСЏ РѕС€РёР±РєРё РїСЂРё СЂР°Р±РѕС‚Рµ СЃ РїСЂРѕРєСЃРё.
     /// </summary>
-    public sealed class ProxyException : NetException, ISerializable
+    [Serializable]
+    public sealed class ProxyException : NetException
     {
         /// <summary>
-        /// Возвращает прокси-клиент, в котором произошла ошибка.
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РїСЂРѕРєСЃРё-РєР»РёРµРЅС‚, РІ РєРѕС‚РѕСЂРѕРј РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°.
         /// </summary>
         public ProxyClient ProxyClient { get; private set; }
 
         
-        #region Конструкторы (открытые)
+        #region РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹ (РѕС‚РєСЂС‹С‚С‹Рµ)
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ProxyException"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ProxyException"/>.
         /// </summary>
         public ProxyException() : this(Resources.ProxyException_Default) { }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ProxyException"/> заданным сообщением об ошибке.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ProxyException"/> Р·Р°РґР°РЅРЅС‹Рј СЃРѕРѕР±С‰РµРЅРёРµРј РѕР± РѕС€РёР±РєРµ.
         /// </summary>
-        /// <param name="message">Сообщение об ошибке с объяснением причины исключения.</param>
-        /// <param name="innerException">Исключение, вызвавшее текущие исключение, или значение <see langword="null"/>.</param>
+        /// <param name="message">РЎРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ СЃ РѕР±СЉСЏСЃРЅРµРЅРёРµРј РїСЂРёС‡РёРЅС‹ РёСЃРєР»СЋС‡РµРЅРёСЏ.</param>
+        /// <param name="innerException">РСЃРєР»СЋС‡РµРЅРёРµ, РІС‹Р·РІР°РІС€РµРµ С‚РµРєСѓС‰РёРµ РёСЃРєР»СЋС‡РµРЅРёРµ, РёР»Рё Р·РЅР°С‡РµРЅРёРµ <see langword="null"/>.</param>
         public ProxyException(string message, Exception innerException = null)
             : base(message, innerException) { }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="xNet.Net.ProxyException"/> заданным сообщением об ошибке и прокси-клиентом.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="xNet.Net.ProxyException"/> Р·Р°РґР°РЅРЅС‹Рј СЃРѕРѕР±С‰РµРЅРёРµРј РѕР± РѕС€РёР±РєРµ Рё РїСЂРѕРєСЃРё-РєР»РёРµРЅС‚РѕРј.
         /// </summary>
-        /// <param name="message">Сообщение об ошибке с объяснением причины исключения.</param>
-        /// <param name="proxyClient">Прокси-клиент, в котором произошла ошибка.</param>
-        /// <param name="innerException">Исключение, вызвавшее текущие исключение, или значение <see langword="null"/>.</param>
+        /// <param name="message">РЎРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ СЃ РѕР±СЉСЏСЃРЅРµРЅРёРµРј РїСЂРёС‡РёРЅС‹ РёСЃРєР»СЋС‡РµРЅРёСЏ.</param>
+        /// <param name="proxyClient">РџСЂРѕРєСЃРё-РєР»РёРµРЅС‚, РІ РєРѕС‚РѕСЂРѕРј РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°.</param>
+        /// <param name="innerException">РСЃРєР»СЋС‡РµРЅРёРµ, РІС‹Р·РІР°РІС€РµРµ С‚РµРєСѓС‰РёРµ РёСЃРєР»СЋС‡РµРЅРёРµ, РёР»Рё Р·РЅР°С‡РµРЅРёРµ <see langword="null"/>.</param>
         public ProxyException(string message, ProxyClient proxyClient, Exception innerException = null)
             : base(message, innerException)
         {
@@ -46,23 +47,11 @@ namespace xNet
 
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ProxyException"/> заданными экземплярами <see cref="SerializationInfo"/> и <see cref="StreamingContext"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="ProxyException"/> Р·Р°РґР°РЅРЅС‹РјРё СЌРєР·РµРјРїР»СЏСЂР°РјРё <see cref="SerializationInfo"/> Рё <see cref="StreamingContext"/>.
         /// </summary>
-        /// <param name="serializationInfo">Экземпляр класса <see cref="SerializationInfo"/>, который содержит сведения, требуемые для сериализации нового экземпляра класса <see cref="ProxyException"/>.</param>
-        /// <param name="streamingContext">Экземпляр класса <see cref="StreamingContext"/>, содержащий источник сериализованного потока, связанного с новым экземпляром класса <see cref="ProxyException"/>.</param>
+        /// <param name="serializationInfo">Р­РєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="SerializationInfo"/>, РєРѕС‚РѕСЂС‹Р№ СЃРѕРґРµСЂР¶РёС‚ СЃРІРµРґРµРЅРёСЏ, С‚СЂРµР±СѓРµРјС‹Рµ РґР»СЏ СЃРµСЂРёР°Р»РёР·Р°С†РёРё РЅРѕРІРѕРіРѕ СЌРєР·РµРјРїР»СЏСЂР° РєР»Р°СЃСЃР° <see cref="ProxyException"/>.</param>
+        /// <param name="streamingContext">Р­РєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="StreamingContext"/>, СЃРѕРґРµСЂР¶Р°С‰РёР№ РёСЃС‚РѕС‡РЅРёРє СЃРµСЂРёР°Р»РёР·РѕРІР°РЅРЅРѕРіРѕ РїРѕС‚РѕРєР°, СЃРІСЏР·Р°РЅРЅРѕРіРѕ СЃ РЅРѕРІС‹Рј СЌРєР·РµРјРїР»СЏСЂРѕРј РєР»Р°СЃСЃР° <see cref="ProxyException"/>.</param>
         protected ProxyException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext) { }
-
-
-        /// <summary>
-        /// Заполняет экземпляр <see cref="SerializationInfo"/> данными, необходимыми для сериализации исключения <see cref="ProxyException"/>.
-        /// </summary>
-        /// <param name="serializationInfo">Данные о сериализации, <see cref="SerializationInfo"/>, которые должны использоваться.</param>
-        /// <param name="streamingContext">Данные о сериализации, <see cref="StreamingContext"/>, которые должны использоваться.</param>
-        [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-        public override void GetObjectData(SerializationInfo serializationInfo, StreamingContext streamingContext)
-        {
-            base.GetObjectData(serializationInfo, streamingContext);
-        }
     }
 }

@@ -1,42 +1,42 @@
-using System.Net.Sockets;
+п»їusing System.Net.Sockets;
 using System.Text;
 
 namespace xNet
 {
     /// <summary>
-    /// Представляет клиент для Socks4a прокси-сервера.
+    /// РџСЂРµРґСЃС‚Р°РІР»СЏРµС‚ РєР»РёРµРЅС‚ РґР»СЏ Socks4a РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂР°.
     /// </summary>
     public class Socks4aProxyClient : Socks4ProxyClient 
     {
-        #region Конструкторы (открытые)
+        #region РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹ (РѕС‚РєСЂС‹С‚С‹Рµ)
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Socks4aProxyClient"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Socks4aProxyClient"/>.
         /// </summary>
         public Socks4aProxyClient()
             : this(null) { }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Socks4aProxyClient"/> заданным хостом прокси-сервера, и устанавливает порт равным - 1080.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Socks4aProxyClient"/> Р·Р°РґР°РЅРЅС‹Рј С…РѕСЃС‚РѕРј РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂР°, Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїРѕСЂС‚ СЂР°РІРЅС‹Рј - 1080.
         /// </summary>
-        /// <param name="host">Хост прокси-сервера.</param>
+        /// <param name="host">РҐРѕСЃС‚ РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂР°.</param>
         public Socks4aProxyClient(string host)
             : this(host, DefaultPort) { }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Socks4aProxyClient"/> заданными данными о прокси-сервере.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Socks4aProxyClient"/> Р·Р°РґР°РЅРЅС‹РјРё РґР°РЅРЅС‹РјРё Рѕ РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂРµ.
         /// </summary>
-        /// <param name="host">Хост прокси-сервера.</param>
-        /// <param name="port">Порт прокси-сервера.</param>
+        /// <param name="host">РҐРѕСЃС‚ РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂР°.</param>
+        /// <param name="port">РџРѕСЂС‚ РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂР°.</param>
         public Socks4aProxyClient(string host, int port)
             : this(host, port, string.Empty) { }
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="Socks4aProxyClient"/> заданными данными о прокси-сервере.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Socks4aProxyClient"/> Р·Р°РґР°РЅРЅС‹РјРё РґР°РЅРЅС‹РјРё Рѕ РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂРµ.
         /// </summary>
-        /// <param name="host">Хост прокси-сервера.</param>
-        /// <param name="port">Порт прокси-сервера.</param>
-        /// <param name="username">Имя пользователя для авторизации на прокси-сервере.</param>
+        /// <param name="host">РҐРѕСЃС‚ РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂР°.</param>
+        /// <param name="port">РџРѕСЂС‚ РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂР°.</param>
+        /// <param name="username">РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РґР»СЏ Р°РІС‚РѕСЂРёР·Р°С†РёРё РЅР° РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂРµ.</param>
         public Socks4aProxyClient(string host, int port, string username)
             : base(host, port, username)
         {
@@ -46,27 +46,27 @@ namespace xNet
         #endregion
 
 
-        #region Методы (открытые)
+        #region РњРµС‚РѕРґС‹ (РѕС‚РєСЂС‹С‚С‹Рµ)
 
         /// <summary>
-        /// Преобразует строку в экземпляр класса <see cref="Socks4aProxyClient"/>.
+        /// РџСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃС‚СЂРѕРєСѓ РІ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Socks4aProxyClient"/>.
         /// </summary>
-        /// <param name="proxyAddress">Строка вида - хост:порт:имя_пользователя:пароль. Три последних параметра являются необязательными.</param>
-        /// <returns>Экземпляр класса <see cref="Socks4aProxyClient"/>.</returns>
-        /// <exception cref="System.ArgumentNullException">Значение параметра <paramref name="proxyAddress"/> равно <see langword="null"/>.</exception>
-        /// <exception cref="System.ArgumentException">Значение параметра <paramref name="proxyAddress"/> является пустой строкой.</exception>
-        /// <exception cref="System.FormatException">Формат порта является неправильным.</exception>
+        /// <param name="proxyAddress">РЎС‚СЂРѕРєР° РІРёРґР° - С…РѕСЃС‚:РїРѕСЂС‚:РёРјСЏ_РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ:РїР°СЂРѕР»СЊ. РўСЂРё РїРѕСЃР»РµРґРЅРёС… РїР°СЂР°РјРµС‚СЂР° СЏРІР»СЏСЋС‚СЃСЏ РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅС‹РјРё.</param>
+        /// <returns>Р­РєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Socks4aProxyClient"/>.</returns>
+        /// <exception cref="System.ArgumentNullException">Р—РЅР°С‡РµРЅРёРµ РїР°СЂР°РјРµС‚СЂР° <paramref name="proxyAddress"/> СЂР°РІРЅРѕ <see langword="null"/>.</exception>
+        /// <exception cref="System.ArgumentException">Р—РЅР°С‡РµРЅРёРµ РїР°СЂР°РјРµС‚СЂР° <paramref name="proxyAddress"/> СЏРІР»СЏРµС‚СЃСЏ РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРѕР№.</exception>
+        /// <exception cref="System.FormatException">Р¤РѕСЂРјР°С‚ РїРѕСЂС‚Р° СЏРІР»СЏРµС‚СЃСЏ РЅРµРїСЂР°РІРёР»СЊРЅС‹Рј.</exception>
         public static Socks4aProxyClient Parse(string proxyAddress)
         {
             return ProxyClient.Parse(ProxyType.Socks4a, proxyAddress) as Socks4aProxyClient;
         }
 
         /// <summary>
-        /// Преобразует строку в экземпляр класса <see cref="Socks4aProxyClient"/>. Возвращает значение, указывающее, успешно ли выполнено преобразование.
+        /// РџСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃС‚СЂРѕРєСѓ РІ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Socks4aProxyClient"/>. Р’РѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ, СѓРєР°Р·С‹РІР°СЋС‰РµРµ, СѓСЃРїРµС€РЅРѕ Р»Рё РІС‹РїРѕР»РЅРµРЅРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ.
         /// </summary>
-        /// <param name="proxyAddress">Строка вида - хост:порт:имя_пользователя:пароль. Три последних параметра являются необязательными.</param>
-        /// <param name="result">Если преобразование выполнено успешно, то содержит экземпляр класса <see cref="Socks4aProxyClient"/>, иначе <see langword="null"/>.</param>
-        /// <returns>Значение <see langword="true"/>, если параметр <paramref name="proxyAddress"/> преобразован успешно, иначе <see langword="false"/>.</returns>
+        /// <param name="proxyAddress">РЎС‚СЂРѕРєР° РІРёРґР° - С…РѕСЃС‚:РїРѕСЂС‚:РёРјСЏ_РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ:РїР°СЂРѕР»СЊ. РўСЂРё РїРѕСЃР»РµРґРЅРёС… РїР°СЂР°РјРµС‚СЂР° СЏРІР»СЏСЋС‚СЃСЏ РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅС‹РјРё.</param>
+        /// <param name="result">Р•СЃР»Рё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РІС‹РїРѕР»РЅРµРЅРѕ СѓСЃРїРµС€РЅРѕ, С‚Рѕ СЃРѕРґРµСЂР¶РёС‚ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="Socks4aProxyClient"/>, РёРЅР°С‡Рµ <see langword="null"/>.</param>
+        /// <returns>Р—РЅР°С‡РµРЅРёРµ <see langword="true"/>, РµСЃР»Рё РїР°СЂР°РјРµС‚СЂ <paramref name="proxyAddress"/> РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅ СѓСЃРїРµС€РЅРѕ, РёРЅР°С‡Рµ <see langword="false"/>.</returns>
         public static bool TryParse(string proxyAddress, out Socks4aProxyClient result)
         {
             ProxyClient proxy;
@@ -123,7 +123,7 @@ namespace xNet
 
             byte reply = response[1];
 
-            // Если запрос не выполнен.
+            // Р•СЃР»Рё Р·Р°РїСЂРѕСЃ РЅРµ РІС‹РїРѕР»РЅРµРЅ.
             if (reply != CommandReplyRequestGranted)
             {
                 HandleCommandError(reply);

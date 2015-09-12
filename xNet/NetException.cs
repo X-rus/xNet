@@ -7,7 +7,8 @@ namespace xNet
     /// <summary>
     /// Исключение, которое выбрасывается, в случае возникновения ошибки при работе с сетью.
     /// </summary>
-    public class NetException : Exception, ISerializable
+    [Serializable]
+    public class NetException : Exception
     {
         #region Конструкторы (открытые)
 
@@ -34,17 +35,5 @@ namespace xNet
         /// <param name="streamingContext">Экземпляр класса <see cref="StreamingContext"/>, содержащий источник сериализованного потока, связанного с новым экземпляром класса <see cref="NetException"/>.</param>
         protected NetException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext) { }
-
-
-        /// <summary>
-        /// Заполняет экземпляр <see cref="SerializationInfo"/> данными, необходимыми для сериализации исключения <see cref="NetException"/>.
-        /// </summary>
-        /// <param name="serializationInfo">Данные о сериализации, <see cref="SerializationInfo"/>, которые должны использоваться.</param>
-        /// <param name="streamingContext">Данные о сериализации, <see cref="StreamingContext"/>, которые должны использоваться.</param>
-        [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-        public override void GetObjectData(SerializationInfo serializationInfo, StreamingContext streamingContext)
-        {
-            base.GetObjectData(serializationInfo, streamingContext);
-        }
     }
 }

@@ -13,8 +13,16 @@ namespace xNet
     {
         #region Статические поля (закрытые)
 
-        [ThreadStatic]
-        private static readonly Random _rand = new Random();
+        [ThreadStatic] private static Random _rand;
+        private static Random Rand
+        {
+            get
+            {
+                if (_rand == null)
+                    _rand = new Random();
+                return _rand;
+            }
+        }
 
         #endregion
 
@@ -203,7 +211,7 @@ namespace xNet
                 // Перемешиваем прокси.
                 for (int i = 0; i < proxies.Count; i++)
                 {
-                    int randI = _rand.Next(proxies.Count);
+                    int randI = Rand.Next(proxies.Count);
 
                     ProxyClient proxy = proxies[i];
                     proxies[i] = proxies[randI];

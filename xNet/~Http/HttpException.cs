@@ -7,7 +7,8 @@ namespace xNet
     /// <summary>
     /// Исключение, которое выбрасывается, в случае возникновения ошибки при работе с HTTP-протоколом.
     /// </summary>
-    public sealed class HttpException : NetException, ISerializable
+    [Serializable]
+    public sealed class HttpException : NetException
     {
         #region Свойства (открытые)
 
@@ -65,7 +66,14 @@ namespace xNet
         /// <param name="serializationInfo">Экземпляр класса <see cref="SerializationInfo"/>, который содержит сведения, требуемые для сериализации нового экземпляра класса <see cref="HttpException"/>.</param>
         /// <param name="streamingContext">Экземпляр класса <see cref="StreamingContext"/>, содержащий источник сериализованного потока, связанного с новым экземпляром класса <see cref="HttpException"/>.</param>
         protected HttpException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext) { }
+            : base(serializationInfo, streamingContext)
+        {
+            if (serializationInfo != null)
+            {
+                Status = (HttpExceptionStatus)serializationInfo.GetInt32("Status");
+                HttpStatusCode = (HttpStatusCode)serializationInfo.GetInt32("HttpStatusCode");
+            }
+        }
 
 
         /// <summary>
@@ -77,6 +85,12 @@ namespace xNet
         public override void GetObjectData(SerializationInfo serializationInfo, StreamingContext streamingContext)
         {
             base.GetObjectData(serializationInfo, streamingContext);
+
+            if (serializationInfo != null)
+            {
+                serializationInfo.AddValue("Status", (int)Status);
+                serializationInfo.AddValue("HttpStatusCode", (int)HttpStatusCode);
+            }
         }
     }
 }
