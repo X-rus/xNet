@@ -77,7 +77,7 @@ namespace xNet
                 return string.Empty;
             }
 
-            var regex = new Regex(@"\\[uU](?<text>[0-9A-F]{4})", RegexOptions.Compiled);
+            var regex = new Regex(@"\\u(?<code>[0-9a-f]{4})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
             string result = regex.Replace(str, match =>
             {
