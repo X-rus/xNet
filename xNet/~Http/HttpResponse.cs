@@ -1255,6 +1255,12 @@ namespace xNet
             string version = startingLine.Substring("HTTP/", " ");
             string statusCode = startingLine.Substring(" ", " ");
 
+            if (statusCode.Length == 0)
+            {
+                // Если сервер не возвращает Reason Phrase
+                statusCode = startingLine.Substring(" ", Http.NewLine);
+            }
+
             if (version.Length == 0 || statusCode.Length == 0)
             {
                 throw NewHttpException(Resources.HttpException_ReceivedEmptyResponse);
