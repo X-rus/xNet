@@ -295,139 +295,6 @@ namespace xNet
             #endregion
         }
 
-        // Поток для считывания тела сообщения.
-        private sealed class HttpResponseStream : Stream
-        {
-            #region Поля (закрытые)
-
-            private Stream _baseStream;
-            private ReceiverHelper _receiverHelper;
-            private Action<Exception> _endWrite;
-
-            #endregion
-
-
-            #region Свойства (открытые)
-
-            public override bool CanRead
-            {
-                get
-                {
-                    return true;
-                }
-            }
-
-            public override bool CanSeek
-            {
-                get
-                {
-                    return false;
-                }
-            }
-
-            public override bool CanTimeout
-            {
-                get
-                {
-                    return false;
-                }
-            }
-
-            public override bool CanWrite
-            {
-                get
-                {
-                    return false;
-                }
-            }
-
-            public override long Length
-            {
-                get
-                {
-                    throw new NotSupportedException();
-                }
-            }
-
-            public override long Position
-            {
-                get
-                {
-                    throw new NotSupportedException();
-                }
-                set
-                {
-                    throw new NotSupportedException();
-                }
-            }
-
-            #endregion
-
-
-            public HttpResponseStream(Stream baseStream,
-                ReceiverHelper receiverHelper, Action<Exception> endWrite)
-            {
-                _baseStream = baseStream;
-                _receiverHelper = receiverHelper;
-                _endWrite = endWrite;
-            }
-
-
-            #region Методы (открытые)
-
-            public override void Flush()
-            {
-                _baseStream.Flush();
-            }
-
-            public override void SetLength(long value)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                throw new NotSupportedException();
-            }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                int bytesRead;
-
-                try
-                {
-                    if (_receiverHelper.HasData)
-                    {
-                        bytesRead = _receiverHelper.Read(buffer, offset, count);
-                    }
-                    else
-                    {
-                        bytesRead = _baseStream.Read(buffer, offset, count);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _endWrite(ex);
-
-                    throw ex;
-                }
-
-                if (bytesRead == 0)
-                {
-                    _endWrite(null);
-                }
-
-                return bytesRead;
-            }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                throw new NotSupportedException();
-            }
-
-            #endregion
-        }
-
         #endregion
 
 
@@ -878,59 +745,6 @@ namespace xNet
         }
 
         /// <summary>
-        /// Возвращает поток тела сообщения.
-        /// </summary>
-        /// <returns>>Если тело сообщения отсутствует, или оно уже было загружено, то будет возвращено значение <see langword="null"/>.</returns>
-        /// <exception cref="System.InvalidOperationException">Вызов метода из ошибочного ответа.</exception>
-        /// <exception cref="xNet.Net.HttpException">Ошибка при работе с HTTP-протоколом.</exception>
-        public Stream ToStream()
-        {
-            #region Проверка состояния
-
-            if (HasError)
-            {
-                throw new InvalidOperationException(
-                    Resources.InvalidOperationException_HttpResponse_HasError);
-            }
-
-            #endregion
-
-            if (MessageBodyLoaded)
-            {
-                return null;
-            }
-
-            var stream = new HttpResponseStream(_request.ClientStream, _receiverHelper, (ex) =>
-            {
-                if (ex != null)
-                {
-                    HasError = true;
-
-                    if (ex is IOException || ex is InvalidOperationException)
-                    {
-                        throw NewHttpException(Resources.HttpException_FailedReceiveMessageBody, ex);
-                    }
-
-                    throw ex;
-                }
-
-                if (ConnectionClosed())
-                {
-                    _request.Dispose();
-                }
-
-                MessageBodyLoaded = true;
-            });
-
-            if (_headers.ContainsKey("Content-Encoding"))
-            {
-                return GetZipStream(stream);
-            }
-
-            return stream;
-        }
-
-        /// <summary>
         /// Загружает тело сообщения и возвращает его в виде потока байтов из памяти.
         /// </summary>
         /// <returns>Если тело сообщения отсутствует, или оно уже было загружено, то будет возвращено значение <see langword="null"/>.</returns>
@@ -983,7 +797,7 @@ namespace xNet
             }
 
             MessageBodyLoaded = true;
-
+            memoryStream.Position = 0;
             return memoryStream;
         }
 
@@ -1177,7 +991,6 @@ namespace xNet
             try
             {
                 ReceiveStartingLine();
-
                 ReceiveHeaders();
 
                 RedirectAddress = GetLocation();
@@ -1843,9 +1656,9 @@ namespace xNet
 
             try
             {
-                return Encoding.GetEncoding(header);
+                return Encoding.GetEncoding(charset.Value);
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
                 return _request.CharacterSet ?? Encoding.Default;
             }

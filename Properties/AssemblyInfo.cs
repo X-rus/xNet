@@ -11,7 +11,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ruslan Khuduev")]
 [assembly: AssemblyProduct("xNet")]
-[assembly: AssemblyCopyright("Copyright © 2012-2015 Ruslan Khuduev <x-rus@list.ru>")]
+[assembly: AssemblyCopyright("Copyright © 2012-2016 Ruslan Khuduev <x-rus@list.ru>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Resources;
 // Можно задать все значения или принять номер построения и номер редакции по умолчанию, 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.3.2.0")]
-[assembly: AssemblyFileVersion("3.3.2.0")]
+[assembly: AssemblyVersion("3.3.3.0")]
+[assembly: AssemblyFileVersion("3.3.3.0")]
 [assembly: NeutralResourcesLanguageAttribute("ru")]
