@@ -191,12 +191,6 @@ namespace Extreme.Net
         #region Статические свойства (открытые)
 
         /// <summary>
-        /// Возвращает или задаёт значение, указывающие, нужно ли использовать прокси-клиент Internet Explorer'a, если нет прямого подключения к интернету и не задан прокси-клиент.
-        /// </summary>
-        /// <value>Значение по умолчанию — <see langword="false"/>.</value>
-        public static bool UseIeProxy { get; set; }
-
-        /// <summary>
         /// Возвращает или задаёт значение, указывающие, нужно ли отключать прокси-клиент для локальных адресов.
         /// </summary>
         /// <value>Значение по умолчанию — <see langword="false"/>.</value>
@@ -2492,15 +2486,8 @@ namespace Extreme.Net
                     throw;
                 }
             }
-
-            ProxyClient proxy = Proxy ?? GlobalProxy;
-
-            if (proxy == null && UseIeProxy && !WinInet.InternetConnected)
-            {
-                proxy = WinInet.IEProxy;
-            }
-
-            return proxy;
+            
+            return Proxy ?? GlobalProxy;
         }
 
         private TcpClient CreateTcpConnection(string host, int port)

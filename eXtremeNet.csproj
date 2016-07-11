@@ -68,7 +68,6 @@
     <Compile Include="Extreme.Net\~Internal\ExceptionHelper.cs" />
     <Compile Include="Extreme.Net\Html.cs" />
     <Compile Include="Extreme.Net\NetException.cs" />
-    <Compile Include="Extreme.Net\WinInet.cs" />
     <Compile Include="Extreme.Net\~Http\HttpMethod.cs" />
     <Compile Include="Extreme.Net\~Http\CookieDictionary.cs" />
     <Compile Include="Extreme.Net\~Proxy\HttpProxyClient.cs" />
@@ -80,7 +79,6 @@
     <Compile Include="Extreme.Net\~Proxy\ProxyType.cs" />
     <Compile Include="Extreme.Net\~Proxy\ProxyException.cs" />
     <Compile Include="Extreme.Net\~Internal\ProxyHelper.cs" />
-    <Compile Include="Extreme.Net\~Internal\SafeNativeMethods.cs" />
     <Compile Include="Extreme.Net\~Proxy\Socks4aProxyClient.cs" />
     <Compile Include="Extreme.Net\~Proxy\Socks4ProxyClient.cs" />
     <Compile Include="Extreme.Net\~Proxy\Socks5ProxyClient.cs" />
