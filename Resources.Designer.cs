@@ -61,7 +61,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Поток не поддерживает чтение или перемещение позиции..
+        ///   Looks up a localized string similar to Thread can not read or seek.
         /// </summary>
         internal static string ArgumentException_CanNotReadOrSeek {
             get {
@@ -70,7 +70,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Значение параметра не может быть строкой нулевой длины..
+        ///   Looks up a localized string similar to Value has not been empty string.
         /// </summary>
         internal static string ArgumentException_EmptyString {
             get {
@@ -79,7 +79,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Значение заголовка &apos;{0}&apos; можно задать только с помощью специального свойства..
+        ///   Looks up a localized string similar to Value of &apos;{0}&apos; set not available header.
         /// </summary>
         internal static string ArgumentException_HttpRequest_SetNotAvailableHeader {
             get {
@@ -88,7 +88,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Начальный индекс диапазона не может быть больше конечного индекса..
+        ///   Looks up a localized string similar to Begin Index range more end index.
         /// </summary>
         internal static string ArgumentException_MultiThreading_BegIndexRangeMoreEndIndex {
             get {
@@ -97,7 +97,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Допустимо использовать только абсолютный URI..
+        ///   Looks up a localized string similar to Acceptable use only the absolute URI..
         /// </summary>
         internal static string ArgumentException_OnlyAbsoluteUri {
             get {
@@ -106,7 +106,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Путь является пустой строкой, содержит только пробелы или содержит недопустимые символы..
+        ///   Looks up a localized string similar to The path is an empty string, contains only white space, or contains invalid characters..
         /// </summary>
         internal static string ArgumentException_WrongPath {
             get {
@@ -115,7 +115,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Значение параметра не может быть больше {0}..
+        ///   Looks up a localized string similar to The value can not be more than {0}..
         /// </summary>
         internal static string ArgumentOutOfRangeException_CanNotBeGreater {
             get {
@@ -124,7 +124,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Значение параметра не может быть меньше {0}..
+        ///   Looks up a localized string similar to The value can not be less {0}..
         /// </summary>
         internal static string ArgumentOutOfRangeException_CanNotBeLess {
             get {
@@ -133,7 +133,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Значение параметра не может быть меньше {0} или больше {1}..
+        ///   Looks up a localized string similar to The value can not be less than {0} or {1} longer..
         /// </summary>
         internal static string ArgumentOutOfRangeException_CanNotBeLessOrGreater {
             get {
@@ -142,7 +142,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Начальная позиция не может быть больше длины строки..
+        ///   Looks up a localized string similar to The starting position can not be more than the length of the string..
         /// </summary>
         internal static string ArgumentOutOfRangeException_StringHelper_MoreLengthString {
             get {
@@ -151,7 +151,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Длина строки не должна быть больше {0} символов..
+        ///   Looks up a localized string similar to String length must not be more than {0} characters..
         /// </summary>
         internal static string ArgumentOutOfRangeException_StringLengthCanNotBeMore {
             get {
@@ -160,7 +160,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Путь указывает на несуществующую директорию {0}..
+        ///   Looks up a localized string similar to he path points to a nonexistent directory {0}..
         /// </summary>
         internal static string DirectoryNotFoundException_DirectoryNotFound {
             get {
@@ -169,7 +169,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Неверно задан порт..
+        ///   Looks up a localized string similar to Invalid port specified..
         /// </summary>
         internal static string FormatException_ProxyClient_WrongPort {
             get {
@@ -178,7 +178,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ошибка на стороне клиента. Код состояния: {0}.
+        ///   Looks up a localized string similar to The error on the client side. Status code: {0}.
         /// </summary>
         internal static string HttpException_ClientError {
             get {
@@ -187,7 +187,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Вышло время ожидания подключения к HTTP-серверу &apos;{0}&apos;..
+        ///   Looks up a localized string similar to It turned out wait for a connection to the HTTP-server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_ConnectTimeout {
             get {
@@ -196,7 +196,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Произошла ошибка при работе с HTTP-протоколом..
+        ///   Looks up a localized string similar to An error when handling HTTP protocol..
         /// </summary>
         internal static string HttpException_Default {
             get {
@@ -205,7 +205,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось соединиться с HTTP-сервером &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Unable to connect to the HTTP-server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_FailedConnect {
             get {
@@ -214,7 +214,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось получить IP-адреса узла &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Failed to get the host IP-address &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_FailedGetHostAddresses {
             get {
@@ -223,7 +223,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось загрузить тело сообщения ответа от HTTP-сервера &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Could not recieve the message body of the response HTTP-server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_FailedReceiveMessageBody {
             get {
@@ -232,7 +232,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось загрузить ответ от HTTP-сервера &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Failed to recieve the response from the HTTP-server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_FailedReceiveResponse {
             get {
@@ -241,7 +241,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось отправить запрос HTTP-серверу &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Failed to send HTTP-request to the server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_FailedSendRequest {
             get {
@@ -250,7 +250,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось установить SSL-соединение с HTTP-сервером &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Unable to establish SSL-connection with HTTP-server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_FailedSslConnect {
             get {
@@ -259,7 +259,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Превышено допустимое количество последовательных переадресаций..
+        ///   Looks up a localized string similar to Have exceeded the maximum number of consecutive redirects..
         /// </summary>
         internal static string HttpException_LimitRedirections {
             get {
@@ -268,7 +268,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен пустой ответ от HTTP-сервера &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Received empty response from the HTTP-server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_ReceivedEmptyResponse {
             get {
@@ -277,7 +277,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен ошибочный ответ от HTTP-сервера &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Received an invalid response from the HTTP-server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_ReceivedWrongResponse {
             get {
@@ -286,7 +286,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ошибка на стороне сервера. Код состояния: {0}.
+        ///   Looks up a localized string similar to The error on the server side. Status code: {0}.
         /// </summary>
         internal static string HttpException_SeverError {
             get {
@@ -295,7 +295,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Вышло время ожидания данных от HTTP-сервера &apos;{0}&apos;..
+        ///   Looks up a localized string similar to It turned out the wait time data from the HTTP-server &apos;{0}&apos;..
         /// </summary>
         internal static string HttpException_WaitDataTimeout {
             get {
@@ -304,7 +304,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен неверный размер блока данных при использовании Chunked: {0}.
+        ///   Looks up a localized string similar to Received invalid data block size when using Chunked: {0}.
         /// </summary>
         internal static string HttpException_WrongChunkedBlockLength {
             get {
@@ -313,7 +313,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен неверный кукис &apos;{0}&apos; от HTTP-сервера &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Received invalid cookies &apos;{0}&apos; from the HTTP-server &apos;{1}&apos;..
         /// </summary>
         internal static string HttpException_WrongCookie {
             get {
@@ -322,7 +322,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен неверный заголовок &apos;{0}&apos; от HTTP-сервера &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Received invalid header &quot;{0} &apos;from the HTTP-server&apos; {1} &apos;..
         /// </summary>
         internal static string HttpException_WrongHeader {
             get {
@@ -331,7 +331,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не задано ни одного прокси-сервера для цепочки..
+        ///   Looks up a localized string similar to Do not set any proxy for the chain..
         /// </summary>
         internal static string InvalidOperationException_ChainProxyClient_NotProxies {
             get {
@@ -340,7 +340,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Невозможно выполнить метод, так как при получении ответа произошла ошибка..
+        ///   Looks up a localized string similar to Unable to perform the method, because an error occurred while receiving a response..
         /// </summary>
         internal static string InvalidOperationException_HttpResponse_HasError {
             get {
@@ -349,7 +349,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен неподдерживаемый формат кодирования: {0}.
+        ///   Looks up a localized string similar to Received an unsupported encoding format: {0}.
         /// </summary>
         internal static string InvalidOperationException_NotSupportedEncodingFormat {
             get {
@@ -358,7 +358,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Хост не может быть неопределённым или иметь нулевую длину..
+        ///   Looks up a localized string similar to The host may be uncertain or have zero length..
         /// </summary>
         internal static string InvalidOperationException_ProxyClient_WrongHost {
             get {
@@ -367,7 +367,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Длина пароля не может быть больше 255 символов..
+        ///   Looks up a localized string similar to The password can not be more than 255 characters..
         /// </summary>
         internal static string InvalidOperationException_ProxyClient_WrongPassword {
             get {
@@ -376,7 +376,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Порт не может быть меньше 1 или больше 65535..
+        ///   Looks up a localized string similar to The port can not be less than 1 or greater than 65535..
         /// </summary>
         internal static string InvalidOperationException_ProxyClient_WrongPort {
             get {
@@ -385,7 +385,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Длина имени пользователя не может быть больше 255 символов..
+        ///   Looks up a localized string similar to User name can not be more than 255 characters..
         /// </summary>
         internal static string InvalidOperationException_ProxyClient_WrongUsername {
             get {
@@ -394,7 +394,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Произошла ошибка при работе с сетью..
+        ///   Looks up a localized string similar to An error occurred while working with the network..
         /// </summary>
         internal static string NetException_Default {
             get {
@@ -403,7 +403,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} Прокси-сервер &apos;{1}&apos;..
+        ///   Looks up a localized string similar to {0} The proxy server &apos;{1}&apos;..
         /// </summary>
         internal static string ProxyException_CommandError {
             get {
@@ -412,7 +412,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Вышло время ожидания подключения к прокси-серверу &apos;{0}&apos;..
+        ///   Looks up a localized string similar to It turned out the wait time to connect to the proxy server &apos;{0}&apos;..
         /// </summary>
         internal static string ProxyException_ConnectTimeout {
             get {
@@ -421,7 +421,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Произошла ошибка при работе с прокси..
+        ///   Looks up a localized string similar to An error occurred while working with the proxy..
         /// </summary>
         internal static string ProxyException_Default {
             get {
@@ -430,7 +430,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Произошла ошибка при работе с прокси-сервером &apos;{0}&apos;..
+        ///   Looks up a localized string similar to An error occurred while working with the proxy server &apos;{0}&apos;..
         /// </summary>
         internal static string ProxyException_Error {
             get {
@@ -439,7 +439,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось соединиться с прокси-сервером &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Unable to connect to the proxy server &apos;{0}&apos;..
         /// </summary>
         internal static string ProxyException_FailedConnect {
             get {
@@ -448,7 +448,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось получить IP-адреса узла &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Failed to get the host IP-address &apos;{0}&apos;..
         /// </summary>
         internal static string ProxyException_FailedGetHostAddresses {
             get {
@@ -457,7 +457,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Хост &apos;{0}&apos; типа &apos;{1}&apos; не поддерживает используемый тип адресса. Поддерживаются следующие типы: InterNetwork и InterNetworkV6. Прокси-сервер &apos;{2}&apos;..
+        ///   Looks up a localized string similar to The host &apos;{0}&apos; type &apos;{1}&apos; does not support the type Address. The following types: InterNetwork and InterNetworkV6. The proxy server &apos;{2}&apos;..
         /// </summary>
         internal static string ProxyException_NotSupportedAddressType {
             get {
@@ -466,7 +466,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен пустой ответ от прокси-сервера &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Received empty response from the proxy server &apos;{0}&apos;..
         /// </summary>
         internal static string ProxyException_ReceivedEmptyResponse {
             get {
@@ -475,7 +475,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен ошибочный ответ от прокси-сервера &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Received an invalid response from the proxy server &apos;{0}&apos;..
         /// </summary>
         internal static string ProxyException_ReceivedWrongResponse {
             get {
@@ -484,7 +484,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Получен неверный код статуса &apos;{0}&apos; от прокси-сервера &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Received invalid status code &apos;{0}&apos; on &apos;{1}&apos; proxy..
         /// </summary>
         internal static string ProxyException_ReceivedWrongStatusCode {
             get {
@@ -493,7 +493,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось выполнить аутентификацию на прокси-сервере &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Failed to authenticate with the proxy server &apos;{0}&apos;..
         /// </summary>
         internal static string ProxyException_Socks5_FailedAuthOn {
             get {
@@ -502,7 +502,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Вышло время ожидания данных от прокси-сервера &apos;{0}&apos;..
+        ///   Looks up a localized string similar to It turned out the wait time data from the proxy server &apos;{0}&apos;..
         /// </summary>
         internal static string ProxyException_WaitDataTimeout {
             get {
@@ -511,7 +511,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Неизвестная ошибка..
+        ///   Looks up a localized string similar to Unknown error..
         /// </summary>
         internal static string Socks_UnknownError {
             get {
@@ -520,7 +520,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Запрос не удался, потому-что не запущен identd (или не доступен с сервера)..
+        ///   Looks up a localized string similar to The request failed, because things are not running identd (or not available from the server)..
         /// </summary>
         internal static string Socks4_CommandReplyRequestRejectedCannotConnectToIdentd {
             get {
@@ -529,7 +529,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Запрос не удался, поскольку клиентский identd не может подтвердить идентификатор пользователя в запросе..
+        ///   Looks up a localized string similar to The request failed because client&apos;s identd could not confirm the user ID in the query..
         /// </summary>
         internal static string Socks4_CommandReplyRequestRejectedDifferentIdentd {
             get {
@@ -538,7 +538,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Запрос отклонён или ошибочен..
+        ///   Looks up a localized string similar to Query rejected or erroneous..
         /// </summary>
         internal static string Socks4_CommandReplyRequestRejectedOrFailed {
             get {
@@ -547,7 +547,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Предложенные методы аутентификации не поддерживаются..
+        ///   Looks up a localized string similar to The proposed authentication methods are supported..
         /// </summary>
         internal static string Socks5_AuthMethodReplyNoAcceptableMethods {
             get {
@@ -556,7 +556,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Тип адреса не поддерживается..
+        ///   Looks up a localized string similar to Address type not supported..
         /// </summary>
         internal static string Socks5_CommandReplyAddressTypeNotSupported {
             get {
@@ -565,7 +565,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Команда не поддерживается, либо ошибка протокола..
+        ///   Looks up a localized string similar to The command is not supported or protocol error..
         /// </summary>
         internal static string Socks5_CommandReplyCommandNotSupported {
             get {
@@ -574,7 +574,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Соединение запрещено набором правил..
+        ///   Looks up a localized string similar to Connecting a set of rules is prohibited..
         /// </summary>
         internal static string Socks5_CommandReplyConnectionNotAllowedByRuleset {
             get {
@@ -583,7 +583,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Отказ в соединении..
+        ///   Looks up a localized string similar to Connection refused..
         /// </summary>
         internal static string Socks5_CommandReplyConnectionRefused {
             get {
@@ -592,7 +592,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ошибка SOCKS-сервера..
+        ///   Looks up a localized string similar to Error SOCKS-server..
         /// </summary>
         internal static string Socks5_CommandReplyGeneralSocksServerFailure {
             get {
@@ -601,7 +601,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Хост недоступен..
+        ///   Looks up a localized string similar to Host unreachable..
         /// </summary>
         internal static string Socks5_CommandReplyHostUnreachable {
             get {
@@ -610,7 +610,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Сеть недоступна..
+        ///   Looks up a localized string similar to The network is not available..
         /// </summary>
         internal static string Socks5_CommandReplyNetworkUnreachable {
             get {
@@ -619,7 +619,7 @@ namespace Extreme {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Истёк TTL..
+        ///   Looks up a localized string similar to Expired TTL..
         /// </summary>
         internal static string Socks5_CommandReplyTTLExpired {
             get {
