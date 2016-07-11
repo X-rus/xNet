@@ -1,5 +1,6 @@
 configuration: Release
 version: 1.0.{build}
+
 environment:
   version: 1.0.{build}
 
@@ -14,7 +15,7 @@ build:
     publish_wap: true
 
 deploy:
-- provider: NuGet
+  provider: NuGet
   api_key:
     secure: XDyu2Wr5aDX3OW1GTJTSIq2y5wq5q8OFX9gJEHiRdwHGmCKNki/fI0vREBq1zYWR
-  artifact: /.*\.nupkg/
+  artifact: '**\*.nupkg'
