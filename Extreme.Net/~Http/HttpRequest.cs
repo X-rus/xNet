@@ -14,7 +14,7 @@ using System.Threading;
 namespace Extreme.Net
 {
     /// <summary>
-    /// Представляет класс, предназначеннный для отправки запросов HTTP-серверу.
+    /// Class to send HTTP-server requests.
     /// </summary>
     public class HttpRequest : IDisposable
     {
@@ -167,7 +167,7 @@ namespace Extreme.Net
 
 
         /// <summary>
-        /// Версия HTTP-протокола, используемая в запросе.
+        /// Version HTTP-protocol, used in requests.
         /// </summary>
         public static readonly Version ProtocolVersion = new Version(1, 1);
 

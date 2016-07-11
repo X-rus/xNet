@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Extreme.Net
 {
     /// <summary>
-    /// Представляет статический класс, предназначенный для помощи в работе с HTML и с другими текстовыми данными.
+    /// Static class for help working with HTML and other text data
     /// </summary>
     public static class Html
     {
-        #region Статические поля (закрытые)
+        #region Static Fields (private)
 
         private static readonly Dictionary<string, string> _htmlMnemonics = new Dictionary<string, string>()
         {
@@ -24,14 +24,14 @@ namespace Extreme.Net
         #endregion
 
 
-        #region Статические методы (открытые)
+        #region Static Methods (public)
 
         /// <summary>
-        /// Заменяет в строке HTML-сущности на представляющие их символы.
+        /// Replace in Html-Entites on symbols
         /// </summary>
-        /// <param name="str">Строка, в которой будет произведена замена.</param>
-        /// <returns>Строка с заменёнными HTML-сущностями.</returns>
-        /// <remarks>Заменяются только следующие мнемоники: apos, quot, amp, lt и gt. И все виды кодов.</remarks>
+        /// <param name="str">String in which replacement will be made.</param>
+        /// <returns>A string replaced with HTML-entities.</returns>
+        /// <remarks>Replace only with the following mnemonics: apos, quot, amp, lt и gt. And all types codes.</remarks>
         public static string ReplaceEntities(this string str)
         {
             if (string.IsNullOrEmpty(str))
@@ -65,11 +65,11 @@ namespace Extreme.Net
         }
 
         /// <summary>
-        /// Заменяет в строке Unicode-сущности на представляющие их символы.
+        /// Replace in string Unicode-entities on symbols.
         /// </summary>
-        /// <param name="str">Строка, в которой будет произведена замена.</param>
-        /// <returns>Строка с заменёнными Unicode-сущностями.</returns>
-        /// <remarks>Unicode-сущности имеют вид: \u2320 или \U044F</remarks>
+        /// <param name="str">String in which replacement will be made.</param>
+        /// <returns>>A string replaced with Unicode-entites.</returns>
+        /// <remarks>Unicode-enities: \u2320 or \U044F</remarks>
         public static string ReplaceUnicode(this string str)
         {
             if (string.IsNullOrEmpty(str))
