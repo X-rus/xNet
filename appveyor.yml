@@ -1,6 +1,20 @@
 configuration: Release
+version: 1.0.{build}
+environment:
+  version: 1.0.{build}
 
+nuget:
+  project_feed: true
+  
 build:
     project: eXtremeNet.sln
+    publish_nuget: true  
+    include_nuget_references: true
     verbosity: minimal
     publish_wap: true
+
+deploy:
+- provider: NuGet
+  api_key:
+    secure: XDyu2Wr5aDX3OW1GTJTSIq2y5wq5q8OFX9gJEHiRdwHGmCKNki/fI0vREBq1zYWR
+  artifact: /.*\.nupkg/
