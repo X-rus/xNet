@@ -6,11 +6,11 @@ using System.Resources;
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("xNet")]
-[assembly: AssemblyDescription("https://github.com/X-rus/xNet")]
+[assembly: AssemblyTitle("Extreme.Net")]
+[assembly: AssemblyDescription("https://github.com/X-rus/Extreme.Net")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ruslan Khuduev")]
-[assembly: AssemblyProduct("xNet")]
+[assembly: AssemblyProduct("Extreme.Net")]
 [assembly: AssemblyCopyright("Copyright © 2012-2016 Ruslan Khuduev <x-rus@list.ru>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

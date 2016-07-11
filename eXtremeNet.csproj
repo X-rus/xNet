@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5D25D06E-0D35-42EF-BBA2-D5DE6E06CD04}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Extreme</RootNamespace>
+    <AssemblyName>eXtremeNet</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+    <DocumentationFile>bin\Debug\eXtremeNet.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+    <DocumentationFile>bin\Release\eXtremeNet.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Extreme.Net\RequestParams.cs" />
+    <Compile Include="Extreme.Net\~Http\HttpExceptionStatus.cs" />
+    <Compile Include="Extreme.Net\~Http\~Content\BytesContent.cs" />
+    <Compile Include="Extreme.Net\~Http\~Content\FileContent.cs" />
+    <Compile Include="Extreme.Net\~Http\~Content\FormUrlEncodedContent.cs" />
+    <Compile Include="Extreme.Net\~Http\~Content\HttpContent.cs" />
+    <Compile Include="Extreme.Net\~Http\HttpStatusCode.cs" />
+    <Compile Include="Extreme.Net\~Http\~Content\MultipartContent.cs" />
+    <Compile Include="Extreme.Net\~Http\~Content\StreamContent.cs" />
+    <Compile Include="Extreme.Net\~Http\~Content\StringContent.cs" />
+    <Compile Include="Extreme.Net\~Proxy\ChainProxyClient.cs" />
+    <Compile Include="Extreme.Net\~Http\~Misc\DownloadProgressChangedEventArgs.cs" />
+    <Compile Include="Extreme.Net\~Http\HttpHeader.cs" />
+    <Compile Include="Extreme.Net\~Http\~Misc\UploadProgressChangedEventArgs.cs" />
+    <Compile Include="Extreme.Net\~Internal\ExceptionHelper.cs" />
+    <Compile Include="Extreme.Net\Html.cs" />
+    <Compile Include="Extreme.Net\NetException.cs" />
+    <Compile Include="Extreme.Net\WinInet.cs" />
+    <Compile Include="Extreme.Net\~Http\HttpMethod.cs" />
+    <Compile Include="Extreme.Net\~Http\CookieDictionary.cs" />
+    <Compile Include="Extreme.Net\~Proxy\HttpProxyClient.cs" />
+    <Compile Include="Extreme.Net\~Http\HttpException.cs" />
+    <Compile Include="Extreme.Net\~Http\HttpRequest.cs" />
+    <Compile Include="Extreme.Net\~Http\HttpResponse.cs" />
+    <Compile Include="Extreme.Net\~Http\Http.cs" />
+    <Compile Include="Extreme.Net\~Proxy\ProxyClient.cs" />
+    <Compile Include="Extreme.Net\~Proxy\ProxyType.cs" />
+    <Compile Include="Extreme.Net\~Proxy\ProxyException.cs" />
+    <Compile Include="Extreme.Net\~Internal\ProxyHelper.cs" />
+    <Compile Include="Extreme.Net\~Internal\SafeNativeMethods.cs" />
+    <Compile Include="Extreme.Net\~Proxy\Socks4aProxyClient.cs" />
+    <Compile Include="Extreme.Net\~Proxy\Socks4ProxyClient.cs" />
+    <Compile Include="Extreme.Net\~Proxy\Socks5ProxyClient.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
