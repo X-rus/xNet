@@ -7,11 +7,11 @@ using System.Resources;
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
 [assembly: AssemblyTitle("Extreme.Net")]
-[assembly: AssemblyDescription("https://github.com/X-rus/Extreme.Net")]
+[assembly: AssemblyDescription("https://github.com/extremecodetv/eXtremeNet")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Ruslan Khuduev")]
+[assembly: AssemblyCompany("ExtremCodeTv")]
 [assembly: AssemblyProduct("Extreme.Net")]
-[assembly: AssemblyCopyright("Copyright © 2012-2016 Ruslan Khuduev <x-rus@list.ru>")]
+[assembly: AssemblyCopyright("Copyright © 2016 ExtremeCodeTv")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Resources;
 // Можно задать все значения или принять номер построения и номер редакции по умолчанию, 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.3.3.0")]
-[assembly: AssemblyFileVersion("3.3.3.0")]
-[assembly: NeutralResourcesLanguageAttribute("ru")]
+[assembly: AssemblyVersion("1.0.7.0")]
+[assembly: AssemblyFileVersion("1.0.7.0")]
+[assembly: NeutralResourcesLanguage("en")]
