@@ -10,6 +10,7 @@ using System.Security;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Extreme.Net
 {
@@ -947,6 +948,23 @@ namespace Extreme.Net
             return Raw(HttpMethod.GET, address);
         }
 
+        public async Task<HttpResponse> GetAsync(string address, RequestParams urlParams = null)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Get(address, urlParams);
+            });
+
+            return await task;
+        }
+
+        public async Task<HttpResponse> GetAsync(Uri address, RequestParams urlParams = null)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Get(address, urlParams);
+            });
+
+            return await task;
+        }
         #endregion
 
         #region Post
@@ -964,6 +982,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address);
         }
 
+        public async Task<HttpResponse> PostAsync(string address)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -974,6 +1001,15 @@ namespace Extreme.Net
         public HttpResponse Post(Uri address)
         {
             return Raw(HttpMethod.POST, address);
+        }
+
+        public async Task<HttpResponse> PostAsync(Uri address)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address);
+            });
+
+            return await task;
         }
 
         /// <summary>
@@ -1004,6 +1040,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, new FormUrlEncodedContent(reqParams, dontEscape, CharacterSet));
         }
 
+        public async Task<HttpResponse> PostAsync(string address, RequestParams reqParams, bool dontEscape = false)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, reqParams, dontEscape);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1029,6 +1074,15 @@ namespace Extreme.Net
             #endregion
 
             return Raw(HttpMethod.POST, address, new FormUrlEncodedContent(reqParams, dontEscape, CharacterSet));
+        }
+
+        public async Task<HttpResponse> PostAsync(Uri address, RequestParams reqParams, bool dontEscape = false)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, reqParams, dontEscape);
+            });
+
+            return await task;
         }
 
         /// <summary>
@@ -1087,6 +1141,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, content);
         }
 
+        public async Task<HttpResponse> PostAsync(string address, string str, string contentType)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, str, contentType);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1141,6 +1204,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, content);
         }
 
+        public async Task<HttpResponse> PostAsync(Uri address, string str, string contentType)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, str, contentType);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1190,6 +1262,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, content);
         }
 
+        public async Task<HttpResponse> PostAsync(string address, byte[] bytes, string contentType = "application/octet-stream")
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, bytes, contentType);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1233,6 +1314,15 @@ namespace Extreme.Net
             };
 
             return Raw(HttpMethod.POST, address, content);
+        }
+
+        public async Task<HttpResponse> PostAsync(Uri address, byte[] bytes, string contentType = "application/octet-stream")
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, bytes, contentType);
+            });
+
+            return await task;
         }
 
         /// <summary>
@@ -1284,6 +1374,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, content);
         }
 
+        public async Task<HttpResponse> PostAsync(string address, Stream stream, string contentType = "application/octet-stream")
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, stream, contentType);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1329,6 +1428,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, content);
         }
 
+        public async Task<HttpResponse> PostAsync(Uri address, Stream stream, string contentType = "application/octet-stream")
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, stream, contentType);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1365,6 +1473,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, new FileContent(path));
         }
 
+        public async Task<HttpResponse> PostAsync(string address, string path)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, path);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1397,6 +1514,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, new FileContent(path));
         }
 
+        public async Task<HttpResponse> PostAsync(Uri address, string path)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, path);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1424,6 +1550,15 @@ namespace Extreme.Net
             return Raw(HttpMethod.POST, address, content);
         }
 
+        public async Task<HttpResponse> PostAsync(string address, HttpContent content)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, content);
+            });
+
+            return await task;
+        }
+
         /// <summary>
         /// Отправляет POST-запрос HTTP-серверу.
         /// </summary>
@@ -1448,6 +1583,15 @@ namespace Extreme.Net
             #endregion
 
             return Raw(HttpMethod.POST, address, content);
+        }
+
+        public async Task<HttpResponse> PostAsync(Uri address, HttpContent content)
+        {
+            var task = new Task<HttpResponse>(() => {
+                return this.Post(address, content);
+            });
+
+            return await task;
         }
 
         #endregion
