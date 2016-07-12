@@ -53,9 +53,7 @@ using (var request = new HttpRequest("http://site.com/"))
 
 #Authors
 
-Nikolay Desyatkov 
-
-Artem Dontsov
+ExtremeCodeTV: Nikolay Desyatkov, Artem Dontsov
 
 ![VK](https://vk.com/images/faviconnew.ico?3) [VK](https://vk.com/extremecodetv)
 
