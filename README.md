@@ -9,6 +9,7 @@
 
 **eXtremeNet** its a fork of [xNet](https://github.com/X-rus/xNet)
 
+
 # Installation
  
 Install via NuGet
@@ -49,3 +50,11 @@ using (var request = new HttpRequest("http://site.com/"))
     request.Post("/").None();
 }
 ```
+
+#Authors
+
+**ExtremeCodeTV:** Nikolay Desyatkov, Artem Dontsov
+
+![VK](https://vk.com/images/faviconnew.ico?3) [VK](https://vk.com/extremecodetv)
+
+![YouTube](https://s.ytimg.com/yts/img/favicon-vflz7uhzw.ico) [YouTube](https://www.youtube.com/channel/UCBNlINWfd08qgDkUTaUY4_w)
