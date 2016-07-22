@@ -954,6 +954,8 @@ namespace Extreme.Net
                 return this.Get(address, urlParams);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -962,6 +964,8 @@ namespace Extreme.Net
             var task = new Task<HttpResponse>(() => {
                 return this.Get(address, urlParams);
             });
+
+            task.Start();
 
             return await task;
         }
@@ -988,6 +992,8 @@ namespace Extreme.Net
                 return this.Post(address);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1008,6 +1014,8 @@ namespace Extreme.Net
             var task = new Task<HttpResponse>(() => {
                 return this.Post(address);
             });
+
+            task.Start();
 
             return await task;
         }
@@ -1046,6 +1054,8 @@ namespace Extreme.Net
                 return this.Post(address, reqParams, dontEscape);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1081,6 +1091,8 @@ namespace Extreme.Net
             var task = new Task<HttpResponse>(() => {
                 return this.Post(address, reqParams, dontEscape);
             });
+
+            task.Start();
 
             return await task;
         }
@@ -1147,6 +1159,8 @@ namespace Extreme.Net
                 return this.Post(address, str, contentType);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1210,6 +1224,8 @@ namespace Extreme.Net
                 return this.Post(address, str, contentType);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1268,6 +1284,8 @@ namespace Extreme.Net
                 return this.Post(address, bytes, contentType);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1321,6 +1339,8 @@ namespace Extreme.Net
             var task = new Task<HttpResponse>(() => {
                 return this.Post(address, bytes, contentType);
             });
+            
+            task.Start();
 
             return await task;
         }
@@ -1380,6 +1400,8 @@ namespace Extreme.Net
                 return this.Post(address, stream, contentType);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1434,6 +1456,8 @@ namespace Extreme.Net
                 return this.Post(address, stream, contentType);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1479,6 +1503,8 @@ namespace Extreme.Net
                 return this.Post(address, path);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1520,6 +1546,8 @@ namespace Extreme.Net
                 return this.Post(address, path);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1556,6 +1584,8 @@ namespace Extreme.Net
                 return this.Post(address, content);
             });
 
+            task.Start();
+
             return await task;
         }
 
@@ -1590,6 +1620,8 @@ namespace Extreme.Net
             var task = new Task<HttpResponse>(() => {
                 return this.Post(address, content);
             });
+
+            task.Start();
 
             return await task;
         }
