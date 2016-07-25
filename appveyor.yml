@@ -20,3 +20,9 @@ deploy:
   api_key:
     secure: XDyu2Wr5aDX3OW1GTJTSIq2y5wq5q8OFX9gJEHiRdwHGmCKNki/fI0vREBq1zYWR
   artifact: /.*\.nupkg/
+
+assembly_info:
+  patch: true
+  file: MyVersion.cs
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
