@@ -23,6 +23,6 @@ deploy:
 
 assembly_info:
   patch: true
-  file: MyVersion.cs
+  file: AssemblyInfo.cs
   assembly_version: '{version}'
   assembly_file_version: '{version}'
