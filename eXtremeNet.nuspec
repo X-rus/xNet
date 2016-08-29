@@ -3,10 +3,10 @@
     <metadata>
         <id>eXtremeNet</id>
         <version>$APPVEYOR_BUILD_VERSION$</version>
-        <title>eXtremeNet - Http Class Library</title>
-        <authors>ExtremeCodeTv</authors>
+        <title>Extreme.Net - Http Class Library</title>
+        <authors>Artem Dontsov</authors>
         <owners>ExtremeCodeTv</owners>
-        <projectUrl>https://github.com/extremecodetv/eXtremeNet</projectUrl>
+        <projectUrl>https://github.com/extremecodetv/Extreme.Net/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Http class library with support Http/Socks4/Socks5 proxy
 
