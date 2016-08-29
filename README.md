@@ -1,9 +1,9 @@
-# eXtremeNet
+# Extreme.Net
 
 [![AppVeyor branch](https://img.shields.io/appveyor/ci/gruntjs/grunt/master.svg?maxAge=2592000)](https://ci.appveyor.com/project/extremecodetv/extremenet)
 [![NuGet version](https://badge.fury.io/nu/eXtremeNet.svg)](https://badge.fury.io/nu/eXtremeNet)
 
-**eXtremeNet** - http class library for C# which includes:
+**Extreme.Net** - http class library for C# which includes:
  * Classes for work with proxy servers: HTTP, Socks4(a), Socks5, Chain.
  * Classes for work with HTTP 1.0/1.1 protocol: keep-alive, gzip, deflate, chunked, SSL, proxies and more.
 
@@ -15,7 +15,7 @@
 Install via NuGet
  
 ```
-PM > Install-Package eXtremeNet
+PM > Install-Package Extreme.Net
 ```
  
 # Example
@@ -51,9 +51,9 @@ using (var request = new HttpRequest("http://site.com/"))
 }
 ```
 
-#Authors
+#Developer
 
-**ExtremeCodeTV:** Nikolay Desyatkov, Artem Dontsov
+Artem Dontsov
 
 ![VK](https://vk.com/images/faviconnew.ico?3) [VK](https://vk.com/extremecodetv)
 
