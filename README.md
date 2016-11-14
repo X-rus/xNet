@@ -17,7 +17,7 @@ Install via NuGet
 PM > Install-Package Extreme.Net
 ```
  
-# Example
+# Examples
  
 ```csharp
 HttpRequest request = new HttpRequest();
@@ -26,7 +26,8 @@ HttpResponse response;
 response = await request.GetAsync("http://site.com");
 
 ``` 
- 
+
+## Another one
 ```csharp 
 using (var request = new HttpRequest("http://site.com/"))
 {
