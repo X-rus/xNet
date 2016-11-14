@@ -1,6 +1,6 @@
 # Extreme.Net
 
-[![NuGet version](https://badge.fury.io/nu/eXtremeNet.svg)](https://badge.fury.io/nu/eXtremeNet)
+[![NuGet version](https://badge.fury.io/nu/Extreme.Net.svg)](https://badge.fury.io/nu/Extreme.Net)
 
 **Extreme.Net** - http class library for C# which includes:
  * Classes for work with proxy servers: HTTP, Socks4(a), Socks5, Chain.
