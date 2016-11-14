@@ -1,4 +1,4 @@
-Copyright © ExtremeKit 2016 Artem Dontsov, Nikolay Desyatkov, ExtremeCodeTV
+Copyright © 2016 Artem Dontsov
 
 Orignal software provided by Ruslan Khuduev <x-rus@list.ru>
 

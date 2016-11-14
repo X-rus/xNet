@@ -950,24 +950,17 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> GetAsync(string address, RequestParams urlParams = null)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Get(address, urlParams);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         public async Task<HttpResponse> GetAsync(Uri address, RequestParams urlParams = null)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() =>
+            {
                 return this.Get(address, urlParams);
             });
-
-            task.Start();
-
-            return await task;
         }
         #endregion
 
@@ -988,13 +981,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(string address)
         {
-            var task = new Task<HttpResponse>(() => {
-                return this.Post(address);
-            });
-
-            task.Start();
-
-            return await task;
+           return await Task.Run(() => {
+               return this.Post(address);
+           });
         }
 
         /// <summary>
@@ -1011,13 +1000,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(Uri address)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1050,13 +1035,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(string address, RequestParams reqParams, bool dontEscape = false)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, reqParams, dontEscape);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1088,13 +1069,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(Uri address, RequestParams reqParams, bool dontEscape = false)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, reqParams, dontEscape);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1155,13 +1132,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(string address, string str, string contentType)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, str, contentType);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1220,13 +1193,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(Uri address, string str, string contentType)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, str, contentType);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1280,13 +1249,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(string address, byte[] bytes, string contentType = "application/octet-stream")
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, bytes, contentType);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1336,13 +1301,10 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(Uri address, byte[] bytes, string contentType = "application/octet-stream")
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() =>
+            {
                 return this.Post(address, bytes, contentType);
             });
-            
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1396,13 +1358,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(string address, Stream stream, string contentType = "application/octet-stream")
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, stream, contentType);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1452,13 +1410,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(Uri address, Stream stream, string contentType = "application/octet-stream")
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, stream, contentType);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1499,13 +1453,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(string address, string path)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, path);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1542,13 +1492,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(Uri address, string path)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, path);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1580,13 +1526,9 @@ namespace Extreme.Net
 
         public async Task<HttpResponse> PostAsync(string address, HttpContent content)
         {
-            var task = new Task<HttpResponse>(() => {
+            return await Task.Run(() => {
                 return this.Post(address, content);
             });
-
-            task.Start();
-
-            return await task;
         }
 
         /// <summary>
@@ -1616,14 +1558,10 @@ namespace Extreme.Net
         }
 
         public async Task<HttpResponse> PostAsync(Uri address, HttpContent content)
-        {
-            var task = new Task<HttpResponse>(() => {
+        {        
+            return await Task.Run(() => {
                 return this.Post(address, content);
-            });
-
-            task.Start();
-
-            return await task;
+            }); 
         }
 
         #endregion
