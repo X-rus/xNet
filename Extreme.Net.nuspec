@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>eXtremeNet</id>
+        <version>$APPVEYOR_BUILD_VERSION$</version>
+        <title>Extreme.Net - Http Class Library</title>
+        <authors>Artem Dontsov</authors>
+        <owners>ExtremeCodeTv</owners>
+        <projectUrl>https://github.com/extremecodetv/Extreme.Net/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Http class library with support Http/Socks4/Socks5 proxy
+
+Includes:
+ - Classes for work with proxy servers: HTTP, Socks4(a), Socks5, Chain.
+ - Classes for work with HTTP 1.0/1.1 protocol: keep-alive, gzip, deflate, chunked, SSL, proxies and more.</description>
+    </metadata>
+    <files>
+        <file src="bin\Debug\eXtremeNet.dll" target="lib\eXtremeNet.dll" />
+    </files>
+</package>

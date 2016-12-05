@@ -6,12 +6,12 @@ using System.Resources;
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("xNet")]
-[assembly: AssemblyDescription("https://github.com/X-rus/xNet")]
+[assembly: AssemblyTitle("Extreme.Net")]
+[assembly: AssemblyDescription("https://github.com/extremecodetv/Extreme.Net")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Ruslan Khuduev")]
-[assembly: AssemblyProduct("xNet")]
-[assembly: AssemblyCopyright("Copyright © 2012-2016 Ruslan Khuduev <x-rus@list.ru>")]
+[assembly: AssemblyCompany("ExtremCodeTv")]
+[assembly: AssemblyProduct("Extreme.Net")]
+[assembly: AssemblyCopyright("Copyright © 2016 ExtremeCodeTv")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Resources;
 // Можно задать все значения или принять номер построения и номер редакции по умолчанию, 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.3.3.0")]
-[assembly: AssemblyFileVersion("3.3.3.0")]
-[assembly: NeutralResourcesLanguageAttribute("ru")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: NeutralResourcesLanguage("en")]
