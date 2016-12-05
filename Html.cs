@@ -170,6 +170,21 @@ namespace Extreme.Net
         {
             return Substring(str, left, 0, comparsion);
         }
+        /// <summary>
+        /// Удаляет из строки Steam Items спец. символы
+        /// </summary>
+        /// <param name="str">Строка с именем вещи</param>
+        /// <returns>Строка с именем вещи без спец. символов</returns>
+        public static string ClearSteamSpecialChars(this string str)
+        {
+            string[] symbols = new string[] { "™", "★", "☆", "\u2605", @"\u2605", @"\u2122", "\u2122", "★" };
+
+            foreach (string symbol in symbols)
+            {
+                str = str.Replace(symbol, "");
+            }
+            return str;
+        }
 
         /// <summary>
         /// Извлекает подстроку из строки. Подстрока ищется между двумя заданными строками, начиная с заданной позиции.
