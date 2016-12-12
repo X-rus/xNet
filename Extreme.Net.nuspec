@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>eXtremeNet</id>
+        <id>Extreme.Net</id>
         <version>$APPVEYOR_BUILD_VERSION$</version>
         <title>Extreme.Net - Http Class Library</title>
         <authors>Artem Dontsov</authors>
@@ -15,6 +15,6 @@ Includes:
  - Classes for work with HTTP 1.0/1.1 protocol: keep-alive, gzip, deflate, chunked, SSL, proxies and more.</description>
     </metadata>
     <files>
-        <file src="bin\Debug\eXtremeNet.dll" target="lib\eXtremeNet.dll" />
+        <file src="bin\Debug\Extreme.Net.dll" target="lib\Extreme.Net.dll" />
     </files>
 </package>
