@@ -1,19 +1,38 @@
-* PL: C#
-* Version .NET: 4.0 Client Profile
+# Extreme.Net
 
-xNet - a class library for .NET Framework which includes:
-* Classes for work with proxy servers: _HTTP, Socks4(a), Socks5, Chain_.
-* Classes for work with *HTTP 1.0/1.1* protocol: _keep-alive, gzip, deflate, chunked, SSL, proxies and more_.
+[![NuGet version](https://badge.fury.io/nu/Extreme.Net.svg)](https://badge.fury.io/nu/Extreme.Net)
 
-Подробное описание на русском: http://habrahabr.ru/post/146475/ <br />
-Если вы хотите поблагодарить автора: R284554004163 (WebMoney)
+**Extreme.Net** - http class library for C# which includes:
+ * Classes for work with proxy servers: HTTP, Socks4(a), Socks5, Chain.
+ * Classes for work with HTTP 1.0/1.1 protocol: keep-alive, gzip, deflate, chunked, SSL, proxies and more.
 
-Example:
-<pre>
+**Extreme.Net** its a fork of [xNet](https://github.com/X-rus/xNet)
+
+
+# Installation
+ 
+Install via NuGet
+ 
+```
+PM > Install-Package Extreme.Net
+```
+ 
+# Examples
+ 
+```csharp
+HttpRequest request = new HttpRequest();
+HttpResponse response;
+
+response = await request.GetAsync("http://site.com");
+
+``` 
+
+### Another one
+```csharp 
 using (var request = new HttpRequest("http://site.com/"))
 {
     request.UserAgent = Http.ChromeUserAgent();
-	request.Proxy = Socks5ProxyClient.Parse("127.0.0.1:1080");
+    request.Proxy = Socks5ProxyClient.Parse("127.0.0.1:1080");
 
     request
         // Parameters URL-address.
@@ -31,11 +50,19 @@ using (var request = new HttpRequest("http://site.com/"))
 
         // HTTP-header.
         .AddHeader("X-Apocalypse", "21.12.12");
-		
+        
     // These parameters are sent in this request.
     request.Post("/").None();
 
     // But in this request they will be gone.
     request.Post("/").None();
 }
-</pre>
+```
+
+#Developer
+
+Artem Dontsov
+
+![VK](https://vk.com/images/faviconnew.ico?3) [VK](https://vk.com/extremecodetv)
+
+![YouTube](https://s.ytimg.com/yts/img/favicon-vflz7uhzw.ico) [YouTube](https://www.youtube.com/channel/UCBNlINWfd08qgDkUTaUY4_w)
