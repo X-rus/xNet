@@ -8,6 +8,7 @@ using System.Threading;
 
 namespace xNet
 {
+    [System.Diagnostics.DebuggerDisplay("{" + nameof(ToDebuggerString) + "()}")]
     /// <summary>
     /// Представляет класс, предназначеннный для загрузки ответа от HTTP-сервера.
     /// </summary>
@@ -1769,6 +1770,11 @@ namespace xNet
                 HttpExceptionStatus.ReceiveFailure, HttpStatusCode.None, innerException);
         }
 
+        private string ToDebuggerString()
+        {
+            return
+                $"Status Code: {(int)StatusCode}; Reason Phrase: '{StatusCode.ToString()}'; Content Type: '{ContentType}'";
+        }
         #endregion
     }
 }
