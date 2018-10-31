@@ -51,6 +51,11 @@ namespace xNet
         UnsupportedMediaType = 415,
         RequestedRangeNotSatisfiable = 416,
         ExpectationFailed = 417,
+        UpgradeRequired = 426,
+        PreconditionRequired = 428,
+        TooManyRequests = 429,
+        RequestHeaderFieldsTooLarge = 431,
+        UnavailableForLegalReasons = 451,
 
         InternalServerError = 500,
         NotImplemented = 501,
@@ -58,5 +63,6 @@ namespace xNet
         ServiceUnavailable = 503,
         GatewayTimeout = 504,
         HttpVersionNotSupported = 505,
+        NetworkAuthenticationRequired = 511,
     }
 }
